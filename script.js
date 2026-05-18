@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 7. ANTI-TAMPERING & MUTATION OBSERVER (XSS & EXTENSION HIJACK PROTECTION)
   // Bu skript yuklab olish tugmalarini kuzatib turadi. Agar biron bir zararli kengaytma yoki XSS skript 
   // bot havolasini o'zgartirishga urinsa, zudlik bilan ulanishni to'xtatadi va qayta tiklaydi.
-  const OFFICIAL_BOT_URL = "https://t.me/sergak_security_bot";
+  const OFFICIAL_BOT_URL = "https://t.me/sergakaibot";
   const btnPlay = document.getElementById('btnGooglePlay');
   const btnApk = document.getElementById('btnApkDownload');
 
