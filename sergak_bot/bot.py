@@ -592,6 +592,53 @@ def main():
                 "anti-hijack tekshiruvi o'chirilgan."
             )
 
+        # Web server (Keep-alive va Render port verification)
+        port = int(os.getenv("PORT", "8000"))
+        from aiohttp import web
+        
+        async def handle_health(request):
+            return web.json_response({"status": "alive", "timestamp": datetime.now().isoformat()})
+            
+        web_app = web.Application()
+        web_app.router.add_get("/", handle_health)
+        web_app.router.add_get("/health", handle_health)
+        
+        runner = web.AppRunner(web_app)
+        await runner.setup()
+        site = web.TCPSite(runner, "0.0.0.0", port)
+        await site.start()
+        logger.info(f"🌐 Web Server (Health Check) started on port {port}")
+
+        # Keep alive loop task
+        async def keep_alive_loop():
+            app_url = os.getenv("RENDER_EXTERNAL_URL") or os.getenv("APP_URL")
+            if not app_url:
+                logger.warning("⚠️ RENDER_EXTERNAL_URL yoki APP_URL .env da topilmadi. O'z-o'zini ping qilish (Keep alive) o'chirildi.")
+                return
+                
+            if not app_url.startswith("http"):
+                app_url = f"https://{app_url}"
+                
+            logger.info(f"🔄 Keep Alive faollashtirildi! Ping yuboriladigan manzil: {app_url}")
+            
+            import aiohttp
+            # Kutamiz server to'liq ishga tushishini
+            await asyncio.sleep(5)
+            
+            async with aiohttp.ClientSession() as session:
+                while True:
+                    try:
+                        async with session.get(app_url, timeout=10) as response:
+                            if response.status == 200:
+                                logger.info(f"💓 Keep-alive ping muvaffaqiyatli: {app_url} -> 200 OK")
+                            else:
+                                logger.warning(f"💔 Keep-alive ping kutilmagan status: {response.status}")
+                    except Exception as e:
+                        logger.error(f"💔 Keep-alive ping xatosi: {e}")
+                    await asyncio.sleep(10) # Har 10 soniyada o'zini ping qilish
+
+        asyncio.create_task(keep_alive_loop())
+
     app.post_init = post_init
 
     logger.info("✅ Bot muvaffaqiyatli ishga tushdi. Ctrl+C bilan to'xtatish.")
