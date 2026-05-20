@@ -181,7 +181,7 @@ Bu bot *SERGAK* loyihasi uchun mo'ljallangan rasmiy yuklab olish va boshqarish k
 def get_main_keyboard(user_id: int) -> ReplyKeyboardMarkup:
     """Foydalanuvchi turiga qarab menyu qaytaradi."""
     keyboard = [
-        [KeyboardButton("📱 APK Yuklab Olish"), KeyboardButton("🌐 Veb-Sayt Yuklab Olish")],
+        [KeyboardButton("📱 APK Yuklab Olish"), KeyboardButton("🌐 Veb-Saytga O'tish")],
         [KeyboardButton("ℹ️ Bot Haqida")]
     ]
     if user_id == ADMIN_ID:
@@ -294,7 +294,7 @@ async def handle_menu_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if text == "📱 APK Yuklab Olish":
         await send_apk(update, user_id)
-    elif text == "🌐 Veb-Sayt Yuklab Olish":
+    elif text == "🌐 Veb-Saytga O'tish":
         await send_website(update, user_id)
     elif text == "ℹ️ Bot Haqida":
         await send_about(update)
