@@ -218,14 +218,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Bu skript yuklab olish tugmalarini kuzatib turadi. Agar biron bir zararli kengaytma yoki XSS skript 
   // bot havolasini o'zgartirishga urinsa, zudlik bilan ulanishni to'xtatadi va qayta tiklaydi.
   const OFFICIAL_BOT_URL = "https://t.me/sergakaibot";
-  const btnPlay = document.getElementById('btnGooglePlay');
   const btnApk = document.getElementById('btnApkDownload');
 
   function enforceSecurity() {
-    if (btnPlay && btnPlay.getAttribute('href') !== OFFICIAL_BOT_URL) {
-      console.warn("⚠️ [SECURITY ALERT] Google Play link modification detected! Restoring original.");
-      btnPlay.setAttribute('href', OFFICIAL_BOT_URL);
-    }
     if (btnApk && btnApk.getAttribute('href') !== OFFICIAL_BOT_URL) {
       console.warn("⚠️ [SECURITY ALERT] Telegram Bot link modification detected! Restoring original.");
       btnApk.setAttribute('href', OFFICIAL_BOT_URL);
@@ -262,7 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  if (btnPlay) btnPlay.addEventListener('click', handleSecureRedirect);
   if (btnApk) btnApk.addEventListener('click', handleSecureRedirect);
 
   // Pre-load the first scan simulation as feedback for user
