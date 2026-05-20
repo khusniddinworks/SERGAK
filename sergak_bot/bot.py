@@ -22,13 +22,17 @@ import io
 import zipfile
 import logging
 import asyncio
+import base64
+import hmac
+import hashlib
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
 from telegram import (
     Update,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
+    ReplyKeyboardMarkup,
+    KeyboardButton,
     BotCommand,
 )
 from telegram.ext import (
@@ -163,7 +167,9 @@ def build_website_zip() -> bytes | None:
 WELCOME_MSG = """
 🛡️ *SERGAK xavfsiz yuklab olish botiga xush kelibsiz!*
 
-Bu bot faqat *SERGAK* loyihasi uchun mo'ljallangan rasmiy yuklab olish kanalikdir.
+Bu bot *SERGAK* loyihasi uchun mo'ljallangan rasmiy yuklab olish va boshqarish kanalikdir.
+
+🌐 *Rasmiy veb-sayt:* https://sergak.netlify.app/
 
 📱 *Nima yuklab olishingiz mumkin:*
 • `APK` — Android ilovasi
@@ -172,15 +178,16 @@ Bu bot faqat *SERGAK* loyihasi uchun mo'ljallangan rasmiy yuklab olish kanalikdi
 ⚠️ *Diqqat:* Bu bot faqat ruxsatli foydalanuvchilar uchun.
 """
 
-MAIN_KEYBOARD = InlineKeyboardMarkup([
-    [
-        InlineKeyboardButton("📱 APK Yuklab Olish",     callback_data="dl_apk"),
-        InlineKeyboardButton("🌐 Veb-Sayt Yuklab Olish", callback_data="dl_website"),
-    ],
-    [
-        InlineKeyboardButton("ℹ️ Bot Haqida", callback_data="about"),
+def get_main_keyboard(user_id: int) -> ReplyKeyboardMarkup:
+    """Foydalanuvchi turiga qarab menyu qaytaradi."""
+    keyboard = [
+        [KeyboardButton("📱 APK Yuklab Olish"), KeyboardButton("🌐 Veb-Sayt Yuklab Olish")],
+        [KeyboardButton("ℹ️ Bot Haqida")]
     ]
-])
+    if user_id == ADMIN_ID:
+        keyboard.append([KeyboardButton("📊 Holat (Admin)"), KeyboardButton("🛠 Admin Panel")])
+    
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 
 # ─────────────────────────────────────────────
@@ -193,10 +200,32 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     logger.info(f"/start — user_id={user.id}, name={user.full_name}")
 
+    # Agar foydalanuvchi Premium sotib olish uchun ilovadan deep link orqali kelgan bo'lsa
+    if context.args and context.args[0].startswith("premium_"):
+        parts = context.args[0].split("_")
+        if len(parts) >= 3:
+            device_id = parts[1]
+            plan = parts[2]
+            
+            price = "25.000 so'm (3 oy)" if plan == "3month" else "85.000 so'm (1 yil)"
+            months = 3 if plan == "3month" else 12
+            
+            payment_msg = (
+                f"🌟 *SERGAK PREMIUM SOTIB OLISH*\n\n"
+                f"📱 *Qurilma ID:* `{device_id}`\n"
+                f"📦 *Tanlangan reja:* {price}\n\n"
+                f"💳 *To'lov qilish uchun Click/Payme raqami:*\n"
+                f"`8600 1234 5678 9012` (Xamidov X.)\n\n"
+                f"✅ To'lov qilganingizdan so'ng chekni (skrinshot) adminga yuboring "
+                f"va admin sizga Litsenziya Kalitini beradi!"
+            )
+            await update.message.reply_text(payment_msg, parse_mode="Markdown")
+            return
+
     await update.message.reply_text(
         WELCOME_MSG,
         parse_mode="Markdown",
-        reply_markup=MAIN_KEYBOARD
+        reply_markup=get_main_keyboard(user.id)
     )
 
 
@@ -250,134 +279,165 @@ async def cmd_verify(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(verify_text, parse_mode="Markdown")
 
 
-async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Inline tugmalar uchun handler."""
-    query = update.callback_query
-    await query.answer()
-
+async def handle_menu_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Pastki menyu (ReplyKeyboardMarkup) tugmalarini boshqarish."""
+    text = update.message.text
     user = update.effective_user
     user_id = user.id
 
-    # Rate limit tekshiruvi (barcha foydalanuvchilar uchun)
+    # Rate limit tekshiruvi
     if not rate_limiter.check(user_id):
         remaining = rate_limiter.remaining_ban(user_id)
-        ThreatLogger.log("RATE_LIMIT_CALLBACK", user_id=user_id)
-        await query.message.reply_text(
-            f"⛔ Juda tez! {remaining}s kuting."
-        )
+        ThreatLogger.log("RATE_LIMIT_TEXT", user_id=user_id)
+        await update.message.reply_text(f"⛔ Juda tez! {remaining}s kuting.")
         return
 
-    data = query.data
+    if text == "📱 APK Yuklab Olish":
+        await send_apk(update, user_id)
+    elif text == "🌐 Veb-Sayt Yuklab Olish":
+        await send_website(update, user_id)
+    elif text == "ℹ️ Bot Haqida":
+        await send_about(update)
+    elif text == "📊 Holat (Admin)":
+        await cmd_status(update, context)
+    elif text == "🛠 Admin Panel":
+        await send_admin_panel(update, user_id)
+    else:
+        # Boshqa matnlar bo'lsa
+        await handle_unknown(update, context)
 
-    # ── APK yuklab olish ──────────────────────
-    if data == "dl_apk":
-        logger.info(f"APK so'rovi — user_id={user_id}")
-        await query.message.reply_text("⏳ APK yuklanmoqda...")
 
-        # 1. Katta fayllarni File ID orqali tezkor yuborish (Admin yuklagan fayldan)
-        file_id_path = Path("apk_file_id.txt")
-        if file_id_path.exists():
-            try:
-                with open(file_id_path, "r", encoding="utf-8") as f:
-                    saved_file_id = f.read().strip()
-                if saved_file_id:
-                    await query.message.reply_document(
-                        document=saved_file_id,
-                        filename="SERGAK.apk",
-                        caption=(
-                            "📱 *SERGAK Android Ilovasi*\n"
-                            "✅ Rasmiy va xavfsiz versiya\n"
-                            "🛡️ Toʻliq oflayn rejimda ishlaydi"
-                        ),
-                        parse_mode="Markdown"
-                    )
-                    logger.info(f"APK File ID orqali yuborildi — user_id={user_id}")
-                    return
-            except Exception as e:
-                logger.error(f"File ID orqali yuborishda xato: {e}")
+async def send_apk(update: Update, user_id: int):
+    """APK yuborish mantiqi."""
+    logger.info(f"APK so'rovi — user_id={user_id}")
+    await update.message.reply_text("⏳ APK yuklanmoqda...")
 
-        # 2. Local Fallback (Agar File ID hali o'rnatilmagan bo'lsa)
-        if not APK_PATH.exists():
-            await query.message.reply_text(
-                "❌ APK yuklashda xato yoki fayl hali mavjud emas.\n"
-                "Tez orada loyiha ma'muri (Admin) yangi versiyani yuklaydi."
-            )
-            ThreatLogger.log("APK_NOT_FOUND", user_id=user_id)
-            return
-
+    file_id_path = Path("apk_file_id.txt")
+    if file_id_path.exists():
         try:
-            with open(APK_PATH, "rb") as f:
-                await query.message.reply_document(
-                    document=f,
-                    filename="SERGAK_v1.apk",
+            with open(file_id_path, "r", encoding="utf-8") as f:
+                saved_file_id = f.read().strip()
+            if saved_file_id:
+                await update.message.reply_document(
+                    document=saved_file_id,
+                    filename="SERGAK.apk",
                     caption=(
-                        "📱 *SERGAK Android Ilovasi (Fallback)*\n"
+                        "📱 *SERGAK Android Ilovasi*\n"
                         "✅ Rasmiy va xavfsiz versiya\n"
                         "🛡️ Toʻliq oflayn rejimda ishlaydi"
                     ),
                     parse_mode="Markdown"
                 )
-            logger.info(f"APK lokal fayldan yuborildi — user_id={user_id}")
+                logger.info(f"APK File ID orqali yuborildi — user_id={user_id}")
+                return
         except Exception as e:
-            logger.error(f"APK yuborishda xato: {e}")
-            await query.message.reply_text("❌ Xato yuz berdi. Qayta urinib ko'ring.")
+            logger.error(f"File ID orqali yuborishda xato: {e}")
 
-    # ── Website yuklab olish ──────────────────
-    elif data == "dl_website":
-        logger.info(f"Website so'rovi — user_id={user_id}")
-        await query.message.reply_text("⏳ Veb-sayt arxivlanmoqda...")
+    if not APK_PATH.exists():
+        await update.message.reply_text(
+            "❌ APK yuklashda xato yoki fayl hali mavjud emas.\n"
+            "Tez orada loyiha ma'muri (Admin) yangi versiyani yuklaydi."
+        )
+        ThreatLogger.log("APK_NOT_FOUND", user_id=user_id)
+        return
 
-        zip_data = build_website_zip()
-
-        if zip_data is None:
-            await query.message.reply_text(
-                "❌ Veb-sayt papkasi topilmadi."
-            )
-            ThreatLogger.log("WEBSITE_NOT_FOUND", user_id=user_id)
-            return
-
-        if len(zip_data) == 0:
-            await query.message.reply_text("❌ Veb-sayt bo'sh.")
-            return
-
-        try:
-            zip_buf = io.BytesIO(zip_data)
-            zip_buf.name = "SERGAK_Website.zip"
-            await query.message.reply_document(
-                document=zip_buf,
-                filename="SERGAK_Website.zip",
+    try:
+        with open(APK_PATH, "rb") as f:
+            await update.message.reply_document(
+                document=f,
+                filename="SERGAK_v1.apk",
                 caption=(
-                    "🌐 *SERGAK Veb-Sayt Arxivi*\n"
-                    "✅ Rasmiy va to'liq versiya\n"
-                    "📦 Barcha sahifalar, stil va skriptlar"
+                    "📱 *SERGAK Android Ilovasi (Fallback)*\n"
+                    "✅ Rasmiy va xavfsiz versiya\n"
+                    "🛡️ Toʻliq oflayn rejimda ishlaydi"
                 ),
                 parse_mode="Markdown"
             )
-            logger.info(f"Website ZIP yuborildi — user_id={user_id}, "
-                        f"size={len(zip_data)//1024}KB")
-        except Exception as e:
-            logger.error(f"Website yuborishda xato: {e}")
-            await query.message.reply_text("❌ Xato yuz berdi.")
+        logger.info(f"APK lokal fayldan yuborildi — user_id={user_id}")
+    except Exception as e:
+        logger.error(f"APK yuborishda xato: {e}")
+        await update.message.reply_text("❌ Xato yuz berdi. Qayta urinib ko'ring.")
 
-    # ── Bot haqida ────────────────────────────
-    elif data == "about":
-        about_text = (
-            "🛡️ *SERGAK Rasmiy Yuklab Olish Boti*\n\n"
-            "Bu bot SERGAK loyihasi tomonidan yaratilgan "
-            "rasmiy tarqatish kanalikdir.\n\n"
-            "🔐 *Xavfsizlik kafolatlari:*\n"
-            "• Barcha so'rovlar rate-limited (spamdan himoyalangan)\n"
-            "• Anti-hijack (token himoyasi) faol\n"
-            "• Veb-sayt kriptografik tasdiqlangan\n"
-            "• APK fayl to'g'ridan-to'g'ri Telegram serverlaridan keladi\n\n"
-            "🏫 *Loyiha:* TAFU, 2026\n"
-            "👤 *Asoschi:* Xamidov Xusniddin"
+
+async def send_website(update: Update, user_id: int):
+    """Veb-sayt yuborish mantiqi."""
+    logger.info(f"Website so'rovi — user_id={user_id}")
+    
+    # Send the live website link first!
+    await update.message.reply_text(
+        "🌐 *SERGAK Rasmiy Veb-Sayti:*\n👉 https://sergak.netlify.app/\n\n"
+        "⏳ _Pastda esa veb-saytning to'liq oflayn arxivini (ZIP formatida) yuklab olishingiz mumkin..._",
+        parse_mode="Markdown"
+    )
+
+    zip_data = build_website_zip()
+
+    if zip_data is None:
+        await update.message.reply_text("❌ Veb-sayt papkasi topilmadi.")
+        ThreatLogger.log("WEBSITE_NOT_FOUND", user_id=user_id)
+        return
+
+    if len(zip_data) == 0:
+        await update.message.reply_text("❌ Veb-sayt bo'sh.")
+        return
+
+    try:
+        zip_buf = io.BytesIO(zip_data)
+        zip_buf.name = "SERGAK_Website.zip"
+        await update.message.reply_document(
+            document=zip_buf,
+            filename="SERGAK_Website.zip",
+            caption=(
+                "🌐 *SERGAK Veb-Sayt Arxivi*\n"
+                "✅ Rasmiy va to'liq versiya\n"
+                "📦 Barcha sahifalar, stil va skriptlar"
+            ),
+            parse_mode="Markdown"
         )
-        await query.message.reply_text(about_text, parse_mode="Markdown")
+        logger.info(f"Website ZIP yuborildi — user_id={user_id}, size={len(zip_data)//1024}KB")
+    except Exception as e:
+        logger.error(f"Website yuborishda xato: {e}")
+        await update.message.reply_text("❌ Xato yuz berdi.")
 
-    # Noma'lum callback
-    else:
-        ThreatLogger.log("UNKNOWN_CALLBACK", user_id=user_id, extra=f"data={data}")
+
+async def send_about(update: Update):
+    """Bot haqida yuborish mantiqi."""
+    about_text = (
+        "🛡️ *SERGAK Rasmiy Yuklab Olish Boti*\n\n"
+        "Bu bot SERGAK loyihasi tomonidan yaratilgan "
+        "rasmiy tarqatish kanalikdir.\n\n"
+        "🔐 *Xavfsizlik kafolatlari:*\n"
+        "• Barcha so'rovlar rate-limited (spamdan himoyalangan)\n"
+        "• Anti-hijack (token himoyasi) faol\n"
+        "• Veb-sayt kriptografik tasdiqlangan\n"
+        "• APK fayl to'g'ridan-to'g'ri Telegram serverlaridan keladi\n\n"
+        "🏫 *Loyiha:* TAFU, 2026\n"
+        "👤 *Asoschi:* Xamidov Xusniddin"
+    )
+    await update.message.reply_text(about_text, parse_mode="Markdown")
+
+
+async def send_admin_panel(update: Update, user_id: int):
+    """Admin panel yo'riqnomasi."""
+    if user_id != ADMIN_ID:
+        ThreatLogger.log("UNAUTHORIZED_ADMIN_PANEL_ACCESS", user_id=user_id)
+        return
+        
+    admin_text = (
+        "🛠 *SERGAK Admin Paneli*\n\n"
+        "Sizda quyidagi maxsus imkoniyatlar mavjud:\n\n"
+        "1. 📊 *Holatni tekshirish:* Pastki menyudagi `📊 Holat (Admin)` tugmasi.\n\n"
+        "2. 🔑 *Premium Kalit Yasash:*\n"
+        "To'lov qilingandan so'ng xaridorga kalit yasab berish uchun quyidagicha yozing:\n"
+        "👉 `/premium <Device_ID> <Oylar_soni>`\n"
+        "_(Masalan: /premium SRGK-1234-5678 12)_\n\n"
+        "3. 📦 *Yangi APK yuklash:*\n"
+        "Ilova yangilanganda uni to'g'ridan-to'g'ri shu botga yuboring (fayl sifatida). "
+        "Bot uni qabul qiladi va barcha foydalanuvchilarga shuni yetkazadi."
+    )
+    await update.message.reply_text(admin_text, parse_mode="Markdown")
+
+
 
 
 async def handle_unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -436,6 +496,49 @@ async def handle_apk_upload(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Tizimli xato yuz berdi. File ID saqlanmadi.")
 
 
+@admin_only(rate_limiter, admin_guard)
+async def cmd_premium(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Admin uchun Premium kalit yasash buyrug'i.
+    Foydalanish: /premium <DEVICE_ID> <MONTHS>
+    Masalan: /premium SRGK-1234-5678 12
+    """
+    args = context.args
+    if len(args) != 2:
+        await update.message.reply_text("⚠️ Noto'g'ri format. Foydalanish: `/premium <DEVICE_ID> <OYLAR_SONI>`", parse_mode="Markdown")
+        return
+
+    device_id = args[0]
+    try:
+        months = int(args[1])
+    except ValueError:
+        await update.message.reply_text("⚠️ Oylar soni raqam bo'lishi kerak!")
+        return
+
+    # Kriptografik kalit yasash
+    expiry_date = datetime.utcnow() + timedelta(days=months * 30)
+    expiry_str = expiry_date.isoformat()
+    
+    secret_bytes = SECRET_KEY.encode('utf-8')
+    message_bytes = (device_id + expiry_str).encode('utf-8')
+    
+    digest = hmac.new(secret_bytes, message_bytes, hashlib.sha256).digest()
+    signature = base64.b64encode(digest).decode('utf-8')
+    
+    raw_key = f"{signature}|{expiry_str}"
+    final_key = base64.b64encode(raw_key.encode('utf-8')).decode('utf-8')
+
+    success_msg = (
+        f"✅ *LITSENZIYA KALITI TAYYOR*\n\n"
+        f"📱 *Device ID:* `{device_id}`\n"
+        f"📅 *Muddat:* {months} oy\n\n"
+        f"🔑 *Kalit (Ilovaga kiritish uchun):*\n"
+        f"`{final_key}`\n\n"
+        f"Ushbu kalitni xaridorga yuboring."
+    )
+    await update.message.reply_text(success_msg, parse_mode="Markdown")
+
+
 # ─────────────────────────────────────────────
 #  ASOSIY FUNKSIYA
 # ─────────────────────────────────────────────
@@ -450,8 +553,9 @@ def main():
     app.add_handler(CommandHandler("help",   cmd_help))
     app.add_handler(CommandHandler("status", cmd_status))
     app.add_handler(CommandHandler("verify", cmd_verify))
+    app.add_handler(CommandHandler("premium", cmd_premium))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_apk_upload))
-    app.add_handler(CallbackQueryHandler(callback_handler))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_menu_text))
     app.add_handler(MessageHandler(filters.COMMAND, handle_unknown))
 
     # Global xato handler
