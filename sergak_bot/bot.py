@@ -553,6 +553,7 @@ async def process_payment_screenshot(update: Update, context: ContextTypes.DEFAU
     """
     Foydalanuvchi yuborgan to'lov chekini (rasm yoki hujjat shaklida) adminga yo'naltiradi.
     """
+    import html
     user = update.effective_user
     
     # Agar admin o'zi rasm yuborsa
@@ -567,14 +568,17 @@ async def process_payment_screenshot(update: Update, context: ContextTypes.DEFAU
         parse_mode="Markdown"
     )
 
+    full_name_esc = html.escape(user.full_name)
+    username_esc = html.escape(user.username) if user.username else "yo'q"
+
     admin_msg = (
-        f"💰 *YANGI TO'LOV CHEKI (PREMIUM)*\n\n"
-        f"👤 *Foydalanuvchi:* {user.full_name}\n"
-        f"🆔 *User ID:* `{user.id}`\n"
-        f"🏷 *Username:* @{user.username if user.username else 'yoq'}\n\n"
-        f"🔑 *Kalit yaratish uchun buyruq:*\n"
-        f"`/premium <DEVICE_ID> <OYLAR_SONI>`\n"
-        f"_(Masalan: /premium DEVICE_ID 12)_"
+        f"💰 <b>YANGI TO'LOV CHEKI (PREMIUM)</b>\n\n"
+        f"👤 <b>Foydalanuvchi:</b> {full_name_esc}\n"
+        f"🆔 <b>User ID:</b> <code>{user.id}</code>\n"
+        f"🏷 <b>Username:</b> @{username_esc}\n\n"
+        f"🔑 <b>Kalit yaratish uchun buyruq:</b>\n"
+        f"<code>/premium DEVICE_ID OYLAR_SONI</code>\n"
+        f"<i>(Masalan: <code>/premium DEVICE_ID 12</code>)</i>"
     )
 
     try:
@@ -583,14 +587,14 @@ async def process_payment_screenshot(update: Update, context: ContextTypes.DEFAU
                 chat_id=ADMIN_ID,
                 photo=photo.file_id,
                 caption=admin_msg,
-                parse_mode="Markdown"
+                parse_mode="HTML"
             )
         elif document:
             await context.bot.send_document(
                 chat_id=ADMIN_ID,
                 document=document.file_id,
                 caption=admin_msg,
-                parse_mode="Markdown"
+                parse_mode="HTML"
             )
 
         logger.info(f"To'lov cheki adminga yuborildi: user_id={user.id}")
