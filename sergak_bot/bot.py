@@ -25,7 +25,7 @@ import asyncio
 import base64
 import hmac
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -75,7 +75,7 @@ load_dotenv()
 BOT_TOKEN: str      = os.getenv("BOT_TOKEN", "")
 ADMIN_ID: int       = int(os.getenv("ADMIN_ID", "0"))
 BOT_USERNAME: str   = os.getenv("BOT_USERNAME", "")   # @sergak_bot kabi
-SECRET_KEY: str     = os.getenv("SECRET_KEY", "default_secret_change_me")
+SECRET_KEY: str     = os.getenv("SECRET_KEY", "")
 APK_PATH: Path      = Path(os.getenv("APK_PATH", "../ai_ximoyachi/build/app/outputs/flutter-apk/app-release.apk"))
 WEBSITE_PATH: Path  = Path(os.getenv("WEBSITE_PATH", "../sergak_website"))
 
@@ -84,6 +84,9 @@ if not BOT_TOKEN or BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
 
 if ADMIN_ID == 0:
     raise SystemExit("❌ ADMIN_ID .env faylida sozlanmagan!")
+
+if not SECRET_KEY or SECRET_KEY == "default_secret_change_me":
+    raise SystemExit("❌ SECRET_KEY .env faylida sozlanmagan yoki o'zgartirilmagan!")
 
 # ─────────────────────────────────────────────
 #  XAVFSIZLIK OBYEKTLARI
@@ -182,7 +185,7 @@ def get_main_keyboard(user_id: int) -> ReplyKeyboardMarkup:
     """Foydalanuvchi turiga qarab menyu qaytaradi."""
     keyboard = [
         [KeyboardButton("📱 APK Yuklab Olish"), KeyboardButton("🌐 Veb-Saytga O'tish")],
-        [KeyboardButton("ℹ️ Bot Haqida")]
+        [KeyboardButton("ℹ️ Bot Haqida"), KeyboardButton("🌟 Premium Olish")]
     ]
     if user_id == ADMIN_ID:
         keyboard.append([KeyboardButton("📊 Holat (Admin)"), KeyboardButton("🛠 Admin Panel")])
@@ -210,12 +213,13 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             price = "25.000 so'm (3 oy)" if plan == "3month" else "85.000 so'm (1 yil)"
             months = 3 if plan == "3month" else 12
             
+            card_number = os.getenv("CARD_NUMBER", "8600 1234 5678 9012")
             payment_msg = (
                 f"🌟 *SERGAK PREMIUM SOTIB OLISH*\n\n"
                 f"📱 *Qurilma ID:* `{device_id}`\n"
                 f"📦 *Tanlangan reja:* {price}\n\n"
                 f"💳 *To'lov qilish uchun Click/Payme raqami:*\n"
-                f"`8600 1234 5678 9012` (Xamidov X.)\n\n"
+                f"`{card_number}` (Xamidov X.)\n\n"
                 f"✅ To'lov qilganingizdan so'ng chekni (skrinshot) adminga yuboring "
                 f"va admin sizga Litsenziya Kalitini beradi!"
             )
@@ -298,6 +302,8 @@ async def handle_menu_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await send_website(update, user_id)
     elif text == "ℹ️ Bot Haqida":
         await send_about(update)
+    elif text == "🌟 Premium Olish":
+        await send_premium_info(update, context)
     elif text == "📊 Holat (Admin)":
         await cmd_status(update, context)
     elif text == "🛠 Admin Panel":
@@ -417,6 +423,32 @@ async def send_about(update: Update):
     await update.message.reply_text(about_text, parse_mode="Markdown")
 
 
+async def send_premium_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Premium sotib olish haqida ma'lumot beradi."""
+    card_number = os.getenv("CARD_NUMBER", "8600 1234 5678 9012")
+    
+    premium_msg = (
+        f"🌟 *SERGAK PREMIUM HIMOYA*\n\n"
+        f"Premium tarifni faollashtirib, telefoningizni kiberxavflardan to'liq himoya qiling! "
+        f"Premium versiyadagi qo'shimcha imkoniyatlar:\n\n"
+        f"• 📵 *SMS Fraud Monitor* — SMS firibgarliklarni avtomatlashtirilgan oflayn AI tahlili.\n"
+        f"• 🔒 *AES-256 Maxfiy Seyf* — Barmoq izi bilan himoyalangan oflayn shifrlangan seyf.\n"
+        f"• 💬 *AI Kiber-maslahatchi* — Oflayn o'zbek tilidagi sun'iy intellekt chatbot yordamchisi.\n"
+        f"• 🔗 *Kiber Darvoza* — Fishing va soxta bank saytlarini to'liq bloklash.\n\n"
+        f"💰 *TARIFLAR:*\n"
+        f"📦 *3 oylik reja:* 25 000 so'm\n"
+        f"📦 *1 yillik reja:* 85 000 so'm (Tejamkor!)\n\n"
+        f"💳 *To'lov qilish uchun Click/Payme plastik karta raqami:*\n"
+        f"`{card_number}` (Xamidov X.)\n\n"
+        f"✅ *To'lovdan so'ng:* To'lov chekini (skrinshot) to'g'ridan-to'g'ri shu botga yuboring! "
+        f"Bot chekni adminga yuboradi va admin sizga Premium faollashtirish kalitini beradi.\n\n"
+        f"⚠️ *Eslatma:* Agar litsenziyani aniq qurilmangiz uchun faollashtirmoqchi bo'lsangiz, "
+        f"iltimos, SERGAK ilovasi ichidan 'Premium sotib olish' tugmasini bosing. U sizni shu botga "
+        f"maxsus ID bilan yo'naltiradi."
+    )
+    await update.message.reply_text(premium_msg, parse_mode="Markdown")
+
+
 async def send_admin_panel(update: Update, user_id: int):
     """Admin panel yo'riqnomasi."""
     if user_id != ADMIN_ID:
@@ -459,41 +491,124 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     ThreatLogger.log("UNHANDLED_ERROR", extra=str(context.error))
 
 
-@admin_only(rate_limiter, admin_guard)
-async def handle_apk_upload(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    Admin yangi APK yuborganida uning Telegram file_id sini olib saqlaydi.
-    Katta hajmdagi APK har safar serverdan yuklanmasdan, shunchaki Telegram
-    serverlaridan file_id orqali tezkor yuboriladi.
-    """
+@secure_handler(rate_limiter)
+async def handle_payment_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Foydalanuvchi to'lov cheki skrinshotini (rasm sifatida) yuborganda."""
+    if not update.message.photo:
+        return
+    await process_payment_screenshot(update, context, photo=update.message.photo[-1])
+
+
+@secure_handler(rate_limiter)
+async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Hujjatlar (APK va boshqa fayllar) yuklanganda."""
+    user = update.effective_user
     doc = update.message.document
-    if not doc.file_name.lower().endswith(".apk"):
+
+    if not doc or not doc.file_name:
+        return
+
+    # Agar bu .apk fayl bo'lsa (Faqat admin uchun)
+    if doc.file_name.lower().endswith(".apk"):
+        if not admin_guard.is_admin(user.id):
+            ThreatLogger.log("UNAUTHORIZED_APK_UPLOAD", user_id=user.id, extra=f"file={doc.file_name}")
+            await update.message.reply_text("🔒 APK yuklash faqat admin uchun ruxsat etilgan.")
+            return
+
+        file_id = doc.file_id
+        file_size_mb = doc.file_size / 1_048_576
+
+        try:
+            with open("apk_file_id.txt", "w", encoding="utf-8") as f:
+                f.write(file_id)
+            
+            logger.info(f"Admin yangi APK yukladi: file_id={file_id}, size={file_size_mb:.1f} MB")
+            
+            await update.message.reply_text(
+                "✅ *Yangi APK Muvaffaqiyatli Saqlandi!*\n\n"
+                f"📦 *Fayl nomi:* `{doc.file_name}`\n"
+                f"📊 *Hajmi:* `{file_size_mb:.1f} MB`\n"
+                f"🆔 *File ID:* `{file_id}`\n\n"
+                "Endi barcha foydalanuvchilar APK so'raganda ushbu fayl Telegram serverlaridan "
+                "lahzalar ichida (qayta yuklashlarsiz) yuboriladi!",
+                parse_mode="Markdown"
+            )
+        except Exception as e:
+            logger.error(f"APK file_id sini saqlashda xato: {e}")
+            await update.message.reply_text("❌ Tizimli xato yuz berdi. File ID saqlanmadi.")
+        return
+
+    # Agar bu to'lov cheki bo'lishi mumkin bo'lgan rasm yoki PDF fayl bo'lsa
+    is_image = any(doc.file_name.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".pdf"])
+    if is_image:
+        await process_payment_screenshot(update, context, document=doc)
+    else:
         await update.message.reply_text(
-            "⚠️ Iltimos, faqat `.apk` formatidagi Android ilova faylini yuboring."
+            "⚠️ Noma'lum fayl formati. Agar to'lov chekini yubormoqchi bo'lsangiz, "
+            "iltimos rasm (skrinshot) yoki PDF formatida yuboring."
+        )
+
+
+async def process_payment_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE, photo=None, document=None):
+    """
+    Foydalanuvchi yuborgan to'lov chekini (rasm yoki hujjat shaklida) adminga yo'naltiradi.
+    """
+    user = update.effective_user
+    
+    # Agar admin o'zi rasm yuborsa
+    if user.id == ADMIN_ID:
+        await update.message.reply_text(
+            "ℹ️ Siz ma'mursiz (Admin). Foydalanuvchilar to'lov chekini yuborganda u sizga keladi."
         )
         return
 
-    file_id = doc.file_id
-    file_size_mb = doc.file_size / 1_048_576
+    await update.message.reply_text(
+        "⏳ *To'lov chekingiz qabul qilinmoqda va tekshirish uchun adminga yuborilmoqda...*",
+        parse_mode="Markdown"
+    )
+
+    admin_msg = (
+        f"💰 *YANGI TO'LOV CHEKI (PREMIUM)*\n\n"
+        f"👤 *Foydalanuvchi:* {user.full_name}\n"
+        f"🆔 *User ID:* `{user.id}`\n"
+        f"🏷 *Username:* @{user.username if user.username else 'yoq'}\n\n"
+        f"🔑 *Kalit yaratish uchun buyruq:*\n"
+        f"`/premium <DEVICE_ID> <OYLAR_SONI>`\n"
+        f"_(Masalan: /premium DEVICE_ID 12)_"
+    )
 
     try:
-        with open("apk_file_id.txt", "w", encoding="utf-8") as f:
-            f.write(file_id)
-        
-        logger.info(f"Admin yangi APK yukladi: file_id={file_id}, size={file_size_mb:.1f} MB")
+        if photo:
+            await context.bot.send_photo(
+                chat_id=ADMIN_ID,
+                photo=photo.file_id,
+                caption=admin_msg,
+                parse_mode="Markdown"
+            )
+        elif document:
+            await context.bot.send_document(
+                chat_id=ADMIN_ID,
+                document=document.file_id,
+                caption=admin_msg,
+                parse_mode="Markdown"
+            )
+
+        logger.info(f"To'lov cheki adminga yuborildi: user_id={user.id}")
         
         await update.message.reply_text(
-            "✅ *Yangi APK Muvaffaqiyatli Saqlandi!*\n\n"
-            f"📦 *Fayl nomi:* `{doc.file_name}`\n"
-            f"📊 *Hajmi:* `{file_size_mb:.1f} MB`\n"
-            f"🆔 *File ID:* `{file_id}`\n\n"
-            "Endi barcha foydalanuvchilar APK so'raganda ushbu fayl Telegram serverlaridan "
-            "lahzalar ichida (qayta yuklashlarsiz) yuboriladi!",
+            "✅ *To'lov cheki tekshirish uchun qabul qilindi!*\n\n"
+            "Admin to'lovni tasdiqlaganidan so'ng, sizga Premium litsenziya kalitini yuboradi. "
+            "Iltimos, ozgina kuting. Rahmat!",
             parse_mode="Markdown"
         )
     except Exception as e:
-        logger.error(f"APK file_id sini saqlashda xato: {e}")
-        await update.message.reply_text("❌ Tizimli xato yuz berdi. File ID saqlanmadi.")
+        logger.error(f"To'lov chekini adminga yuborishda xato: {e}")
+        await update.message.reply_text(
+            "❌ *Xatolik yuz berdi.*\n"
+            "To'lov chekini adminga yetkazib bo'lmadi. Iltimos, keyinroq qayta urinib ko'ring yoki "
+            "tizim ma'muri bilan bog'laning.",
+            parse_mode="Markdown"
+        )
 
 
 @admin_only(rate_limiter, admin_guard)
@@ -516,7 +631,7 @@ async def cmd_premium(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # Kriptografik kalit yasash
-    expiry_date = datetime.utcnow() + timedelta(days=months * 30)
+    expiry_date = datetime.now(timezone.utc) + timedelta(days=months * 30)
     expiry_str = expiry_date.isoformat()
     
     secret_bytes = SECRET_KEY.encode('utf-8')
@@ -554,7 +669,8 @@ def main():
     app.add_handler(CommandHandler("status", cmd_status))
     app.add_handler(CommandHandler("verify", cmd_verify))
     app.add_handler(CommandHandler("premium", cmd_premium))
-    app.add_handler(MessageHandler(filters.Document.ALL, handle_apk_upload))
+    app.add_handler(MessageHandler(filters.PHOTO, handle_payment_photo))
+    app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_menu_text))
     app.add_handler(MessageHandler(filters.COMMAND, handle_unknown))
 
@@ -635,7 +751,7 @@ def main():
                                 logger.warning(f"💔 Keep-alive ping kutilmagan status: {response.status}")
                     except Exception as e:
                         logger.error(f"💔 Keep-alive ping xatosi: {e}")
-                    await asyncio.sleep(10) # Har 10 soniyada o'zini ping qilish
+                    await asyncio.sleep(300) # Har 5 daqiqada o'zini ping qilish (Render resurslarini tejash uchun)
 
         asyncio.create_task(keep_alive_loop())
 
