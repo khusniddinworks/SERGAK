@@ -9,6 +9,10 @@ import PhoneLink    from "./components/PhoneLink";
 import Settings     from "./components/Settings";
 import VulnScanner  from "./components/VulnScanner";
 import DataGuard    from "./components/DataGuard";
+import AiAssistant  from "./components/AiAssistant";
+import Quarantine   from "./components/Quarantine";
+import FsMonitor    from "./components/FsMonitor";
+import ProcessMonitor from "./components/ProcessMonitor";
 
 function App() {
   const [activeTab,   setActiveTab]   = useState("home");
@@ -20,6 +24,7 @@ function App() {
   const [moduleStates, setModuleStates] = useState({
     gateway: true, usb: true, camera: true, keylogger: true, honeypot: true,
   });
+  const [showOllamaModal, setShowOllamaModal] = useState(false);
 
   useEffect(() => {
     // 1. Load saved license
@@ -48,6 +53,17 @@ function App() {
         setRam(0);
       }
     }, 2000);
+
+    // 5. Check Ollama Installation
+    invoke("check_ollama_status")
+      .then(status => {
+        if (!status.is_installed) {
+          setShowOllamaModal(true);
+        } else if (!status.is_running) {
+          invoke("start_ollama_service");
+        }
+      })
+      .catch(() => {});
 
     return () => clearInterval(interval);
   }, []);
@@ -86,8 +102,16 @@ function App() {
         return <VulnScanner />;
       case "dataguard":
         return <DataGuard />;
+      case "fsmonitor":
+        return <FsMonitor />;
+      case "processes":
+        return <ProcessMonitor />;
       case "network":
         return <NetworkScanner />;
+      case "ai":
+        return <AiAssistant />;
+      case "quarantine":
+        return <Quarantine />;
       case "phone":
         return <PhoneLink />;
       case "settings":
@@ -109,6 +133,39 @@ function App() {
 
   return (
     <div className="app-container">
+      {showOllamaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#1a1f2e] border border-blue-500/30 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
+            <div className="text-6xl mb-4">🤖</div>
+            <h2 className="text-2xl font-bold text-white mb-2">Ollama Talab Qilinadi</h2>
+            <p className="text-gray-300 mb-6">
+              SERGAK sun'iy idroki ishlashi uchun kompyuteringizda Ollama o'rnatilgan bo'lishi kerak. 
+              Iltimos, rasmiy saytdan yuklab oling va o'rnating. Qolgan jarayonlarni (model yuklash) o'zimiz bajaramiz.
+            </p>
+            <div className="space-y-3">
+              <a 
+                href="https://ollama.com/download" 
+                target="_blank" 
+                rel="noreferrer"
+                className="block w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
+              >
+                Yuklab Olish (ollama.com)
+              </a>
+              <button 
+                onClick={() => {
+                  invoke("check_ollama_status").then(s => {
+                    if(s.is_installed) setShowOllamaModal(false);
+                    else alert("Ollama hali o'rnatilmagan yoki ishga tushmagan!");
+                  });
+                }}
+                className="w-full bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-4 rounded-xl transition-colors"
+              >
+                O'rnatdim, davom etish
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} isPremium={isPremium} />
       <div className="main-content">{renderPage()}</div>
     </div>

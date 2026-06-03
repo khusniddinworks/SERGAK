@@ -1,3 +1,10 @@
+mod db;
+mod ai;
+mod quarantine;
+mod fs_monitor;
+mod hash_db;
+mod process_monitor;
+
 use tauri::command;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
@@ -605,26 +612,12 @@ fn classify_device(mac: &str, ip: &str) -> (String, String) {
 // ═══════════════════════════════════════════════════════════════
 #[command]
 fn set_module_state(module: String, enabled: bool) -> bool {
-    let path = cfg_path(&module);
-    std::fs::write(&path, if enabled { "1" } else { "0" }).is_ok()
+    db::set_setting(&format!("module_{}", module), if enabled { "true" } else { "false" }).is_ok()
 }
 
 #[command]
 fn get_module_states() -> HashMap<String, bool> {
-    let modules = ["gateway", "usb", "camera", "keylogger", "honeypot"];
-    let mut map = HashMap::new();
-    for m in &modules {
-        let path = cfg_path(m);
-        let val = std::fs::read_to_string(&path).unwrap_or_else(|_| "1".to_string());
-        map.insert(m.to_string(), val.trim() == "1");
-    }
-    map
-}
-
-fn cfg_path(key: &str) -> std::path::PathBuf {
-    let mut p = std::env::temp_dir();
-    p.push(format!("sergak_{}.cfg", key));
-    p
+    db::get_all_module_settings()
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -714,6 +707,10 @@ pub fn run() {
     tauri::Builder::default()
         .manage(AppState { sys: Mutex::new(System::new_all()) })
         .plugin(tauri_plugin_opener::init())
+        .setup(|_app| {
+            let _ = db::init_db();
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             // Core
             verify_premium_key,
@@ -733,6 +730,26 @@ pub fn run() {
             // Auto-start
             set_autostart,
             get_autostart,
+            // AI
+            ai::check_ollama_status,
+            ai::start_ollama_service,
+            ai::pull_ai_model,
+            ai::analyze_threat_with_ai,
+            quarantine::list_quarantine,
+            quarantine::quarantine_file,
+            quarantine::restore_file,
+            quarantine::delete_quarantine,
+            // Hash DB
+            hash_db::check_file_hash,
+            hash_db::update_hash_db,
+            hash_db::get_hash_db_stats,
+            // FS Monitor
+            fs_monitor::start_fs_monitor,
+            fs_monitor::stop_fs_monitor,
+            fs_monitor::get_fs_alerts,
+            // Process Monitor
+            process_monitor::get_process_tree,
+            process_monitor::monitor_startup_items,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
