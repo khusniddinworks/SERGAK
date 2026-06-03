@@ -66,7 +66,7 @@ fn get_system_stats(state: tauri::State<'_, AppState>) -> (f32, u64, u64) {
     sys.refresh_cpu_usage();
     sys.refresh_memory();
     
-    let cpu_usage = sys.global_cpu_usage();
+    let cpu_usage = sys.global_cpu_info().cpu_usage();
     let total_ram = sys.total_memory();
     let used_ram = sys.used_memory();
     
