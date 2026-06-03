@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/services/update_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../features_hub/presentation/screens/features_screen.dart'; // 3 ta nuqta qo'shildi
 import '../../../ai_chat/presentation/screens/ai_chat_screen.dart';       // 3 ta nuqta qo'shildi
@@ -12,6 +13,17 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Ilova to'liq ochilgach, yangilanishlarni tekshirish (1 soniya kutib, UI render bo'lishiga ruxsat beramiz)
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        UpdateService().checkForUpdates(context);
+      }
+    });
+  }
+
   int _selectedIndex = 0;
   final List<Widget> _screens = [
     const HomeScreen(),
