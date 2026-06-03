@@ -1,0 +1,67 @@
+# =========================================================================
+# SERGAK PROJECT - GITIGNORE (KIBERXAVFSIZLIK VA MAXFIYLIK QOIDALARI)
+# =========================================================================
+
+# 1. Muhim va maxfiy sirlar (Xavfsizlik sababli GitHub'ga yuklanmaydi)
+.env
+.env.local
+.env.*.local
+*.env
+sergak_bot/.env
+sergak_bot/.env.example
+
+# 2. Xavfsizlik loglari va keshlar
+sergak_bot/bot.log
+sergak_bot/threat_log.txt
+sergak_bot/apk_file_id.txt
+sergak_bot/__pycache__/
+sergak_bot/*.pyc
+*.log
+logs/
+
+# 3. Python va virtual muhitlar
+venv/
+.venv/
+env/
+ENV/
+bin/
+lib/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 4. Flutter va Mobil Ilova fayllari
+ai_ximoyachi/.dart_tool/
+ai_ximoyachi/.flutter-plugins
+ai_ximoyachi/.flutter-plugins-dependencies
+ai_ximoyachi/.packages
+ai_ximoyachi/build/
+ai_ximoyachi/android/local.properties
+ai_ximoyachi/ios/Flutter/Generated.xcconfig
+ai_ximoyachi/ios/Flutter/flutter_export_environment.sh
+
+# 5. IDE va Tizim fayllari
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 6. Loyiha kesh va keraksiz og'ir fayllar
+flutter/
+flutter_sdk/
+*.vsix
+*.pptx
+__pycache__/
+*.pyc
+
