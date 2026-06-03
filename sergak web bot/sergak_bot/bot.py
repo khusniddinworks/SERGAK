@@ -289,12 +289,14 @@ async def handle_menu_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     user_id = user.id
 
-    # Rate limit tekshiruvi
-    if not rate_limiter.check(user_id):
-        remaining = rate_limiter.remaining_ban(user_id)
-        ThreatLogger.log("RATE_LIMIT_TEXT", user_id=user_id)
-        await update.message.reply_text(f"⛔ Juda tez! {remaining}s kuting.")
-        return
+    # Rate limit tekshiruvi (faqat bir marta bitta update uchun)
+    if not getattr(update, "_rate_limit_checked", False):
+        if not rate_limiter.check(user_id):
+            remaining = rate_limiter.remaining_ban(user_id)
+            ThreatLogger.log("RATE_LIMIT_TEXT", user_id=user_id)
+            await update.message.reply_text(f"⛔ Juda tez! {remaining}s kuting.")
+            return
+        setattr(update, "_rate_limit_checked", True)
 
     if text == "📱 APK Yuklab Olish":
         await send_apk(update, user_id)
@@ -620,23 +622,29 @@ async def cmd_premium(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⚠️ Oylar soni raqam bo'lishi kerak!")
         return
 
-    # Kriptografik kalit yasash
+    # Kriptografik kalit yasash (RSA-2048 asimmetrik imzo)
     expiry_date = datetime.now(timezone.utc) + timedelta(days=months * 30)
     expiry_str = expiry_date.isoformat()
     
-    secret_bytes = SECRET_KEY.encode('utf-8')
-    message_bytes = (device_id + expiry_str).encode('utf-8')
-    
-    digest = hmac.new(secret_bytes, message_bytes, hashlib.sha256).digest()
-    signature = base64.b64encode(digest).decode('utf-8')
-    
-    raw_key = f"{signature}|{expiry_str}"
-    final_key = base64.b64encode(raw_key.encode('utf-8')).decode('utf-8')
+    try:
+        from security import sign_license_rsa
+        final_key = sign_license_rsa(device_id, expiry_str)
+        key_type = "Asimmetrik RSA-2048"
+    except Exception as e:
+        logger.warning(f"Asimmetrik imzo yaratishda xatolik, HMAC'ga o'tilmoqda: {e}")
+        secret_bytes = SECRET_KEY.encode('utf-8')
+        message_bytes = (device_id + expiry_str).encode('utf-8')
+        digest = hmac.new(secret_bytes, message_bytes, hashlib.sha256).digest()
+        signature = base64.b64encode(digest).decode('utf-8')
+        raw_key = f"{signature}|{expiry_str}"
+        final_key = base64.b64encode(raw_key.encode('utf-8')).decode('utf-8')
+        key_type = "Simmetrik HMAC (Fallback)"
 
     success_msg = (
         f"✅ *LITSENZIYA KALITI TAYYOR*\n\n"
         f"📱 *Device ID:* `{device_id}`\n"
-        f"📅 *Muddat:* {months} oy\n\n"
+        f"📅 *Muddat:* {months} oy\n"
+        f"🛡️ *Turi:* `{key_type}`\n\n"
         f"🔑 *Kalit (Ilovaga kiritish uchun):*\n"
         f"`{final_key}`\n\n"
         f"Ushbu kalitni xaridorga yuboring."
@@ -718,12 +726,26 @@ def main():
                         headers={"Access-Control-Allow-Origin": "*"}
                     )
                 
-                # Haqiqiy Litsenziya Kalitini HMAC-SHA256 yordamida yaratish
-                from security import sign_payload
-                raw_data = f"{device_id}_{duration_months}"
-                signature = sign_payload(raw_data, SECRET_KEY)
-                # Chiroyli format: SRGK-XXXXXXXX-XXXXXXXX-L1ZZ
-                key = f"SRGK-{signature[:8].upper()}-{signature[8:16].upper()}-L1ZZ"
+                # Haqiqiy Litsenziya Kalitini Asimmetrik RSA-2048 yordamida yaratish
+                try:
+                    duration_val = int(duration_months)
+                except ValueError:
+                    duration_val = 3 # default 3 oy
+                    
+                expiry_date = datetime.now(timezone.utc) + timedelta(days=duration_val * 30)
+                expiry_str = expiry_date.isoformat()
+                
+                try:
+                    from security import sign_license_rsa
+                    key = sign_license_rsa(device_id, expiry_str)
+                except Exception as e:
+                    logger.warning(f"Web API: Asimmetrik imzo yaratishda xatolik, HMAC'ga o'tilmoqda: {e}")
+                    secret_bytes = SECRET_KEY.encode('utf-8')
+                    message_bytes = (device_id + expiry_str).encode('utf-8')
+                    digest = hmac.new(secret_bytes, message_bytes, hashlib.sha256).digest()
+                    signature = base64.b64encode(digest).decode('utf-8')
+                    raw_key = f"{signature}|{expiry_str}"
+                    key = base64.b64encode(raw_key.encode('utf-8')).decode('utf-8')
                 
                 return web.json_response(
                     {"license_key": key},

@@ -9,6 +9,10 @@
 *.env
 sergak_bot/.env
 sergak_bot/.env.example
+*.pem
+private_key.pem
+private_key_pem
+
 
 # 2. Xavfsizlik loglari va keshlar
 sergak_bot/bot.log

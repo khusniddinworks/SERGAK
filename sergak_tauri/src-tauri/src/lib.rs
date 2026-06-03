@@ -4,13 +4,44 @@ use sha2::Sha256;
 use base64::{Engine as _, engine::general_purpose};
 use sysinfo::System;
 use std::sync::Mutex;
+use rsa::{RsaPublicKey, pkcs8::DecodePublicKey};
+use rsa::Pkcs1v15Sign;
+use sha2::Digest;
 
 const SECRET_KEY: &str = "SERGAKxavfsizlik2026TAFUxusniddinSecret!";
+
+const PUBLIC_KEY_PEM: &str = "-----BEGIN PUBLIC KEY-----\n\
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsuuTUtYckMfnlaXu3LaZ\n\
+HPxfE4h7pMt6FUsk12CLIBE74F2FPMQAZyIdt8JBg6OtsRKv/E2Kv7S2zttIRjET\n\
+Df5ikZWHlzgttpl4EDBBSEBAmkBCDA4/BoaIABo42gTmLas/6x9NwZXfssloZ8ID\n\
+YxgDjFTL2Z2i3Hn7ewCEszyd+gMTqsCkKZ85K1qcrNXGusY8NgJaY11WLMLbHgG3\n\
+9DEilhq+JDDwExh3CfXUfLF6EYTEPrIqlomFVaE1538BEwhh1LFIgSC+mVO2+Y98\n\
+98iUatCl+6vY+eKcHX+lVtBsiqsUOncpm2hW2h2imKp2uzQnpgUX9rA2MvB+W4+u\n\
+JQIDAQAB\n\
+-----END PUBLIC KEY-----";
 
 type HmacSha256 = Hmac<Sha256>;
 
 struct AppState {
     sys: Mutex<System>,
+}
+
+fn verify_rsa_signature(message: &str, signature_b64: &str) -> bool {
+    let pub_key = match RsaPublicKey::from_public_key_pem(PUBLIC_KEY_PEM) {
+        Ok(k) => k,
+        Err(_) => return false,
+    };
+    
+    let sig_bytes = match general_purpose::STANDARD.decode(signature_b64) {
+        Ok(b) => b,
+        Err(_) => return false,
+    };
+    
+    let mut hasher = Sha256::new();
+    hasher.update(message.as_bytes());
+    let hashed = hasher.finalize();
+    
+    pub_key.verify(Pkcs1v15Sign::new::<Sha256>(), &hashed, &sig_bytes).is_ok()
 }
 
 #[command]
@@ -32,17 +63,25 @@ fn verify_premium_key(device_id: String, key: String) -> bool {
     let signature = parts[0];
     let expiry_str = parts[1];
     
-    let mut mac = match HmacSha256::new_from_slice(SECRET_KEY.as_bytes()) {
-        Ok(m) => m,
-        Err(_) => return false,
-    };
-    let msg = format!("{}{}", device_id, expiry_str);
-    mac.update(msg.as_bytes());
+    let msg = format!("{}|{}", device_id, expiry_str);
     
-    let result = mac.finalize();
-    let expected = general_purpose::STANDARD.encode(result.into_bytes());
+    // RSA verification (primary)
+    let mut signature_valid = verify_rsa_signature(&msg, signature);
     
-    if signature != expected {
+    // HMAC-SHA256 verification (fallback)
+    if !signature_valid {
+        let legacy_msg = format!("{}{}", device_id, expiry_str);
+        if let Ok(mut mac) = HmacSha256::new_from_slice(SECRET_KEY.as_bytes()) {
+            mac.update(legacy_msg.as_bytes());
+            let result = mac.finalize();
+            let expected = general_purpose::STANDARD.encode(result.into_bytes());
+            if signature == expected {
+                signature_valid = true;
+            }
+        }
+    }
+    
+    if !signature_valid {
         return false;
     }
     

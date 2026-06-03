@@ -15,11 +15,53 @@ import hmac
 import hashlib
 import logging
 import asyncio
+import base64
 from collections import defaultdict, deque
 from functools import wraps
 from typing import Callable
 
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
+
 logger = logging.getLogger(__name__)
+
+# Asimmetrik Litsenziyalar uchun RSA Private Key'ni yuklash
+private_key_pem = os.getenv("RSA_PRIVATE_KEY")
+if not private_key_pem:
+    try:
+        key_path = os.path.join(os.path.dirname(__file__), "private_key.pem")
+        if os.path.exists(key_path):
+            with open(key_path, "rb") as f:
+                private_key_pem = f.read()
+    except Exception as e:
+        logger.error(f"private_key.pem faylini o'qishda xatolik: {e}")
+
+_private_key = None
+if private_key_pem:
+    try:
+        if isinstance(private_key_pem, str):
+            private_key_pem = private_key_pem.encode('utf-8')
+        _private_key = load_pem_private_key(private_key_pem, password=None)
+        logger.info("🔑 Asimmetrik RSA-2048 shaxsiy kaliti muvaffaqiyatli yuklandi.")
+    except Exception as e:
+        logger.error(f"❌ RSA Private Key yuklashda xato: {e}")
+else:
+    logger.warning("⚠️ RSA_PRIVATE_KEY topilmadi. Asimmetrik imzolash ishlamaydi.")
+
+def sign_license_rsa(device_id: str, expiry_str: str) -> str:
+    """RSA-2048 yordamida litsenziyani imzolash."""
+    if not _private_key:
+        raise ValueError("RSA Private Key yuklanmagan!")
+    msg = f"{device_id}|{expiry_str}"
+    signature = _private_key.sign(
+        msg.encode('utf-8'),
+        padding.PKCS1v15(),
+        hashes.SHA256()
+    )
+    sig_b64 = base64.b64encode(signature).decode('utf-8')
+    raw_key = f"{sig_b64}|{expiry_str}"
+    return base64.b64encode(raw_key.encode('utf-8')).decode('utf-8')
 
 # ─────────────────────────────────────────────
 #  RATE LIMITER
@@ -188,19 +230,21 @@ def secure_handler(rate_limiter: RateLimiter):
             user = update.effective_user
             user_id = user.id
 
-            # 1. Rate limit tekshiruvi
-            if not rate_limiter.check(user_id):
-                remaining = rate_limiter.remaining_ban(user_id)
-                ThreatLogger.log(
-                    "RATE_LIMIT_BLOCKED",
-                    user_id=user_id,
-                    extra=f"remaining_ban={remaining}s"
-                )
-                await update.effective_message.reply_text(
-                    f"⛔ Siz juda tez so'rov yubordingiz.\n"
-                    f"🕐 {remaining} soniyadan keyin qayta urinib ko'ring."
-                )
-                return
+            # 1. Rate limit tekshiruvi (faqat bir marta bitta update uchun)
+            if not getattr(update, "_rate_limit_checked", False):
+                if not rate_limiter.check(user_id):
+                    remaining = rate_limiter.remaining_ban(user_id)
+                    ThreatLogger.log(
+                        "RATE_LIMIT_BLOCKED",
+                        user_id=user_id,
+                        extra=f"remaining_ban={remaining}s"
+                    )
+                    await update.effective_message.reply_text(
+                        f"⛔ Siz juda tez so'rov yubordingiz.\n"
+                        f"🕐 {remaining} soniyadan keyin qayta urinib ko'ring."
+                    )
+                    return
+                setattr(update, "_rate_limit_checked", True)
 
             return await func(update, context, *args, **kwargs)
         return wrapper
@@ -223,19 +267,21 @@ def admin_only(rate_limiter: RateLimiter, admin_guard: AdminGuard):
             user = update.effective_user
             user_id = user.id
 
-            # 1. Rate limit tekshiruvi
-            if not rate_limiter.check(user_id):
-                remaining = rate_limiter.remaining_ban(user_id)
-                ThreatLogger.log(
-                    "RATE_LIMIT_BLOCKED",
-                    user_id=user_id,
-                    extra=f"remaining_ban={remaining}s"
-                )
-                await update.effective_message.reply_text(
-                    f"⛔ Siz juda tez so'rov yubordingiz.\n"
-                    f"🕐 {remaining} soniyadan keyin qayta urinib ko'ring."
-                )
-                return
+            # 1. Rate limit tekshiruvi (faqat bir marta bitta update uchun)
+            if not getattr(update, "_rate_limit_checked", False):
+                if not rate_limiter.check(user_id):
+                    remaining = rate_limiter.remaining_ban(user_id)
+                    ThreatLogger.log(
+                        "RATE_LIMIT_BLOCKED",
+                        user_id=user_id,
+                        extra=f"remaining_ban={remaining}s"
+                    )
+                    await update.effective_message.reply_text(
+                        f"⛔ Siz juda tez so'rov yubordingiz.\n"
+                        f"🕐 {remaining} soniyadan keyin qayta urinib ko'ring."
+                    )
+                    return
+                setattr(update, "_rate_limit_checked", True)
 
             # 2. Admin tekshiruvi
             if not admin_guard.is_admin(user_id):

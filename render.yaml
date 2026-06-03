@@ -20,3 +20,10 @@ services:
       - key: SECRET_KEY
         sync: false
         description: "Maxfiy HMAC-SHA256 kaliti (kamida 32 ta belgi)"
+      - key: WEBSITE_PATH
+        value: ".."
+        description: "Website papkasi yo'li (.. bot joylashgan joyning tepasi)"
+      - key: APK_PATH
+        value: "../../ai_ximoyachi/build/app/outputs/flutter-apk/app-release.apk"
+        description: "Android APK fayli yo'li"
+
