@@ -22,4 +22,5 @@ sha2 = "0.10"
 base64 = "0.21"
 sysinfo = "0.30"
 chrono = "0.4"
-rsa = "0.9"
+rsa = { version = "0.9", features = ["sha2"] }
+sha2 = { version = "0.10", features = ["oid"] }
