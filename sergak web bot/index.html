@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- SERGAK Kiberxavfsizlik: XSS va Bot yo'naltirish hujumlaridan himoya qilish uchun qat'iy CSP -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';">
+<!-- Clickjacking (oynalar o'g'riligi) hujumiga qarshi Frame Buster skripti -->
+<script>
+  if (window.top !== window.self) {
+    window.top.location = window.self.location;
+  }
+</script>
+<title>SERGAK — O'zbekistondagi №1 AI Oflayn Kiberxavfsizlik Ilovasi</title>
+<meta name="description" content="SERGAK — O'zbekistonning birinchi 100% oflayn AI kiberxavfsizlik ilovasi. SMS firibgarligi, phishing havolalar, xavfli ilovalar va ma'lumotlar o'g'riligidan real vaqtda himoya.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- PREMIUM GLOW DECORATIONS -->
+<div class="glow-bg-main">
+  <div class="radial-glow glow-1"></div>
+  <div class="radial-glow glow-2"></div>
+  <div class="radial-glow glow-3"></div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="container nav-inner">
+    <a href="#" class="logo" id="navLogo">
+      <img src="logo.png" alt="SERGAK Logo" class="logo-img">
+      <span class="logo-text">SERGAK</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#features">Imkoniyatlar</a></li>
+      <li><a href="#mockup-section">Interaktiv Demo</a></li>
+      <li><a href="#how">Oflayn Texnologiya</a></li>
+      <li><a href="#pricing" class="nav-pricing-link">💎 Narxlar</a></li>
+      <li><a href="#team">Jamoa</a></li>
+      <li><a href="#download" class="btn-nav">Yuklab olish</a></li>
+    </ul>
+    <button class="burger" id="burger" aria-label="Menyuni ochish">
+      <span class="line"></span>
+      <span class="line"></span>
+      <span class="line"></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<header class="hero" id="home">
+  <div class="container hero-grid">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="badge-icon">🛡</span>
+        <span class="badge-text">SERGAK 2026 KIBER-LOYIHASI</span>
+      </div>
+      <h1 class="hero-title">Telefoningizni <br><span class="gradient-text animate-gradient">Oflayn Sun'iy Intellekt</span> bilan himoya qiling</h1>
+      <p class="hero-lead">SERGAK — bulutli serverlarsiz, 100% oflayn rejimda ishlovchi mobil kiber-qalqon. SMS firibgarligi, fishing saytlar va ilovalarning yashirin tahdidlaridan shaxsiy ma'lumotlaringizni mukammal himoya qiling.</p>
+      
+      <div class="hero-actions">
+        <a href="#download" class="btn-premium">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>
+          Bepul Yuklab Olish
+        </a>
+        <a href="#mockup-section" class="btn-secondary-glow">
+          Demo Sinab Ko'rish
+          <span class="arrow">→</span>
+        </a>
+      </div>
+
+      <div class="hero-features-preview">
+        <div class="preview-item">
+          <span class="p-icon">🔒</span>
+          <div>
+            <strong>100% Maxfiy</strong>
+            <p>Ma'lumotlar tashqariga chiqmaydi</p>
+          </div>
+        </div>
+        <div class="preview-item">
+          <span class="p-icon">⚡</span>
+          <div>
+            <strong>Tezkor AI</strong>
+            <p>0.1 soniyada tahdid tahlili</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="interactive-mockup-wrapper">
+        <div class="interactive-mockup">
+          <div class="phone-speaker"></div>
+          <div class="phone-camera"></div>
+          <div class="phone-screen-content">
+            
+            <!-- PHONE STATUS BAR (Matches Actual App Screenshot) -->
+            <div class="phone-status-bar">
+              <span class="status-time">06:00</span>
+              <div class="status-icons">
+                <span>⚡</span>
+                <span>📶</span>
+                <span>📶</span>
+                <span class="status-battery">90</span>
+              </div>
+            </div>
+
+            <!-- SIMULATED SCREENS CONTAINER -->
+            <div class="phone-screen-viewer" id="phoneViewer">
+              
+              <!-- SCREEN 1: BOSH SAHIFA (HOME) -->
+              <div class="sim-screen active" id="screen-home">
+                <!-- App Top Header -->
+                <div class="app-top-header">
+                  <div class="header-logo-shield">🛡</div>
+                  <h2>SERGAK</h2>
+                  <p>Qurilmangiz himoyalangan</p>
+                </div>
+
+                <!-- Green Safe Card -->
+                <div class="app-safe-card">
+                  <div class="safe-card-info">
+                    <h3>Xavfsiz</h3>
+                    <p>Qurilmangiz himoyalangan</p>
+                  </div>
+                  <div class="safe-card-badge">✔</div>
+                  <button class="btn-smart-scan">Smart Scan</button>
+                </div>
+
+                <!-- Blocked & Threat Grid -->
+                <div class="app-stats-grid">
+                  <div class="stat-card">
+                    <span class="stat-icon green">🛡</span>
+                    <h3>0</h3>
+                    <p>Bloklangan</p>
+                  </div>
+                  <div class="stat-card">
+                    <span class="stat-icon orange">⚠</span>
+                    <h3>0</h3>
+                    <p>Xavfli</p>
+                  </div>
+                </div>
+
+                <!-- Resource Metrics (RAM / CPU) -->
+                <div class="app-metrics-card">
+                  <div class="metric-row">
+                    <span class="metric-label">RAM</span>
+                    <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: 75%;"></div></div>
+                    <span class="metric-value">75%</span>
+                  </div>
+                  <div class="metric-row">
+                    <span class="metric-label">CPU</span>
+                    <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: 42%;"></div></div>
+                    <span class="metric-value">42%</span>
+                  </div>
+                </div>
+
+                <!-- Fraud Monitor Toggle Card -->
+                <div class="app-toggle-card">
+                  <div class="toggle-icon-container">
+                    <span class="toggle-icon">🛡</span>
+                  </div>
+                  <div class="toggle-details">
+                    <strong>Fraud Monitor</strong>
+                    <span class="active-status"><span class="status-dot"></span> Faol</span>
+                  </div>
+                  <div class="sim-switch active">
+                    <div class="sim-switch-handle"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SCREEN 2: HMOYA (FEATURES / PROTECTION) -->
+              <div class="sim-screen" id="screen-protection">
+                <!-- App Top Header -->
+                <div class="app-top-header">
+                  <div class="header-logo-shield">🛡</div>
+                  <h2>SERGAK</h2>
+                  <p>Qurilmangiz himoyalangan</p>
+                </div>
+
+                <h3 class="screen-sub-header">Qo'shimcha Funksiyalar</h3>
+
+                <!-- Purple Maxfiy Fayllar Card -->
+                <div class="app-feature-card purple">
+                  <div class="f-card-top">
+                    <div class="f-card-icon">🔒</div>
+                    <div class="f-card-info">
+                      <h4>Maxfiy Fayllar</h4>
+                      <p>Fayllarni AES-256 da shifrlash va yuborish</p>
+                    </div>
+                    <span class="f-card-tag">AES-256</span>
+                  </div>
+                  <button class="btn-feature-open">Ochish</button>
+                </div>
+
+                <!-- Green Ruxsatlar Tahlili Card -->
+                <div class="app-feature-card green">
+                  <div class="f-card-top">
+                    <div class="f-card-icon">⚙</div>
+                    <div class="f-card-info">
+                      <h4>Ruxsatlar Tahlili</h4>
+                      <p>Ilovalarning xavfli ruxsatlarini tekshirish</p>
+                    </div>
+                    <span class="f-card-tag">Aqlli</span>
+                  </div>
+                  <button class="btn-feature-open">Ochish</button>
+                </div>
+              </div>
+
+              <!-- SCREEN 3: AI CHAT -->
+              <div class="sim-screen" id="screen-chat">
+                <!-- App Top Header with small logo square -->
+                <div class="app-top-header chat-header">
+                  <div class="header-chat-logo">
+                    <img src="logo.png" alt="S Logo" class="chat-logo-square">
+                  </div>
+                  <h2>SERGAK</h2>
+                  <p>AI Yordamchi</p>
+                </div>
+
+                <!-- Chat Messages Scroll Container -->
+                <div class="sim-chat-container">
+                  <div class="chat-bubble bot">
+                    Salom! Men SERGAK sun'iy intellekt yordamchisiman. Sizga qanday yordam bera olaman?
+                  </div>
+                </div>
+
+                <!-- Chat Input Row -->
+                <div class="sim-chat-input-bar">
+                  <input type="text" placeholder="Xabar yozing..." class="sim-chat-input" disabled>
+                  <button class="btn-sim-send">➔</button>
+                </div>
+              </div>
+
+              <!-- SCREEN 4: SOZLAMALAR (SETTINGS) -->
+              <div class="sim-screen" id="screen-settings">
+                <!-- App Top Header -->
+                <div class="app-top-header">
+                  <div class="header-logo-shield">🛡</div>
+                  <h2>SERGAK</h2>
+                  <p>Qurilmangiz himoyalangan</p>
+                </div>
+
+                <h3 class="screen-sub-header">Sozlamalar</h3>
+
+                <div class="settings-scroll-box">
+                  <!-- Section: Til -->
+                  <div class="settings-section">
+                    <h4 class="section-title">🌐 Til (Language)</h4>
+                    <div class="settings-options-list">
+                      <div class="option-row active">
+                        <span>O'zbek tili</span>
+                        <span class="option-check">✔</span>
+                      </div>
+                      <div class="option-row">
+                        <span>Русский язык</span>
+                        <span class="option-circle"></span>
+                      </div>
+                      <div class="option-row">
+                        <span>English</span>
+                        <span class="option-circle"></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section: Tungi rejim -->
+                  <div class="settings-section">
+                    <h4 class="section-title">🌙 Tungi rejim</h4>
+                    <div class="option-row no-border">
+                      <span>Tungi rejim</span>
+                      <div class="sim-switch active">
+                        <div class="sim-switch-handle"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section: Tizim ruxsatnomalari -->
+                  <div class="settings-section">
+                    <h4 class="section-title">🔒 Tizim Ruxsatnomalari</h4>
+                    <div class="option-row">
+                      <span>SMS Monitoring</span>
+                      <div class="sim-switch active">
+                        <div class="sim-switch-handle"></div>
+                      </div>
+                    </div>
+                    <div class="option-row no-border">
+                      <span>Telefon holati</span>
+                      <div class="sim-switch active">
+                        <div class="sim-switch-handle"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- WHITE BOTTOM NAVIGATION BAR (Matches Actual App Bottom Nav) -->
+            <div class="phone-tabs-controller">
+              <button class="phone-tab-btn active" data-target="screen-home">
+                <span class="tab-icon">🏠</span>
+                <span class="tab-label">Bosh sahifa</span>
+              </button>
+              <button class="phone-tab-btn" data-target="screen-protection">
+                <span class="tab-icon">🛡</span>
+                <span class="tab-label">Himoya</span>
+              </button>
+              <button class="phone-tab-btn" data-target="screen-chat">
+                <span class="tab-icon">💬</span>
+                <span class="tab-label">AI Chat</span>
+              </button>
+              <button class="phone-tab-btn" data-target="screen-settings">
+                <span class="tab-icon">⚙</span>
+                <span class="tab-label">Sozlamalar</span>
+              </button>
+            </div>
+
+            <!-- ANDROID NAVIGATION BUTTONS BAR -->
+            <div class="android-nav-bar">
+              <span>|||</span>
+              <span>◯</span>
+              <span>＜</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- THE 8 PREMIUM FEATURES -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="center-title">
+      <span class="section-label">SERGAK ECOSYSTEM</span>
+      <h2>Keng qamrovli kiber-qalqon</h2>
+      <p class="section-sub">Takomillashtirilgan premium versiyadagi 8 ta eng muhim kiberxavfsizlik va nazorat vositalari bitta mukammal ilovada.</p>
+    </div>
+
+    <div class="features-grid">
+      
+      <div class="premium-feature-card featured">
+        <div class="card-glow-border"></div>
+        <span class="f-icon-premium">📵</span>
+        <h3>SMS Fraud Monitor</h3>
+        <p>Kelayotgan SMS xabarlardagi bank kodlari va shubhali havolalarni sun'iy intellekt yordamida qurilmaning o'zida tahlil qiladi va fishingdan bir zumda ogohlantiradi.</p>
+        <ul class="f-bullets">
+          <li>✓ Real vaqtda fonda SMS tahlili</li>
+          <li>✓ Mahalliy firibgarlik usullarini aniqlash</li>
+          <li>✓ Maxfiy kodlar va linklar himoyasi</li>
+        </ul>
+        <span class="featured-badge">ENG OMMABOP</span>
+      </div>
+
+      <div class="premium-feature-card text-left">
+        <div class="card-glow-border"></div>
+        <span class="f-icon-premium">🎙️</span>
+        <h3>Audio Deepfake Skaneri</h3>
+        <p>Ovozli xabarlar va audio fayllarni sun'iy intellekt tomonidan sohtalashtirilganlik (deepfake) ehtimolini qurilmaning o'zida oflayn skanerlaydi.</p>
+        <ul class="f-bullets">
+          <li>✓ Ovozli firibgarlikdan kafolatlangan himoya</li>
+          <li>✓ Yuqori aniqlikdagi lokal spektral tahlil</li>
+          <li>✓ 100% oflayn tahlil algoritmlari</li>
+        </ul>
+        <span class="featured-badge" style="background: linear-gradient(135deg, #00e5ff, #0d47a1); right: 20px; top: 20px;">YANGI</span>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="card-glow-border"></div>
+        <span class="f-icon-premium">🔒</span>
+        <h3>AES-256 Maxfiy Seyf</h3>
+        <p>Shaxsiy fotosuratlar, videolar va o'ta maxfiy hujjatlarni eng kuchli AES-256 shifrlash standarti yordamida qurilmaning o'zida to'liq yashiradi.</p>
+        <ul class="f-bullets">
+          <li>✓ Ma'lumotlar tashqariga chiqmaydi</li>
+          <li>✓ Biometrik kirish va parol himoyasi</li>
+          <li>✓ Buzib bo'lmas harbiy darajadagi xavfsizlik</li>
+        </ul>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="card-glow-border"></div>
+        <span class="f-icon-premium">💬</span>
+        <h3>Oflayn AI Kiber-Yordamchi</h3>
+        <p>Ulanishsiz va serverlarsiz ishlovchi, kiber-gigiyena qoidalari bo'yicha savollarga javob beruvchi maxsus lokal sun'iy intellekt maslahatchisi.</p>
+        <ul class="f-bullets">
+          <li>✓ Sun'iy intellekt yordamchisi yordamida tezkor javoblar</li>
+          <li>✓ Kiber-tahdidlar va firibgarlikdan ogohlantirish</li>
+          <li>✓ Mahalliy o'zbek tilini mukammal tushunish</li>
+        </ul>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="card-glow-border"></div>
+        <span class="f-icon-premium">🔑</span>
+        <h3>Oflayn HMAC-SHA256 Litsenziya</h3>
+        <p>Internetga ulanmasdan turib premium litsenziyalarni kriptografik HMAC-SHA256 algoritmi yordamida xavfsiz va to'liq oflayn tekshirish tizimi.</p>
+        <ul class="f-bullets">
+          <li>✓ Server xarajatlarisiz 100% xavfsiz</li>
+          <li>✓ Buzib bo'lmas kriptografik kalit tizimi</li>
+          <li>✓ Telegram bot bilan avtomatik integratsiya</li>
+        </ul>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="card-glow-border"></div>
+        <span class="f-icon-premium">🚨</span>
+        <h3>SMS orqali Qidirish [GPS & Sirena]</h3>
+        <p>Telefoningiz yo'qolganda, internet o'chirilgan bo'lsa ham maxsus SMS buyruq yuborish orqali GPS koordinatalarini olish yoki kuchli sirenani faollashtirish.</p>
+        <ul class="f-bullets">
+          <li>✓ Internet va ulanishlarsiz ishlovchi xavfsizlik</li>
+          <li>✓ Masofadan turib GPS joylashuvni aniqlash</li>
+          <li>✓ Baland ovozli sirena signalini yoqish</li>
+        </ul>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="card-glow-border"></div>
+        <span class="f-icon-premium">📝</span>
+        <h3>Fikr-mulohaza Paneli</h3>
+        <p>Ilovada foydalanuvchi fikr va mulohazalarini to'g'ridan-to'g'ri jamoaga yuborish hamda shaxsiy kiberxavfsizlik muammolariga yechim topish oynasi.</p>
+        <ul class="f-bullets">
+          <li>✓ Tezkor bog'lanish va qo'llab-quvvatlash</li>
+          <li>✓ Foydalanuvchilar fikrlari asosida yangilanish</li>
+          <li>✓ Qulay va sodda interfeys</li>
+        </ul>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="card-glow-border"></div>
+        <span class="f-icon-premium">🔍</span>
+        <h3>Ruxsatlar Tahlili</h3>
+        <p>O'rnatilgan ilovalarning barcha yashirin va xavfli ruxsatlarini tahlil qilib, qaysi ilovalar ma'lumotlarni yashirincha kuzatayotganini aniqlaydi.</p>
+        <ul class="f-bullets">
+          <li>✓ Ilovalarning orqa fondagi harakatlarini aniqlash</li>
+          <li>✓ Kirish darajalari bo'yicha filtrlar</li>
+          <li>✓ Maxfiylikni oson va tez sozlash</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE METRICS / STATS -->
+<section class="mockup-section" id="mockup-section">
+  <div class="container text-center">
+    <div class="interactive-control-panel">
+      <h2>Oflayn Himoya Qalqonini Sinab Ko'ring</h2>
+      <p>Pastdagi tugmalar orqali kiber-tahlil radarining real vaqtda ishlashini va kiberxavfsizlik natijalarini ko'rishingiz mumkin.</p>
+      
+      <div class="simulator-actions">
+        <button class="btn-demo-action active" id="demoScanApps">📱 Ilovalarni Skanerlash</button>
+        <button class="btn-demo-action" id="demoScanSms">💬 SMS Tahdid Skaneri</button>
+        <button class="btn-demo-action" id="demoSecureVault">🔒 Maxfiy Seyfni Yoqish</button>
+      </div>
+
+      <div class="demo-display-box">
+        <div class="demo-radar-circle" id="demoRadar">
+          <div class="radar-line"></div>
+          <span class="radar-text" id="demoPercent">0%</span>
+        </div>
+        <div class="demo-result-text" id="demoResult">Skanerlashni boshlash uchun yuqoridagi tugmalardan birini bosing</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OFFLINE PHILOSOPHY -->
+<section class="how" id="how">
+  <div class="container philosophy-grid">
+    <div class="philosophy-left">
+      <span class="section-label">100% OFFLINE</span>
+      <h2>Nega aynan Oflayn Sun'iy Intellekt?</h2>
+      <p>Hozirgi barcha antivirus va xavfsizlik dasturlari ma'lumotlarni tahlil qilish uchun o'zlarining uzoq bulutli serverlariga yuborishadi. Bu quyidagi xavflarni keltirib chiqaradi:</p>
+      <div class="philosophy-bullets">
+        <div class="p-bullet">
+          <strong>❌ Maxfiylik yo'qolishi:</strong> Shaxsiy xabarlaringiz va parollaringiz uchinchi shaxslarga o'tishi mumkin.
+        </div>
+        <div class="p-bullet">
+          <strong>❌ Doimiy Internet:</strong> Internet yo'q joyda telefoningiz butunlay himoyasiz qoladi.
+        </div>
+        <div class="p-bullet">
+          <strong>❌ Server Xarajatlari:</strong> Serverlarni saqlash katta mablag' talab qiladi va ilovani qimmat qiladi.
+        </div>
+      </div>
+      <div class="philosophy-success-box">
+        <h4>✅ SERGAK YECHIMI:</h4>
+        <p>Barcha AI algoritmlari qurilmaning o'zida, oflayn rejimda ishlaydi. Ma'lumotlaringiz telefondan tashqariga hech qachon chiqmaydi va server xarajatlari 0 so'mga teng!</p>
+      </div>
+    </div>
+    <div class="philosophy-right">
+      <div class="flowchart-box">
+        <div class="flow-node highlight">📩 Kelayotgan SMS / Havola</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node secure">🛡 SERGAK Oflayn AI Motor</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-grid-nodes">
+          <div class="flow-node green">✓ XAVFSIZ <br> (Ruxsat beriladi)</div>
+          <div class="flow-node red">⚠ XAVFLI <br> (Zudlik bilan bloklanadi)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team" id="team">
+  <div class="container">
+    <div class="center-title">
+      <span class="section-label">LOYIHA TASHABBUSKORLARI</span>
+      <h2>SERGAK Jamoasi</h2>
+      <p class="section-sub">Startap va innovatsion kiberxavfsizlik loyihasini muvaffaqiyatli amalga oshirgan jamoamiz a'zolari.</p>
+    </div>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-glow"></div>
+        <div class="team-avatar-premium" style="background: linear-gradient(135deg, #00c853, #1b5e20);">XU</div>
+        <h3>Xamidov Xusniddin</h3>
+        <span class="team-role">FOUNDER & LEAD DEVELOPER</span>
+        <p>Loyiha g'oyasi muallifi. Flutter hamda Native Kotlin integratsiyasi arxitektori.</p>
+      </div>
+
+      <div class="team-card">
+        <div class="team-glow"></div>
+        <div class="team-avatar-premium" style="background: linear-gradient(135deg, #00e5ff, #0d47a1);">MK</div>
+        <h3>Mamedov Kamron</h3>
+        <span class="team-role">CTO & PENTESTER</span>
+        <p>Tizimning xavfsizlik darajasini tekshiruvchi, zaifliklarni aniqlovchi va shifrlash muhandisi.</p>
+      </div>
+
+      <div class="team-card">
+        <div class="team-glow"></div>
+        <div class="team-avatar-premium" style="background: linear-gradient(135deg, #d500f9, #4a148c);">XM</div>
+        <h3>Xakimov Muhammadulo</h3>
+        <span class="team-role">PRODUCT MANAGER</span>
+        <p>UI/UX dizayn nazorati, foydalanuvchilar bilan ishlash va marketing bo'yicha mas'ul.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PREMIUM PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <div class="center-title">
+      <span class="section-label">PREMIUM TARIFLAR</span>
+      <h2>Narxlar va Tariflar</h2>
+      <p class="section-sub">Telefoningizni to'liq kiberxavfsizlik qalqoni bilan himoya qiling. Rejangizni tanlang va bir necha daqiqada Premium imkoniyatlarni faollashtiring!</p>
+    </div>
+
+    <div class="pricing-grid">
+
+      <!-- 3 Oylik Tarif -->
+      <div class="pricing-card" id="plan3month">
+        <div class="pricing-card-glow"></div>
+        <div class="pricing-card-inner">
+          <div class="pricing-header">
+            <span class="pricing-icon">📦</span>
+            <span class="pricing-badge">BOSHLANG'ICH</span>
+          </div>
+          <div class="pricing-duration">3 Oylik Reja</div>
+          <div class="pricing-price-row">
+            <span class="pricing-amount">25,000</span>
+            <div class="pricing-currency-col">
+              <span class="pricing-currency">so'm</span>
+              <span class="pricing-period">/ 3 oy</span>
+            </div>
+          </div>
+          <div class="pricing-per">oyiga ~8,333 so'm</div>
+          <div class="pricing-divider"></div>
+          <ul class="pricing-features-list">
+            <li><span class="pf-check">✓</span> SMS Fraud Monitor</li>
+            <li><span class="pf-check">✓</span> AES-256 Maxfiy Seyf</li>
+            <li><span class="pf-check">✓</span> AI Kiber-maslahatchi</li>
+            <li><span class="pf-check">✓</span> Kiber Darvoza (Link Scanner)</li>
+            <li><span class="pf-check">✓</span> Audio Deepfake Skaneri</li>
+          </ul>
+          <a href="#pricing-payment" class="btn-pricing-select">Tanlash →</a>
+        </div>
+      </div>
+
+      <!-- 1 Yillik Tarif (Tavsiya etiladi) -->
+      <div class="pricing-card recommended" id="plan1year">
+        <div class="pricing-card-glow"></div>
+        <div class="pricing-ribbon">🔥 ENG FOYDALI</div>
+        <div class="pricing-card-inner">
+          <div class="pricing-header">
+            <span class="pricing-icon">👑</span>
+            <span class="pricing-badge recommended-badge">TEJAMKOR</span>
+          </div>
+          <div class="pricing-duration">1 Yillik Reja</div>
+          <div class="pricing-price-row">
+            <span class="pricing-amount">85,000</span>
+            <div class="pricing-currency-col">
+              <span class="pricing-currency">so'm</span>
+              <span class="pricing-period">/ 1 yil</span>
+            </div>
+          </div>
+          <div class="pricing-per">oyiga ~7,083 so'm <span class="pricing-save">15% tejash!</span></div>
+          <div class="pricing-divider"></div>
+          <ul class="pricing-features-list">
+            <li><span class="pf-check">✓</span> SMS Fraud Monitor</li>
+            <li><span class="pf-check">✓</span> AES-256 Maxfiy Seyf</li>
+            <li><span class="pf-check">✓</span> AI Kiber-maslahatchi</li>
+            <li><span class="pf-check">✓</span> Kiber Darvoza (Link Scanner)</li>
+            <li><span class="pf-check">✓</span> Audio Deepfake Skaneri</li>
+            <li><span class="pf-check star">★</span> Ustuvor qo'llab-quvvatlash</li>
+            <li><span class="pf-check star">★</span> Barcha yangilanishlar bepul</li>
+          </ul>
+          <a href="#pricing-payment" class="btn-pricing-select recommended-btn">Tanlash →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- To'lov Formasi (Checkout Mockup) -->
+    <div class="pricing-payment-block" id="pricing-payment">
+      <h3 class="pricing-steps-title">💳 Xavfsiz To'lov Formasi</h3>
+      
+      <div class="checkout-container" id="checkoutContainer">
+        <!-- Order Summary -->
+        <div class="checkout-summary">
+          <h4>Buyurtma tafsilotlari</h4>
+          <div class="summary-item">
+            <span>Tanlangan tarif:</span>
+            <strong id="checkoutPlanName">1 Yillik Reja</strong>
+          </div>
+          <div class="summary-item">
+            <span>Jami to'lov:</span>
+            <strong id="checkoutPlanPrice" class="highlight-price">85,000 so'm</strong>
+          </div>
+          <div class="secure-badge">
+            🔒 AES-256 bilan shifrlangan
+          </div>
+        </div>
+
+        <!-- Payment Form -->
+        <form class="checkout-form humo-theme" id="mockupPaymentForm">
+          <div class="form-group">
+            <label>HUMO Karta raqami</label>
+            <div class="input-wrapper">
+              <span class="input-icon humo-logo-text">HUMO</span>
+              <input type="text" placeholder="9860 0000 0000 0000" maxlength="19" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half">
+              <label>Amal qilish muddati</label>
+              <input type="text" placeholder="OO/YY" maxlength="5" required>
+            </div>
+            <div class="form-group half">
+              <label>Karta egasining ismi</label>
+              <input type="text" placeholder="ISM FAMILIYA" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>SERGAK Device ID</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📱</span>
+              <input type="text" id="deviceIdInput" placeholder="Ilovadagi IDni kiriting" required>
+            </div>
+            <small style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;">Ilovani ochib sozlamalar yoki profil bo'limidan Device IDni topishingiz mumkin.</small>
+          </div>
+          
+          <button type="submit" class="btn-pay-now">
+            <span class="pay-lock-icon">🔒</span>
+            <span id="btnPayAmount">85,000 so'm To'lash</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Success message hidden by default -->
+      <div class="payment-success-msg" id="paymentSuccess" style="display: none;">
+        <div class="success-circle">
+          <div class="success-icon">✓</div>
+        </div>
+        <h3>To'lov muvaffaqiyatli qabul qilindi!</h3>
+        <p>Premium litsenziya kalitingiz:</p>
+        <div class="license-key-box" id="licenseKeyBox" title="Nusxa olish uchun bosing">
+          <span id="licenseKeyTxt">SRGK-8X9B-2M4Q-L1ZZ</span>
+          <span class="copy-hint">📋 Nusxa olish</span>
+        </div>
+        <p class="success-hint">Ushbu kalitni SERGAK mobil ilovasiga kiritib Premium versiyani faollashtiring.</p>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- ==================== TESTIMONIALS SECTION ==================== -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="center-title">
+        <span class="section-label" data-i18n="testi_label">MIJOZLAR FIKRI</span>
+        <h2 data-i18n="testi_title">Foydalanuvchilar nima deydi?</h2>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card">
+          <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testi-text" data-i18n="testi_1">"Juda zo'r himoya tizimi! Oflayn ishlashi eng katta plyus. Internet bo'lmaganda ham virusli SMSlarni blokladi."</p>
+          <div class="testi-author">- Sanjar K.</div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testi-text" data-i18n="testi_2">"Kiber-maslahatchi xuddi haqiqiy ekspertdek. Menga yuborilgan soxta linkni bir soniyada fosh qildi."</p>
+          <div class="testi-author">- Malika T.</div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+          <p class="testi-text" data-i18n="testi_3">"1 yillik tarifni oldim va xotirjamman. Bank ilovalarim xavfsizligidan endi xavotir olmayman."</p>
+          <div class="testi-author">- Rustam A.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FAQ SECTION ==================== -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="center-title">
+        <span class="section-label" data-i18n="faq_label">SAVOLLAR</span>
+        <h2 data-i18n="faq_title">Ko'p beriladigan savollar</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question">
+            <span data-i18n="faq_q1">To'lov ma'lumotlarim xavfsizmi?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faq_a1">Ha, barcha to'lovlar AES-256 bilan shifrlangan. Biz sizning karta ma'lumotlaringizni serverlarimizda saqlamaymiz.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            <span data-i18n="faq_q2">Litsenziya qanday ishlaydi?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faq_a2">Saytdan to'lov qilganingizdan so'ng, sizga maxsus kod beriladi. Uni ilovadagi "Premium" bo'limiga kiritsangiz kifoya.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            <span data-i18n="faq_q3">Dastur internetni ko'p yeydimi?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faq_a3">Yo'q, dastur 100% oflayn rejimda ishlaydi. Faqat litsenziyani tasdiqlash uchun ilk bor qisqa muddatli internet talab qilinadi.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== DOWNLOAD SECTION ==================== -->
+  <section class="download-section" id="download-section">
+  <div class="container">
+    <div class="download-card-premium">
+      <div class="dl-premium-glow"></div>
+      <div class="dl-left">
+        <h2>Kiberxavfsizlikni keyingi bosqichga olib chiqing</h2>
+        <p>Bepul, 100% oflayn va kiber-ogoh bo'ling. SERGAK rasmiy Telegram boti orqali mobil ilova (APK) hamda veb-sayt arxivini mutlaqo xavfsiz yuklab oling!</p>
+        
+        <div class="dl-actions">
+          <a href="https://t.me/sergakaibot" class="btn-store-premium" target="_blank" id="btnApkDownload" style="padding: 18px 40px; font-size: 1.1rem; gap: 14px; min-width: 280px; justify-content: center; box-shadow: 0 0 30px rgba(0, 230, 118, 0.4);">
+            <span class="s-icon" style="font-size: 1.8rem;">🤖</span>
+            <div class="s-text" style="text-align: left;">
+              <small style="font-size: 0.8rem; opacity: 0.8;">Rasmiy Telegram Bot orqali</small>
+              <strong style="font-size: 1.2rem; display: block; margin-top: 2px;">Ilovani Yuklab Olish</strong>
+            </div>
+          </a>
+        </div>
+ 
+        <!-- 🛡️ SERGAK KIBERXAVFSIZLIK: KRIPTOGRAFIK BOT INTEGRITY TEKSHIRUV PANELI -->
+        <div class="bot-verification-card" style="margin-top: 35px; background: rgba(5, 8, 17, 0.6); padding: 24px; border-radius: 20px; border: 1px solid rgba(0, 230, 118, 0.25); position: relative; overflow: hidden; backdrop-filter: blur(10px);">
+          <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(180deg, #00E676, #00e5ff);"></div>
+          <h4 style="color: #00E676; font-size: 1rem; font-family: 'Outfit', sans-serif; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+            <span>🛡️ Bot Integrity Verification (Haqiqiylikni Kriptografik Tasdiqlash)</span>
+          </h4>
+          <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5; margin-bottom: 16px;">
+            Kiberhujumchilar ushbu saytni buzib, yuklab olish havolasini o'zlarining zararli botlariga almashtirib qo'yishining oldini olish uchun <b>Kriptografik Haqiqiylik Tizimi</b> o'rnatilgan. Telegram botga ulanib, <code>/status</code> yoki <code>/verify</code> deb yozing va bot qaytargan ma'lumotlar quyidagiga 100% mosligini tekshiring:
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.8rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid rgba(255,255,255,0.04);">
+              <span style="color: #94a3b8; font-weight: 600;">Rasmiy Bot User:</span>
+              <strong style="color: #fff; font-family: 'Outfit', sans-serif; font-size: 0.9rem;" id="txtOfficialBot">@sergakaibot</strong>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid rgba(255,255,255,0.04);">
+              <span style="color: #94a3b8; font-weight: 600;">Cryptographic Key Hash (HMAC-SHA256 Signature):</span>
+              <code style="color: #00e5ff; word-break: break-all; font-family: monospace; font-size: 0.78rem; letter-spacing: 0.5px;" id="txtSignature">b67c1e82591599fb5d540c756d9c001be27a3ff7c80a3e3b385c839616680a2a</code>
+            </div>
+          </div>
+          <div style="margin-top: 14px; font-size: 0.78rem; color: #ff3366; display: flex; align-items: center; gap: 6px;">
+            <span>⚠️</span>
+            <span>Agar bot username yoki kalit imzosi mos kelmasa, yuklab olmang va zudlik bilan loyiha jamoasiga xabar bering!</span>
+          </div>
+        </div>
+      </div>
+      <div class="dl-right-shield">
+        <div class="dl-shield-ring">🛡</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-left">
+      <a href="#" class="logo">
+        <span class="logo-icon">🛡️</span>
+        <span class="logo-text">SERGAK</span>
+      </a>
+      <p>O'zbekistondagi birinchi 100% oflayn AI kiberxavfsizlik ilovasi. Bizning asosiy maqsadimiz — raqamli makonda har bir vatandoshimizni kiber-ogoh va xavfsiz qilishdir.</p>
+    </div>
+    <div class="footer-right">
+      <div class="footer-links-col">
+        <h4 data-i18n="footer_legal">Huquqiy</h4>
+        <a href="privacy.html" data-i18n="footer_privacy">Maxfiylik Siyosati</a>
+        <a href="terms.html" data-i18n="footer_terms">Foydalanish shartlari</a>
+      </div>
+      <div class="footer-links-col">
+        <h4 data-i18n="footer_team">Jamoa</h4>
+        <a href="#team" data-i18n="footer_initiators">Tashabbuskorlar</a>
+        <a href="mailto:contact@sergak.app">contact@sergak.app</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom text-center">
+    <p>&copy; 2026 SERGAK. Barcha huquqlar himoyalangan.</p>
+  </div>
+</footer>
+
+  <!-- Live Support Widget -->
+  <a href="https://t.me/sergakaibot" target="_blank" class="live-support-widget" title="Yordam kerakmi?">
+    <div class="support-icon">💬</div>
+  </a>
+
+  <div id="copyToast" class="copy-toast">Karta raqami nusxalandi! 📋</div>
+
+  <script src="translations.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# Docker ignore rules to prevent baking secrets and development tools
+.env
+.git
+.vscode
+.idea
+*.log
+threat_log.txt
+apk_file_id.txt
+__pycache__/
+*.pyc
+*.bat
+*.ps1
+*.pptx
+*.vsix
+docker-compose.yml
+Dockerfile
+render.yaml
+venv/
+.venv/
