@@ -1,6 +1,8 @@
 /// process_monitor.rs — Kengaytirilgan Windows jarayonlari va startup tahlili
 use serde::{Deserialize, Serialize};
 use std::process::Command;
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
 use sysinfo::System;
 use tauri::command;
 
@@ -93,6 +95,7 @@ pub fn monitor_startup_items() -> Vec<StartupItem> {
     {
         // HKCU Run
         let hkcu_out = Command::new("powershell")
+            .creation_flags(0x08000000)
             .args(["-NoProfile", "-Command", "Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' | Select-Object -Property * -ExcludeProperty PSPath,PSParentPath,PSChildName,PSDrive,PSProvider,ItemType"])
             .output();
 
@@ -114,6 +117,7 @@ pub fn monitor_startup_items() -> Vec<StartupItem> {
 
         // HKLM Run
         let hklm_out = Command::new("powershell")
+            .creation_flags(0x08000000)
             .args(["-NoProfile", "-Command", "Get-ItemProperty 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' | Select-Object -Property * -ExcludeProperty PSPath,PSParentPath,PSChildName,PSDrive,PSProvider,ItemType"])
             .output();
 

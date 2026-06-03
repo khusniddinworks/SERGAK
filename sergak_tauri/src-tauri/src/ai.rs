@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::process::Command;
+use std::os::windows::process::CommandExt;
 use tauri::command;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -28,6 +29,7 @@ pub async fn check_ollama_status() -> OllamaStatus {
     #[cfg(target_os = "windows")]
     {
         let output = Command::new("cmd")
+            .creation_flags(0x08000000)
             .args(["/C", "ollama --version"])
             .output();
         if let Ok(out) = output {
@@ -72,6 +74,7 @@ pub async fn start_ollama_service() -> bool {
     {
         // Try starting the Ollama background process silently
         let _ = Command::new("cmd")
+            .creation_flags(0x08000000)
             .args(["/C", "start /B ollama serve"])
             .spawn();
 

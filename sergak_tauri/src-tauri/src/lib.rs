@@ -13,6 +13,8 @@ use rsa::{pkcs8::DecodePublicKey, RsaPublicKey};
 use sha2::Digest;
 use sha2::Sha256;
 use std::collections::HashMap;
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
 use std::sync::Mutex;
 use sysinfo::System;
 use tauri::command;
@@ -63,6 +65,7 @@ fn get_device_id() -> String {
     #[cfg(target_os = "windows")]
     {
         let output = std::process::Command::new("powershell")
+            .creation_flags(0x08000000)
             .args(["-NoProfile", "-Command",
                 "(Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Cryptography' -Name MachineGuid).MachineGuid"])
             .output();
@@ -82,6 +85,7 @@ fn get_device_id() -> String {
             }
         }
         let hostname = std::process::Command::new("hostname")
+            .creation_flags(0x08000000)
             .output()
             .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
             .unwrap_or_else(|_| "UNKNOWN".to_string());
@@ -107,16 +111,20 @@ pub struct Vulnerability {
 }
 
 fn ps(cmd: &str) -> String {
-    std::process::Command::new("powershell")
-        .args(["-NoProfile", "-NonInteractive", "-Command", cmd])
+    let mut command = std::process::Command::new("powershell");
+    #[cfg(target_os = "windows")]
+    command.creation_flags(0x08000000);
+    command.args(["-NoProfile", "-NonInteractive", "-Command", cmd])
         .output()
         .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
         .unwrap_or_default()
 }
 
 fn ps_run(cmd: &str) -> bool {
-    std::process::Command::new("powershell")
-        .args(["-NoProfile", "-NonInteractive", "-Command", cmd])
+    let mut command = std::process::Command::new("powershell");
+    #[cfg(target_os = "windows")]
+    command.creation_flags(0x08000000);
+    command.args(["-NoProfile", "-NonInteractive", "-Command", cmd])
         .output()
         .map(|o| o.status.success())
         .unwrap_or(false)
@@ -226,7 +234,10 @@ fn scan_vulnerabilities() -> Vec<Vulnerability> {
     }
 
     // 8. Open dangerous ports
-    let netstat = std::process::Command::new("netstat")
+    let mut command = std::process::Command::new("netstat");
+    #[cfg(target_os = "windows")]
+    command.creation_flags(0x08000000);
+    let netstat = command
         .args(["-ano"])
         .output()
         .map(|o| String::from_utf8_lossy(&o.stdout).to_string())
@@ -442,7 +453,10 @@ fn assess_risk(remote: &str, process: &str) -> (String, String) {
 fn get_active_connections() -> Vec<NetworkConnection> {
     let mut conns: Vec<NetworkConnection> = Vec::new();
 
-    let out = std::process::Command::new("netstat")
+    let mut command = std::process::Command::new("netstat");
+    #[cfg(target_os = "windows")]
+    command.creation_flags(0x08000000);
+    let out = command
         .args(["-ano"])
         .output()
         .map(|o| String::from_utf8_lossy(&o.stdout).to_string())
@@ -675,6 +689,7 @@ fn scan_network(target: String) -> Vec<NetworkDevice> {
         if parts.len() == 4 {
             let prefix = format!("{}.{}.{}.", parts[0], parts[1], parts[2]);
             let _ = std::process::Command::new("powershell")
+                .creation_flags(0x08000000)
                 .args([
                     "-NoProfile",
                     "-WindowStyle",
@@ -688,7 +703,7 @@ fn scan_network(target: String) -> Vec<NetworkDevice> {
                 .output();
         }
 
-        let arp_out = std::process::Command::new("arp").args(["-a"]).output();
+        let arp_out = std::process::Command::new("arp").creation_flags(0x08000000).args(["-a"]).output();
         if let Ok(out) = arp_out {
             let text = String::from_utf8_lossy(&out.stdout);
             for line in text.lines() {
