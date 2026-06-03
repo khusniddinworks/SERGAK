@@ -110,11 +110,11 @@ export default function AiAssistant() {
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           placeholder="Savolingizni yozing..."
           className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 text-white focus:outline-none focus:border-blue-500/50 transition-colors"
-          disabled={loading || !status.has_llama3_2}
+          disabled={loading}
         />
         <button 
           onClick={handleSend}
-          disabled={loading || !status.has_llama3_2}
+          disabled={loading}
           className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg"
         >
           Yuborish

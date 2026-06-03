@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SERGAK - Mobil Boshqaruv</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0f172a;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h2 { text-align: center; margin-top: 0; color: #38bdf8; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            border-radius: 10px;
+            border: none;
+            background: #3b82f6;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { background: #2563eb; }
+        .btn-danger { background: #ef4444; margin-top: 20px; }
+        .btn-danger:hover { background: #dc2626; }
+        #status {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="loginCard">
+        <h2>SERGAK Ulanish</h2>
+        <input type="text" id="ipInput" placeholder="IP Manzil (masalan: 10.113.253.90:8765)">
+        <input type="number" id="otpInput" placeholder="6 xonali Kod">
+        <input type="text" id="deviceName" placeholder="Qurilma nomi (masalan: iPhone 14)" value="Mening Telefonim">
+        <button onclick="connect()">Ulanish</button>
+        <div id="status">Kutish rejimida...</div>
+    </div>
+
+    <div class="card" id="controlCard" style="display: none; text-align: center;">
+        <h2>Ulandi! ✅</h2>
+        <p>Kompyuteringiz endi telefoningizga ulangan.</p>
+        <button class="btn-danger" onclick="lockPC()">🔒 Kompyuterni Qulflash</button>
+        <button onclick="disconnect()" style="background: #475569; margin-top: 15px;">Uzish</button>
+    </div>
+
+    <script>
+        let ws = null;
+
+        function connect() {
+            const ip = document.getElementById('ipInput').value.trim();
+            const otp = document.getElementById('otpInput').value.trim();
+            const device = document.getElementById('deviceName').value.trim();
+            const statusEl = document.getElementById('status');
+
+            if(!ip || !otp) {
+                statusEl.innerText = "IP va Kodni kiriting!";
+                statusEl.style.color = "#ef4444";
+                return;
+            }
+
+            statusEl.innerText = "Ulanmoqda...";
+            statusEl.style.color = "#eab308";
+
+            ws = new WebSocket(`ws://${ip}`);
+
+            ws.onopen = () => {
+                ws.send(`AUTH:${otp}:${device}`);
+            };
+
+            ws.onmessage = (event) => {
+                if(event.data === "AUTH_OK") {
+                    document.getElementById('loginCard').style.display = 'none';
+                    document.getElementById('controlCard').style.display = 'block';
+                } else if(event.data === "AUTH_FAILED") {
+                    statusEl.innerText = "Kod xato! Qaytadan urinib ko'ring.";
+                    statusEl.style.color = "#ef4444";
+                    ws.close();
+                }
+            };
+
+            ws.onerror = (e) => {
+                statusEl.innerText = "Ulanib bo'lmadi. IP yoki Wi-Fi tarmog'ini tekshiring.";
+                statusEl.style.color = "#ef4444";
+            };
+
+            ws.onclose = () => {
+                document.getElementById('loginCard').style.display = 'block';
+                document.getElementById('controlCard').style.display = 'none';
+                statusEl.innerText = "Aloqa uzildi.";
+                statusEl.style.color = "#ef4444";
+            };
+        }
+
+        function lockPC() {
+            if(ws && ws.readyState === WebSocket.OPEN) {
+                ws.send("LOCK_PC");
+                alert("Kompyuter qulflanishga buyruq berildi!");
+            }
+        }
+
+        function disconnect() {
+            if(ws) ws.close();
+        }
+    </script>
+</body>
+</html>
