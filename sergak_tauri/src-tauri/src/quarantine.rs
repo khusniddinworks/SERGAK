@@ -1,14 +1,14 @@
-use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
-use tauri::command;
+use crate::db::get_db_path;
 use aes_gcm::{
     aead::{Aead, AeadCore, KeyInit, OsRng},
-    Aes256Gcm, Key, Nonce
+    Aes256Gcm, Key, Nonce,
 };
 use rand::RngCore;
-use std::fs;
 use rusqlite::Connection;
-use crate::db::get_db_path;
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::{Path, PathBuf};
+use tauri::command;
 
 const QUARANTINE_KEY: &[u8; 32] = b"SERGAK_AES256_QUARANTINE_KEY_32B";
 
@@ -34,7 +34,7 @@ pub fn get_quarantine_dir() -> PathBuf {
 pub fn list_quarantine() -> Vec<QuarantineItem> {
     let mut items = Vec::new();
     let db_path = get_db_path();
-    
+
     if let Ok(conn) = Connection::open(&db_path) {
         let mut stmt = conn.prepare("SELECT id, original_path, quarantine_path, threat_name, date_added, sha256 FROM quarantine").unwrap();
         let rows = stmt.query_map([], |row| {
@@ -74,7 +74,7 @@ pub fn quarantine_file(original_path: String, threat_name: String) -> bool {
     let key = Key::<Aes256Gcm>::from_slice(QUARANTINE_KEY);
     let cipher = Aes256Gcm::new(key);
     let nonce = Aes256Gcm::generate_nonce(&mut OsRng); // 96-bits; unique per message
-    
+
     let encrypted_data = match cipher.encrypt(&nonce, data.as_ref()) {
         Ok(d) => d,
         Err(_) => return false,
@@ -97,7 +97,7 @@ pub fn quarantine_file(original_path: String, threat_name: String) -> bool {
     let _ = fs::remove_file(path);
 
     // 5. Calculate SHA256 (of original data) for DB
-    use sha2::{Sha256, Digest};
+    use sha2::{Digest, Sha256};
     let mut hasher = Sha256::new();
     hasher.update(&data);
     let sha256_hash = format!("{:x}", hasher.finalize());
@@ -123,10 +123,11 @@ pub fn restore_file(id: String) -> bool {
         Err(_) => return false,
     };
 
-    let mut stmt = match conn.prepare("SELECT original_path, quarantine_path FROM quarantine WHERE id = ?1") {
-        Ok(s) => s,
-        Err(_) => return false,
-    };
+    let mut stmt =
+        match conn.prepare("SELECT original_path, quarantine_path FROM quarantine WHERE id = ?1") {
+            Ok(s) => s,
+            Err(_) => return false,
+        };
 
     let mut rows = stmt.query([&id]).unwrap();
     if let Some(row) = rows.next().unwrap() {
@@ -139,7 +140,9 @@ pub fn restore_file(id: String) -> bool {
             Err(_) => return false,
         };
 
-        if data.len() < 12 { return false; }
+        if data.len() < 12 {
+            return false;
+        }
 
         // 2. Decrypt
         let (nonce_bytes, ciphertext) = data.split_at(12);

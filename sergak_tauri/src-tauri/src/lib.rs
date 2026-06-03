@@ -1,20 +1,21 @@
-mod db;
 mod ai;
-mod quarantine;
+mod db;
 mod fs_monitor;
 mod hash_db;
 mod process_monitor;
+mod quarantine;
+mod phone_link;
 
-use tauri::command;
+use base64::{engine::general_purpose, Engine as _};
 use hmac::{Hmac, Mac};
-use sha2::Sha256;
-use base64::{Engine as _, engine::general_purpose};
-use sysinfo::System;
-use std::sync::Mutex;
-use rsa::{RsaPublicKey, pkcs8::DecodePublicKey};
 use rsa::Pkcs1v15Sign;
+use rsa::{pkcs8::DecodePublicKey, RsaPublicKey};
 use sha2::Digest;
+use sha2::Sha256;
 use std::collections::HashMap;
+use std::sync::Mutex;
+use sysinfo::System;
+use tauri::command;
 
 const SECRET_KEY: &str = "SERGAKxavfsizlik2026TAFUxusniddinSecret!";
 
@@ -49,7 +50,9 @@ fn verify_rsa_signature(message: &str, signature_b64: &str) -> bool {
     let mut hasher = Sha256::new();
     hasher.update(message.as_bytes());
     let hashed = hasher.finalize();
-    pub_key.verify(Pkcs1v15Sign::new::<Sha256>(), &hashed, &sig_bytes).is_ok()
+    pub_key
+        .verify(Pkcs1v15Sign::new::<Sha256>(), &hashed, &sig_bytes)
+        .is_ok()
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -68,7 +71,8 @@ fn get_device_id() -> String {
             if !raw.is_empty() {
                 let parts: Vec<&str> = raw.splitn(5, '-').collect();
                 if parts.len() >= 4 {
-                    return format!("SRGK-{}-{}-{}",
+                    return format!(
+                        "SRGK-{}-{}-{}",
                         parts[1].to_uppercase(),
                         parts[2].to_uppercase(),
                         parts[3][..4.min(parts[3].len())].to_uppercase()
@@ -84,7 +88,9 @@ fn get_device_id() -> String {
         format!("SRGK-{}", hostname.to_uppercase())
     }
     #[cfg(not(target_os = "windows"))]
-    { "SRGK-DEMO-0000-0000".to_string() }
+    {
+        "SRGK-DEMO-0000-0000".to_string()
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -95,7 +101,7 @@ pub struct Vulnerability {
     pub id: String,
     pub title: String,
     pub description: String,
-    pub severity: String,   // "critical" | "high" | "medium" | "low"
+    pub severity: String, // "critical" | "high" | "medium" | "low"
     pub fixable: bool,
     pub fixed: bool,
 }
@@ -139,7 +145,9 @@ fn scan_vulnerabilities() -> Vec<Vulnerability> {
         vulns.push(Vulnerability {
             id: "DEFENDER_OFF".into(),
             title: "Windows Defender O'CHIQ".into(),
-            description: "Antivirus himoyasi faol emas. Zararli dasturlar tizimga kirib ketishi mumkin.".into(),
+            description:
+                "Antivirus himoyasi faol emas. Zararli dasturlar tizimga kirib ketishi mumkin."
+                    .into(),
             severity: "critical".into(),
             fixable: true,
             fixed: false,
@@ -152,7 +160,8 @@ fn scan_vulnerabilities() -> Vec<Vulnerability> {
         vulns.push(Vulnerability {
             id: "RDP_OPEN".into(),
             title: "Remote Desktop (RDP) OCHIQ".into(),
-            description: "RDP port 3389 ochiq. Agar kerak bo'lmasa, bu xakerlar uchun keng eshik.".into(),
+            description: "RDP port 3389 ochiq. Agar kerak bo'lmasa, bu xakerlar uchun keng eshik."
+                .into(),
             severity: "high".into(),
             fixable: true,
             fixed: false,
@@ -165,7 +174,8 @@ fn scan_vulnerabilities() -> Vec<Vulnerability> {
         vulns.push(Vulnerability {
             id: "GUEST_ON".into(),
             title: "Guest Hisob Faol".into(),
-            description: "Guest (mehmon) hisobi yoqilgan — bu noto'g'ri kirishlarni osonlashtiradi.".into(),
+            description:
+                "Guest (mehmon) hisobi yoqilgan — bu noto'g'ri kirishlarni osonlashtiradi.".into(),
             severity: "medium".into(),
             fixable: true,
             fixed: false,
@@ -178,7 +188,8 @@ fn scan_vulnerabilities() -> Vec<Vulnerability> {
         vulns.push(Vulnerability {
             id: "SMB1_ON".into(),
             title: "Eski SMBv1 Protokoli Faol (WannaCry!)".into(),
-            description: "SMBv1 — WannaCry ransomware hujumi ishlatgan protokol. Darhol o'chiring.".into(),
+            description: "SMBv1 — WannaCry ransomware hujumi ishlatgan protokol. Darhol o'chiring."
+                .into(),
             severity: "critical".into(),
             fixable: true,
             fixed: false,
@@ -205,7 +216,9 @@ fn scan_vulnerabilities() -> Vec<Vulnerability> {
         vulns.push(Vulnerability {
             id: "AUTOUPDATE_OFF".into(),
             title: "Avtomatik Yangilanishlar O'CHIQ".into(),
-            description: "Windows xavfsizlik yangilanishlari avtomatik o'rnatilmaydi. Tizim zaif qoladi.".into(),
+            description:
+                "Windows xavfsizlik yangilanishlari avtomatik o'rnatilmaydi. Tizim zaif qoladi."
+                    .into(),
             severity: "high".into(),
             fixable: true,
             fixed: false,
@@ -255,7 +268,10 @@ fn scan_vulnerabilities() -> Vec<Vulnerability> {
         vulns.push(Vulnerability {
             id: "PS_POLICY".into(),
             title: "PowerShell Ijro Siyosati — XAVFLI".into(),
-            description: format!("PowerShell siyosati '{}' ga o'rnatilgan. Har qanday skript ishga tushishi mumkin.", ep.trim()),
+            description: format!(
+                "PowerShell siyosati '{}' ga o'rnatilgan. Har qanday skript ishga tushishi mumkin.",
+                ep.trim()
+            ),
             severity: "medium".into(),
             fixable: true,
             fixed: false,
@@ -336,49 +352,87 @@ pub struct NetworkConnection {
     pub state: String,
     pub pid: String,
     pub process_name: String,
-    pub risk: String,   // "safe" | "warning" | "danger"
+    pub risk: String, // "safe" | "warning" | "danger"
     pub risk_reason: String,
 }
 
 fn get_process_name(pid: &str) -> String {
-    if pid == "0" || pid.is_empty() { return "System".to_string(); }
+    if pid == "0" || pid.is_empty() {
+        return "System".to_string();
+    }
     let out = ps(&format!(
-        "(Get-Process -Id {} -ErrorAction SilentlyContinue).Name", pid
+        "(Get-Process -Id {} -ErrorAction SilentlyContinue).Name",
+        pid
     ));
-    if out.trim().is_empty() { pid.to_string() } else { out.trim().to_string() }
+    if out.trim().is_empty() {
+        pid.to_string()
+    } else {
+        out.trim().to_string()
+    }
 }
 
 fn assess_risk(remote: &str, process: &str) -> (String, String) {
     // Known suspicious: remote IPs from high-risk countries / patterns
-    let sus_processes = ["powershell", "cmd", "wscript", "cscript", "regsvr32", "mshta", "bitsadmin", "certutil"];
+    let sus_processes = [
+        "powershell",
+        "cmd",
+        "wscript",
+        "cscript",
+        "regsvr32",
+        "mshta",
+        "bitsadmin",
+        "certutil",
+    ];
     let proc_lower = process.to_lowercase();
-    
+
     for sp in &sus_processes {
         if proc_lower.contains(sp) {
-            return ("danger".into(), format!("'{process}' jarayoni tarmoqqa ulandi — bu potensial zararli skript belgisi"));
+            return (
+                "danger".into(),
+                format!(
+                    "'{process}' jarayoni tarmoqqa ulandi — bu potensial zararli skript belgisi"
+                ),
+            );
         }
     }
-    
+
     // Check if remote port is suspicious
-    let remote_port: u16 = remote.split(':').last()
+    let remote_port: u16 = remote
+        .split(':')
+        .last()
         .and_then(|p| p.parse().ok())
         .unwrap_or(0);
-    
+
     match remote_port {
         4444 | 1337 | 31337 | 6666 | 6667 => {
-            return ("danger".into(), format!("Port {} — ko'pincha C2 (Command & Control) serverlari tomonidan ishlatiladi", remote_port));
+            return (
+                "danger".into(),
+                format!(
+                    "Port {} — ko'pincha C2 (Command & Control) serverlari tomonidan ishlatiladi",
+                    remote_port
+                ),
+            );
         }
         1080 | 9050 | 9150 => {
-            return ("warning".into(), format!("Port {} — Tor/Proxy ulanishi mumkin", remote_port));
+            return (
+                "warning".into(),
+                format!("Port {} — Tor/Proxy ulanishi mumkin", remote_port),
+            );
         }
         _ => {}
     }
 
     // Unknown foreign IPs (non-local)
-    if !remote.starts_with("127.") && !remote.starts_with("192.168.") 
-       && !remote.starts_with("10.") && !remote.starts_with("0.0.0.0")
-       && remote != "*:*" {
-        return ("warning".into(), format!("Tashqi IP: {remote} — tekshiring"));
+    if !remote.starts_with("127.")
+        && !remote.starts_with("192.168.")
+        && !remote.starts_with("10.")
+        && !remote.starts_with("0.0.0.0")
+        && remote != "*:*"
+    {
+        return (
+            "warning".into(),
+            format!("Tashqi IP: {remote} — tekshiring"),
+        );
     }
 
     ("safe".into(), String::new())
@@ -387,7 +441,7 @@ fn assess_risk(remote: &str, process: &str) -> (String, String) {
 #[command]
 fn get_active_connections() -> Vec<NetworkConnection> {
     let mut conns: Vec<NetworkConnection> = Vec::new();
-    
+
     let out = std::process::Command::new("netstat")
         .args(["-ano"])
         .output()
@@ -396,12 +450,14 @@ fn get_active_connections() -> Vec<NetworkConnection> {
 
     for line in out.lines().skip(4) {
         let cols: Vec<&str> = line.split_whitespace().collect();
-        if cols.len() < 4 { continue; }
-        
+        if cols.len() < 4 {
+            continue;
+        }
+
         let protocol = cols[0].to_string();
         let local = cols[1].to_string();
         let remote = cols[2].to_string();
-        
+
         let (state, pid) = if cols.len() >= 5 {
             (cols[3].to_string(), cols[4].to_string())
         } else {
@@ -409,9 +465,13 @@ fn get_active_connections() -> Vec<NetworkConnection> {
         };
 
         // Skip local-only and listening uninteresting
-        if remote == "0.0.0.0:0" || remote == "[::]:0" { continue; }
-        if remote.starts_with("127.") || remote.starts_with("[::1]") { continue; }
-        
+        if remote == "0.0.0.0:0" || remote == "[::]:0" {
+            continue;
+        }
+        if remote.starts_with("127.") || remote.starts_with("[::1]") {
+            continue;
+        }
+
         let process_name = get_process_name(&pid);
         let (risk, risk_reason) = assess_risk(&remote, &process_name);
 
@@ -425,8 +485,10 @@ fn get_active_connections() -> Vec<NetworkConnection> {
             risk,
             risk_reason,
         });
-        
-        if conns.len() >= 50 { break; } // limit output
+
+        if conns.len() >= 50 {
+            break;
+        } // limit output
     }
     conns
 }
@@ -445,85 +507,138 @@ pub struct DataLeakAlert {
 #[command]
 fn scan_clipboard_for_leaks() -> Vec<DataLeakAlert> {
     let mut alerts: Vec<DataLeakAlert> = Vec::new();
-    
+
     #[cfg(target_os = "windows")]
     {
         let clip = ps("Get-Clipboard");
         let text = clip.trim();
-        if text.is_empty() { return alerts; }
-        
-        // Detect patterns
-        check_pattern(text, r"(?i)(password|parol|pwd|pass)\s*[=:]\s*\S+", 
-            "Parol", "Clipboard'da parol iborasi topildi — nusxa olishdan ehtiyot bo'ling",
-            "critical", &mut alerts);
-        
-        check_pattern(text, r"\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b",
-            "Karta Raqami", "Clipboard'da 16 xonali karta raqamiga o'xshash son topildi",
-            "critical", &mut alerts);
+        if text.is_empty() {
+            return alerts;
+        }
 
-        check_pattern(text, r"\b[A-Z]{2}\d{7}\b",
-            "Pasport Raqami", "O'zbek pasport formatiga o'xshash ma'lumot topildi",
-            "high", &mut alerts);
-        
-        check_pattern(text, r"eyJ[A-Za-z0-9+/=]{20,}",
-            "JWT Token", "Clipboard'da autentifikatsiya tokeni topildi — noto'g'ri joyga yubormaslik kerak",
-            "high", &mut alerts);
-        
-        check_pattern(text, r"(?i)(secret|api[_\-]?key|token|private[_\-]?key)\s*[=:]\s*\S+",
-            "API Kalit", "Clipboard'da maxfiy API kalit yoki token iborasi topildi",
-            "high", &mut alerts);
-        
-        check_pattern(text, r"\b\d{2,3}-\d{3}-\d{2}-\d{2}\b",
-            "PINFL / Shaxsiy Raqam", "O'zbekiston PINFL formatiga o'xshash 14 xonali son topildi",
-            "medium", &mut alerts);
+        // Detect patterns
+        check_pattern(
+            text,
+            r"(?i)(password|parol|pwd|pass)\s*[=:]\s*\S+",
+            "Parol",
+            "Clipboard'da parol iborasi topildi — nusxa olishdan ehtiyot bo'ling",
+            "critical",
+            &mut alerts,
+        );
+
+        check_pattern(
+            text,
+            r"\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b",
+            "Karta Raqami",
+            "Clipboard'da 16 xonali karta raqamiga o'xshash son topildi",
+            "critical",
+            &mut alerts,
+        );
+
+        check_pattern(
+            text,
+            r"\b[A-Z]{2}\d{7}\b",
+            "Pasport Raqami",
+            "O'zbek pasport formatiga o'xshash ma'lumot topildi",
+            "high",
+            &mut alerts,
+        );
+
+        check_pattern(
+            text,
+            r"eyJ[A-Za-z0-9+/=]{20,}",
+            "JWT Token",
+            "Clipboard'da autentifikatsiya tokeni topildi — noto'g'ri joyga yubormaslik kerak",
+            "high",
+            &mut alerts,
+        );
+
+        check_pattern(
+            text,
+            r"(?i)(secret|api[_\-]?key|token|private[_\-]?key)\s*[=:]\s*\S+",
+            "API Kalit",
+            "Clipboard'da maxfiy API kalit yoki token iborasi topildi",
+            "high",
+            &mut alerts,
+        );
+
+        check_pattern(
+            text,
+            r"\b\d{2,3}-\d{3}-\d{2}-\d{2}\b",
+            "PINFL / Shaxsiy Raqam",
+            "O'zbekiston PINFL formatiga o'xshash 14 xonali son topildi",
+            "medium",
+            &mut alerts,
+        );
     }
-    
+
     alerts
 }
 
-fn check_pattern(text: &str, pattern: &str, alert_type: &str, desc: &str, severity: &str, alerts: &mut Vec<DataLeakAlert>) {
+fn check_pattern(
+    text: &str,
+    pattern: &str,
+    alert_type: &str,
+    desc: &str,
+    severity: &str,
+    alerts: &mut Vec<DataLeakAlert>,
+) {
     // Simple substring-based checks (no regex crate needed)
     let found = match alert_type {
         "Parol" => {
             let t = text.to_lowercase();
-            t.contains("password=") || t.contains("parol=") || t.contains("pwd=") || t.contains("pass=")
-        },
+            t.contains("password=")
+                || t.contains("parol=")
+                || t.contains("pwd=")
+                || t.contains("pass=")
+        }
         "Karta Raqami" => {
             // Check 16 consecutive digits (with possible spaces/dashes)
             let digits_only: String = text.chars().filter(|c| c.is_ascii_digit()).collect();
-            digits_only.len() >= 16 && (text.contains(' ') || text.contains('-') || digits_only.len() == 16)
-        },
+            digits_only.len() >= 16
+                && (text.contains(' ') || text.contains('-') || digits_only.len() == 16)
+        }
         "Pasport Raqami" => {
             // 2 uppercase letters followed by 7 digits
             let bytes = text.as_bytes();
             for i in 0..bytes.len().saturating_sub(8) {
-                if bytes[i].is_ascii_uppercase() && bytes[i+1].is_ascii_uppercase() {
-                    let digits = &text[i+2..];
+                if bytes[i].is_ascii_uppercase() && bytes[i + 1].is_ascii_uppercase() {
+                    let digits = &text[i + 2..];
                     if digits.starts_with(|c: char| c.is_ascii_digit()) {
-                        let num_digits = digits.chars().take(7).filter(|c| c.is_ascii_digit()).count();
-                        if num_digits == 7 { return alerts.push(DataLeakAlert {
-                            alert_type: alert_type.into(),
-                            description: desc.into(),
-                            severity: severity.into(),
-                            snippet: text.chars().take(30).collect::<String>() + "...",
-                        }); }
+                        let num_digits = digits
+                            .chars()
+                            .take(7)
+                            .filter(|c| c.is_ascii_digit())
+                            .count();
+                        if num_digits == 7 {
+                            return alerts.push(DataLeakAlert {
+                                alert_type: alert_type.into(),
+                                description: desc.into(),
+                                severity: severity.into(),
+                                snippet: text.chars().take(30).collect::<String>() + "...",
+                            });
+                        }
                     }
                 }
             }
             false
-        },
+        }
         "JWT Token" => text.contains("eyJ"),
         "API Kalit" => {
             let t = text.to_lowercase();
-            t.contains("secret=") || t.contains("api_key=") || t.contains("apikey=") || t.contains("token=") || t.contains("private_key=")
-        },
+            t.contains("secret=")
+                || t.contains("api_key=")
+                || t.contains("apikey=")
+                || t.contains("token=")
+                || t.contains("private_key=")
+        }
         "PINFL / Shaxsiy Raqam" => {
             let digits_only: String = text.chars().filter(|c| c.is_ascii_digit()).collect();
             digits_only.len() == 14
-        },
+        }
         _ => text.to_lowercase().contains(&pattern.to_lowercase()),
     };
-    
+
     if found {
         let snippet: String = text.chars().take(40).collect::<String>();
         let snippet = format!("{}...", snippet);
@@ -552,7 +667,7 @@ struct NetworkDevice {
 #[command]
 fn scan_network(target: String) -> Vec<NetworkDevice> {
     let mut devices: Vec<NetworkDevice> = Vec::new();
-    
+
     #[cfg(target_os = "windows")]
     {
         let base_ip = target.split('/').next().unwrap_or("192.168.1.0");
@@ -560,8 +675,16 @@ fn scan_network(target: String) -> Vec<NetworkDevice> {
         if parts.len() == 4 {
             let prefix = format!("{}.{}.{}.", parts[0], parts[1], parts[2]);
             let _ = std::process::Command::new("powershell")
-                .args(["-NoProfile", "-WindowStyle", "Hidden", "-Command",
-                    &format!("1..254 | ForEach-Object {{ ping -n 1 -w 150 {}{} | Out-Null }}", prefix, "$_")])
+                .args([
+                    "-NoProfile",
+                    "-WindowStyle",
+                    "Hidden",
+                    "-Command",
+                    &format!(
+                        "1..254 | ForEach-Object {{ ping -n 1 -w 150 {}{} | Out-Null }}",
+                        prefix, "$_"
+                    ),
+                ])
                 .output();
         }
 
@@ -573,14 +696,24 @@ fn scan_network(target: String) -> Vec<NetworkDevice> {
                 if cols.len() >= 2 {
                     let ip = cols[0];
                     let mac = cols[1];
-                    if (ip.starts_with("192.168") || ip.starts_with("10.") || ip.starts_with("172."))
-                       && (mac.contains('-') || mac.contains(':')) {
+                    if (ip.starts_with("192.168")
+                        || ip.starts_with("10.")
+                        || ip.starts_with("172."))
+                        && (mac.contains('-') || mac.contains(':'))
+                    {
                         let mac_clean = mac.replace('-', ":").to_uppercase();
                         let (name, dtype) = classify_device(&mac_clean, ip);
-                        let status = if mac_clean.starts_with("DE:AD:BE") { "unknown" } else { "safe" };
+                        let status = if mac_clean.starts_with("DE:AD:BE") {
+                            "unknown"
+                        } else {
+                            "safe"
+                        };
                         devices.push(NetworkDevice {
-                            name, ip: ip.to_string(), mac: mac_clean,
-                            device_type: dtype, status: status.to_string(),
+                            name,
+                            ip: ip.to_string(),
+                            mac: mac_clean,
+                            device_type: dtype,
+                            status: status.to_string(),
                         });
                     }
                 }
@@ -591,7 +724,9 @@ fn scan_network(target: String) -> Vec<NetworkDevice> {
 }
 
 fn classify_device(mac: &str, ip: &str) -> (String, String) {
-    if ip.ends_with(".1") { return ("Router / Gateway".into(), "📡".into()); }
+    if ip.ends_with(".1") {
+        return ("Router / Gateway".into(), "📡".into());
+    }
     let oui = &mac[..8.min(mac.len())].to_uppercase();
     let name = match oui.as_str() {
         "00:16:32" | "00:17:C9" | "34:AA:8B" | "5C:3C:27" => "Samsung Qurilma",
@@ -600,10 +735,15 @@ fn classify_device(mac: &str, ip: &str) -> (String, String) {
         "50:C7:BF" | "A0:F3:C1" | "98:DA:C4" => "TP-Link Router",
         _ => "Noma'lum Qurilma",
     };
-    let dtype = if name.contains("Router") { "📡" }
-                else if name.contains("Apple") { "🍎" }
-                else if name.contains("Samsung") { "📱" }
-                else { "❓" };
+    let dtype = if name.contains("Router") {
+        "📡"
+    } else if name.contains("Apple") {
+        "🍎"
+    } else if name.contains("Samsung") {
+        "📱"
+    } else {
+        "❓"
+    };
     (name.into(), dtype.into())
 }
 
@@ -612,7 +752,11 @@ fn classify_device(mac: &str, ip: &str) -> (String, String) {
 // ═══════════════════════════════════════════════════════════════
 #[command]
 fn set_module_state(module: String, enabled: bool) -> bool {
-    db::set_setting(&format!("module_{}", module), if enabled { "true" } else { "false" }).is_ok()
+    db::set_setting(
+        &format!("module_{}", module),
+        if enabled { "true" } else { "false" },
+    )
+    .is_ok()
 }
 
 #[command]
@@ -639,7 +783,9 @@ fn set_autostart(enabled: bool) -> bool {
         ps_run(&cmd)
     }
     #[cfg(not(target_os = "windows"))]
-    { false }
+    {
+        false
+    }
 }
 
 #[command]
@@ -650,7 +796,9 @@ fn get_autostart() -> bool {
         !out.trim().is_empty()
     }
     #[cfg(not(target_os = "windows"))]
-    { false }
+    {
+        false
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -659,13 +807,17 @@ fn get_autostart() -> bool {
 #[command]
 fn verify_premium_key(device_id: String, key: String) -> bool {
     let decoded = match general_purpose::STANDARD.decode(key) {
-        Ok(v) => v, Err(_) => return false,
+        Ok(v) => v,
+        Err(_) => return false,
     };
     let decoded_str = match String::from_utf8(decoded) {
-        Ok(v) => v, Err(_) => return false,
+        Ok(v) => v,
+        Err(_) => return false,
     };
     let parts: Vec<&str> = decoded_str.split('|').collect();
-    if parts.len() != 2 { return false; }
+    if parts.len() != 2 {
+        return false;
+    }
     let signature = parts[0];
     let expiry_str = parts[1];
     let msg = format!("{}|{}", device_id, expiry_str);
@@ -676,14 +828,24 @@ fn verify_premium_key(device_id: String, key: String) -> bool {
             mac.update(legacy_msg.as_bytes());
             let result = mac.finalize();
             let expected = general_purpose::STANDARD.encode(result.into_bytes());
-            if signature == expected { signature_valid = true; }
+            if signature == expected {
+                signature_valid = true;
+            }
         }
     }
-    if !signature_valid { return false; }
+    if !signature_valid {
+        return false;
+    }
     if let Ok(expiry_date) = chrono::DateTime::parse_from_rfc3339(expiry_str) {
-        if chrono::Utc::now() < expiry_date { return true; }
-    } else if let Ok(naive_dt) = chrono::NaiveDateTime::parse_from_str(expiry_str, "%Y-%m-%dT%H:%M:%S%.f") {
-        if chrono::Utc::now().naive_utc() < naive_dt { return true; }
+        if chrono::Utc::now() < expiry_date {
+            return true;
+        }
+    } else if let Ok(naive_dt) =
+        chrono::NaiveDateTime::parse_from_str(expiry_str, "%Y-%m-%dT%H:%M:%S%.f")
+    {
+        if chrono::Utc::now().naive_utc() < naive_dt {
+            return true;
+        }
     }
     false
 }
@@ -696,7 +858,11 @@ fn get_system_stats(state: tauri::State<'_, AppState>) -> (f32, u64, u64) {
     let mut sys = state.sys.lock().unwrap();
     sys.refresh_cpu_usage();
     sys.refresh_memory();
-    (sys.global_cpu_info().cpu_usage(), sys.total_memory(), sys.used_memory())
+    (
+        sys.global_cpu_info().cpu_usage(),
+        sys.total_memory(),
+        sys.used_memory(),
+    )
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -705,7 +871,10 @@ fn get_system_stats(state: tauri::State<'_, AppState>) -> (f32, u64, u64) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .manage(AppState { sys: Mutex::new(System::new_all()) })
+        .plugin(tauri_plugin_notification::init())
+        .manage(AppState {
+            sys: Mutex::new(System::new_all()),
+        })
         .plugin(tauri_plugin_opener::init())
         .setup(|_app| {
             let _ = db::init_db();
@@ -750,6 +919,10 @@ pub fn run() {
             // Process Monitor
             process_monitor::get_process_tree,
             process_monitor::monitor_startup_items,
+            // Phone Link
+            phone_link::start_websocket_server,
+            phone_link::get_connected_phone,
+            phone_link::disconnect_phone,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

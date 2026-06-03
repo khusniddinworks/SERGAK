@@ -45,7 +45,7 @@ pub async fn check_ollama_status() -> OllamaStatus {
     if let Ok(resp) = reqwest::get("http://localhost:11434/api/tags").await {
         if resp.status().is_success() {
             status.is_running = true;
-            
+
             // Check if llama3.2 is installed
             if let Ok(json) = resp.json::<serde_json::Value>().await {
                 if let Some(models) = json.get("models").and_then(|m| m.as_array()) {
@@ -74,15 +74,17 @@ pub async fn start_ollama_service() -> bool {
         let _ = Command::new("cmd")
             .args(["/C", "start /B ollama serve"])
             .spawn();
-        
+
         // Wait a bit for the server to spin up
         tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
-        
+
         let status = check_ollama_status().await;
         return status.is_running;
     }
     #[cfg(not(target_os = "windows"))]
-    { false }
+    {
+        false
+    }
 }
 
 // 3. Pull Llama 3.2 model if missing
@@ -95,7 +97,7 @@ pub async fn pull_ai_model() -> AiResponse {
             message: "Ollama server ishlamayapti.".to_string(),
         };
     }
-    
+
     if status.has_llama3_2 {
         return AiResponse {
             success: true,
@@ -105,7 +107,8 @@ pub async fn pull_ai_model() -> AiResponse {
 
     // Start pulling. This blocks until complete. In production, this should stream progress.
     let client = reqwest::Client::new();
-    let res = client.post("http://localhost:11434/api/pull")
+    let res = client
+        .post("http://localhost:11434/api/pull")
         .json(&serde_json::json!({
             "name": "llama3.2",
             "stream": false
@@ -121,7 +124,7 @@ pub async fn pull_ai_model() -> AiResponse {
         _ => AiResponse {
             success: false,
             message: "Modelni yuklashda xatolik yuz berdi.".to_string(),
-        }
+        },
     }
 }
 
@@ -129,8 +132,9 @@ pub async fn pull_ai_model() -> AiResponse {
 #[command]
 pub async fn analyze_threat_with_ai(prompt: String) -> AiResponse {
     let client = reqwest::Client::new();
-    
-    let system_prompt = "Sen 'SERGAK PC' kiberxavfsizlik dasturining sun'iy intellektli yordamchisisan. \
+
+    let system_prompt =
+        "Sen 'SERGAK PC' kiberxavfsizlik dasturining sun'iy intellektli yordamchisisan. \
         Maqsading foydalanuvchiga kompyuterdagi xavflar, viruslar va xavfsizlik muammolarini \
         sodda, tushunarli o'zbek tilida tushuntirish va qanday chora ko'rishni maslahat berish. \
         Qisqa, aniq va professional javob ber. Dasturlash tillarida kod yozma, faqat maslahat ber.";
@@ -144,7 +148,8 @@ pub async fn analyze_threat_with_ai(prompt: String) -> AiResponse {
         "stream": false
     });
 
-    let res = client.post("http://localhost:11434/api/chat")
+    let res = client
+        .post("http://localhost:11434/api/chat")
         .json(&payload)
         .send()
         .await;
@@ -152,7 +157,11 @@ pub async fn analyze_threat_with_ai(prompt: String) -> AiResponse {
     match res {
         Ok(resp) => {
             if let Ok(json) = resp.json::<serde_json::Value>().await {
-                if let Some(content) = json.get("message").and_then(|m| m.get("content")).and_then(|c| c.as_str()) {
+                if let Some(content) = json
+                    .get("message")
+                    .and_then(|m| m.get("content"))
+                    .and_then(|c| c.as_str())
+                {
                     return AiResponse {
                         success: true,
                         message: content.to_string(),
@@ -163,10 +172,10 @@ pub async fn analyze_threat_with_ai(prompt: String) -> AiResponse {
                 success: false,
                 message: "AI dan noto'g'ri javob keldi.".to_string(),
             }
-        },
+        }
         Err(e) => AiResponse {
             success: false,
             message: format!("AI ga ulanishda xatolik: {}", e),
-        }
+        },
     }
 }

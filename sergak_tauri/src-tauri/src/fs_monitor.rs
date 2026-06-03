@@ -1,11 +1,11 @@
 /// fs_monitor.rs — Windows fayl tizimi monitoringi (notify)
-use notify::{Watcher, RecursiveMode, RecommendedWatcher, Event, EventKind};
-use std::sync::{Arc, Mutex};
-use std::path::{Path, PathBuf};
-use serde::{Deserialize, Serialize};
-use sha2::{Sha256, Digest};
-use std::fs;
+use notify::{Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FsAlert {
@@ -19,9 +19,11 @@ pub struct FsAlert {
 }
 
 // Global state for alerts
-pub static FS_ALERTS: Lazy<Arc<Mutex<Vec<FsAlert>>>> = Lazy::new(|| Arc::new(Mutex::new(Vec::new())));
+pub static FS_ALERTS: Lazy<Arc<Mutex<Vec<FsAlert>>>> =
+    Lazy::new(|| Arc::new(Mutex::new(Vec::new())));
 // Global state for watcher to keep it alive
-static WATCHER: Lazy<Arc<Mutex<Option<RecommendedWatcher>>>> = Lazy::new(|| Arc::new(Mutex::new(None)));
+static WATCHER: Lazy<Arc<Mutex<Option<RecommendedWatcher>>>> =
+    Lazy::new(|| Arc::new(Mutex::new(None)));
 
 #[tauri::command]
 pub fn start_fs_monitor() -> bool {
@@ -30,11 +32,9 @@ pub fn start_fs_monitor() -> bool {
         return true; // Already running
     }
 
-    let mut watcher = match notify::recommended_watcher(|res: notify::Result<Event>| {
-        match res {
-            Ok(event) => handle_fs_event(event),
-            Err(e) => println!("watch error: {:?}", e),
-        }
+    let mut watcher = match notify::recommended_watcher(|res: notify::Result<Event>| match res {
+        Ok(event) => handle_fs_event(event),
+        Err(e) => println!("watch error: {:?}", e),
     }) {
         Ok(w) => w,
         Err(_) => return false,
@@ -95,7 +95,7 @@ fn analyze_file(path: &Path, action: &str) {
     // 2. Check against Hash DB
     let is_threat;
     let threat_name;
-    
+
     // Call the check_file_hash function from hash_db module
     // We need to use crate::hash_db::check_file_hash
     if let Some(match_info) = crate::hash_db::check_file_hash(hash.clone()) {
@@ -118,7 +118,7 @@ fn analyze_file(path: &Path, action: &str) {
 
     let mut alerts = FS_ALERTS.lock().unwrap();
     alerts.push(alert);
-    
+
     // Keep only last 100 alerts
     if alerts.len() > 100 {
         alerts.remove(0);
@@ -132,17 +132,21 @@ fn calculate_hash(path: &Path) -> Option<String> {
         Ok(f) => f,
         Err(_) => return None,
     };
-    
+
     let mut hasher = Sha256::new();
     let mut buffer = [0; 8192];
     let mut bytes_read = 0;
     let max_bytes = 10 * 1024 * 1024; // 10MB
 
     while let Ok(count) = file.read(&mut buffer) {
-        if count == 0 { break; }
+        if count == 0 {
+            break;
+        }
         hasher.update(&buffer[..count]);
         bytes_read += count;
-        if bytes_read >= max_bytes { break; }
+        if bytes_read >= max_bytes {
+            break;
+        }
     }
 
     Some(format!("{:x}", hasher.finalize()))

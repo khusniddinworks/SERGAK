@@ -1,6 +1,6 @@
 use rusqlite::{Connection, Result};
-use std::path::PathBuf;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 pub fn get_db_path() -> PathBuf {
     let mut path = dirs::data_dir().unwrap_or_else(|| std::env::temp_dir());
@@ -78,7 +78,9 @@ pub fn set_setting(key: &str, value: &str) -> Result<()> {
 pub fn get_setting(key: &str, default: &str) -> String {
     let path = get_db_path();
     if let Ok(conn) = Connection::open(&path) {
-        let mut stmt = conn.prepare("SELECT value FROM settings WHERE key = ?1").unwrap();
+        let mut stmt = conn
+            .prepare("SELECT value FROM settings WHERE key = ?1")
+            .unwrap();
         let mut rows = stmt.query([key]).unwrap();
         if let Some(row) = rows.next().unwrap() {
             return row.get(0).unwrap_or_else(|_| default.to_string());

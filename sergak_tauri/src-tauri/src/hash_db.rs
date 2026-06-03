@@ -1,7 +1,7 @@
+use crate::db::get_db_path;
 /// hash_db.rs — MalwareBazaar dan zararli dasturlar hash bazasini saqlash va tekshirish
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
-use crate::db::get_db_path;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct HashMatch {
@@ -52,10 +52,10 @@ pub fn check_file_hash(sha256: String) -> Option<HashMatch> {
     let mut rows = stmt.query([&sha256]).ok()?;
     if let Some(row) = rows.next().ok()? {
         Some(HashMatch {
-            sha256:       row.get(0).unwrap_or_default(),
+            sha256: row.get(0).unwrap_or_default(),
             malware_name: row.get(1).unwrap_or_default(),
-            severity:     row.get(2).unwrap_or_default(),
-            family:       row.get(3).unwrap_or_default(),
+            severity: row.get(2).unwrap_or_default(),
+            family: row.get(3).unwrap_or_default(),
         })
     } else {
         None
@@ -67,7 +67,7 @@ pub fn check_file_hash(sha256: String) -> Option<HashMatch> {
 pub fn get_hash_db_stats() -> HashDbStats {
     let path = get_db_path();
     let default = HashDbStats {
-        total_hashes:  0,
+        total_hashes: 0,
         last_updated: "Hali yangilanmagan".to_string(),
     };
     let conn = match Connection::open(&path) {
@@ -87,7 +87,10 @@ pub fn get_hash_db_stats() -> HashDbStats {
         )
         .unwrap_or_else(|_| "Hali yangilanmagan".to_string());
 
-    HashDbStats { total_hashes: count, last_updated }
+    HashDbStats {
+        total_hashes: count,
+        last_updated,
+    }
 }
 
 /// MalwareBazaar'dan yangi hashlar yuklab olish (HTTP orqali)
@@ -118,11 +121,13 @@ pub async fn update_hash_db() -> Result<String, String> {
             if let Ok(json) = resp.json::<serde_json::Value>().await {
                 if let Some(data) = json.get("data").and_then(|d| d.as_array()) {
                     for entry in data {
-                        let sha256 = entry.get("sha256_hash")
+                        let sha256 = entry
+                            .get("sha256_hash")
                             .and_then(|v| v.as_str())
                             .unwrap_or("")
                             .to_string();
-                        let name = entry.get("signature")
+                        let name = entry
+                            .get("signature")
                             .and_then(|v| v.as_str())
                             .unwrap_or(tag)
                             .to_string();

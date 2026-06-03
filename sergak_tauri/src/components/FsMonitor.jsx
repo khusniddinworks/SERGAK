@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/plugin-notification';
 
 export default function FsMonitor() {
   const [alerts, setAlerts] = useState([]);
@@ -24,9 +25,43 @@ export default function FsMonitor() {
   const fetchAlerts = async () => {
     try {
       const data = await invoke('get_fs_alerts');
-      setAlerts(data.reverse()); // Show newest first
+      setAlerts(prevAlerts => {
+        const newAlerts = data.reverse();
+        
+        // Find if there are any new threats that weren't in prevAlerts
+        if (prevAlerts.length > 0) {
+          const prevLatestId = prevAlerts[0]?.id;
+          const newThreats = newAlerts.filter(a => a.is_threat);
+          
+          if (newThreats.length > 0 && newThreats[0].id !== prevLatestId) {
+            // New threat detected!
+            triggerNotification(newThreats[0]);
+          }
+        }
+        
+        return newAlerts;
+      });
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const triggerNotification = async (threat) => {
+    try {
+      let permissionGranted = await isPermissionGranted();
+      if (!permissionGranted) {
+        const permission = await requestPermission();
+        permissionGranted = permission === 'granted';
+      }
+      if (permissionGranted) {
+        sendNotification({
+          title: '🚨 SERGAK: Zararli Dastur Topildi!',
+          body: `${threat.threat_name} xavfi aniqlandi: ${threat.path}`,
+          icon: 'error'
+        });
+      }
+    } catch (e) {
+      console.error("Xabarnoma yuborishda xatolik:", e);
     }
   };
 
