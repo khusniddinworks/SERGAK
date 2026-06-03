@@ -1,36 +1,38 @@
-import React, { useState, useEffect } from "react";
-
-const mockDevices = [
-  { name: "Bu Kompyuter",      ip: "192.168.1.2",   mac: "A4:5E:60:XX:XX:01", type: "💻", status: "safe" },
-  { name: "Router / Gateway",  ip: "192.168.1.1",   mac: "C8:3A:35:XX:XX:00", type: "📡", status: "safe" },
-  { name: "Android Telefon",   ip: "192.168.1.15",  mac: "F0:72:EA:XX:XX:12", type: "📱", status: "safe" },
-  { name: "Smart TV",          ip: "192.168.1.20",  mac: "00:1A:2B:XX:XX:33", type: "📺", status: "safe" },
-  { name: "Noma'lum Qurilma",  ip: "192.168.1.105", mac: "DE:AD:BE:EF:CA:FE", type: "❓", status: "unknown" },
-];
+import React, { useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
 
 export default function NetworkScanner() {
-  const [scanning, setScanning] = useState(false);
-  const [scanDone, setScanDone] = useState(false);
-  const [devices, setDevices] = useState([]);
-  const [target, setTarget] = useState("192.168.1.0/24");
+  const [scanning,  setScanning]  = useState(false);
+  const [scanDone,  setScanDone]  = useState(false);
+  const [devices,   setDevices]   = useState([]);
+  const [target,    setTarget]    = useState("192.168.1.0/24");
+  const [scanTime,  setScanTime]  = useState(null);
 
-  const handleScan = () => {
+  const handleScan = async () => {
     setScanning(true);
     setScanDone(false);
     setDevices([]);
-    // Simulate scanning
-    setTimeout(() => {
-      setScanning(false);
+    const t0 = Date.now();
+    try {
+      // Real ARP scan via Rust backend
+      const result = await invoke("scan_network", { target });
+      setDevices(result);
       setScanDone(true);
-      setDevices(mockDevices);
-    }, 3000);
+      setScanTime(((Date.now() - t0) / 1000).toFixed(1));
+    } catch (e) {
+      alert("Skaner xatosi: " + e);
+    } finally {
+      setScanning(false);
+    }
   };
+
+  const unknownCount = devices.filter(d => d.status === "unknown").length;
 
   return (
     <div className="page-enter">
       <div className="page-header">
         <h1>🌐 Tarmoq Skaneri</h1>
-        <p>Mahalliy tarmoqda ulangan barcha qurilmalarni aniqlash va tahlil qilish</p>
+        <p>Mahalliy tarmoqda ulangan barcha qurilmalarni ARP orqali aniqlash va tahlil qilish</p>
       </div>
 
       {/* Controls */}
@@ -41,14 +43,22 @@ export default function NetworkScanner() {
           value={target}
           onChange={(e) => setTarget(e.target.value)}
           placeholder="IP yoki tarmoq diapazoni (masalan, 192.168.1.0/24)"
+          disabled={scanning}
         />
         <button
           className="btn btn-primary btn-lg"
           onClick={handleScan}
           disabled={scanning}
         >
-          {scanning ? "⏳ Skanerlash..." : "🔍 Skanerlash"}
+          {scanning ? "⏳ Skanerlanmoqda..." : "🔍 Skanerlash"}
         </button>
+      </div>
+
+      {/* Info note */}
+      <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 16, padding: "8px 12px",
+        background: "rgba(255,255,255,0.03)", borderRadius: 8, border: "1px solid var(--border)" }}>
+        ℹ️ Skaner ARP jadvali va ping orqali ishlaydi. Natijalar 1-3 daqiqa olishi mumkin.
+        {scanTime && <span style={{ color: "var(--accent)", marginLeft: 8 }}>✅ {scanTime} soniyada yakunlandi</span>}
       </div>
 
       {/* Scan Animation */}
@@ -57,8 +67,29 @@ export default function NetworkScanner() {
           <div className="scan-center-text">
             <span className="scan-icon">{scanning ? "📡" : "🔍"}</span>
             <span className="scan-status">
-              {scanning ? "Skanerlanmoqda..." : "Boshlash uchun tugmani bosing"}
+              {scanning ? "ARP va ping skanerlanmoqda..." : "Boshlash uchun tugmani bosing"}
             </span>
+          </div>
+        </div>
+      )}
+
+      {/* Summary */}
+      {scanDone && (
+        <div className="stats-grid" style={{ marginBottom: 16 }}>
+          <div className="glass-card stat-card">
+            <span className="stat-icon">🔗</span>
+            <div className="stat-value val-accent">{devices.length}</div>
+            <div className="stat-label">Jami Qurilma</div>
+          </div>
+          <div className="glass-card stat-card">
+            <span className="stat-icon">✅</span>
+            <div className="stat-value val-success">{devices.length - unknownCount}</div>
+            <div className="stat-label">Xavfsiz</div>
+          </div>
+          <div className="glass-card stat-card">
+            <span className="stat-icon">❓</span>
+            <div className="stat-value" style={{ color: unknownCount > 0 ? "#ffa502" : "#2ed573" }}>{unknownCount}</div>
+            <div className="stat-label">Noma'lum</div>
           </div>
         </div>
       )}
@@ -71,8 +102,9 @@ export default function NetworkScanner() {
           </div>
           <div className="network-grid stagger">
             {devices.map((d, i) => (
-              <div key={i} className="glass-card device-card">
-                <div className={`device-avatar ${d.status}`}>{d.type}</div>
+              <div key={i} className="glass-card device-card"
+                style={{ borderLeft: `3px solid ${d.status === "unknown" ? "#ffa502" : "#2ed573"}` }}>
+                <div className={`device-avatar ${d.status}`}>{d.device_type}</div>
                 <div className="device-info">
                   <h4>{d.name}</h4>
                   <span className="device-ip">{d.ip} • {d.mac}</span>
@@ -84,6 +116,13 @@ export default function NetworkScanner() {
             ))}
           </div>
         </>
+      )}
+
+      {scanDone && devices.length === 0 && (
+        <div className="glass-card" style={{ textAlign: "center", padding: 32 }}>
+          <div style={{ fontSize: 40, marginBottom: 8 }}>📡</div>
+          <p>Hech qanday qurilma topilmadi. Tarmoq diapazonini tekshiring.</p>
+        </div>
       )}
     </div>
   );

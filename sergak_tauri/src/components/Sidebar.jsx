@@ -1,10 +1,12 @@
 import React from "react";
 
 const navItems = [
-  { id: "home",     icon: "🛡️", label: "Asosiy Panel" },
-  { id: "network",  icon: "🌐", label: "Tarmoq Skaneri" },
-  { id: "phone",    icon: "📱", label: "Phone Link" },
-  { id: "settings", icon: "⚙️", label: "Sozlamalar" },
+  { id: "home",      icon: "🛡️", label: "Asosiy Panel" },
+  { id: "vuln",      icon: "🔍", label: "Zaiflik Skaneri" },
+  { id: "dataguard", icon: "🛡️", label: "Ma'lumot Filtr" },
+  { id: "network",   icon: "🌐", label: "Tarmoq Skaneri" },
+  { id: "phone",     icon: "📱", label: "Phone Link" },
+  { id: "settings",  icon: "⚙️", label: "Sozlamalar" },
 ];
 
 export default function Sidebar({ activeTab, onTabChange, isPremium }) {

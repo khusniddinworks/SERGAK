@@ -1,67 +1,46 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
 
-const modules = [
-  {
-    name: "Kiber Darvoza",
-    desc: "Phishing saytlarni bloklash",
-    icon: "🔒",
-    iconBg: "success-bg",
-    status: "active",
-  },
-  {
-    name: "USB Qalqoni",
-    desc: "Tashqi qurilmalarni nazorat",
-    icon: "🔌",
-    iconBg: "accent-bg",
-    status: "active",
-  },
-  {
-    name: "Kamera Himoyasi",
-    desc: "Privacy Guard moduli",
-    icon: "📷",
-    iconBg: "purple-bg",
-    status: "active",
-  },
-  {
-    name: "Ransomware Qopqon",
-    desc: "Honeypot fayllarni kuzatish",
-    icon: "🪤",
-    iconBg: "warning-bg",
-    status: "active",
-  },
-  {
-    name: "Anti-Keylogger",
-    desc: "Klaviatura himoyasi",
-    icon: "⌨️",
-    iconBg: "danger-bg",
-    status: "active",
-  },
-  {
-    name: "Phone Link",
-    desc: "Telefon bilan sinxronizatsiya",
-    icon: "📱",
-    iconBg: "accent-bg",
-    status: "inactive",
-  },
-];
+const MODULE_META = {
+  gateway:   { name: "Kiber Darvoza",       desc: "Phishing saytlarni bloklash",       icon: "🔒", iconBg: "success-bg" },
+  usb:       { name: "USB Qalqoni",          desc: "Tashqi qurilmalarni nazorat",        icon: "🔌", iconBg: "accent-bg"  },
+  camera:    { name: "Kamera Himoyasi",      desc: "Privacy Guard moduli",               icon: "📷", iconBg: "purple-bg"  },
+  honeypot:  { name: "Ransomware Qopqon",    desc: "Honeypot fayllarni kuzatish",        icon: "🪤", iconBg: "warning-bg" },
+  keylogger: { name: "Anti-Keylogger",       desc: "Klaviatura himoyasi",                icon: "⌨️", iconBg: "danger-bg"  },
+};
 
-const activities = [
-  { dot: "dot-success", text: "USB qurilma skanerlandi — xavfsiz", time: "Hozir" },
-  { dot: "dot-accent",  text: "Tizim xavfsizlik tekshiruvi yakunlandi", time: "2 daq. oldin" },
-  { dot: "dot-warning", text: "Wi-Fi tarmoq nomi o'zgardi — tekshirilmoqda", time: "15 daq. oldin" },
-  { dot: "dot-success", text: "Kiber Darvoza: 3 ta shubhali havola bloklandi", time: "1 soat oldin" },
-  { dot: "dot-danger",  text: "Keylogger urinishi aniqlandi va bloklandi", time: "3 soat oldin" },
-];
+export default function Dashboard({ cpu, ram, moduleStates = {} }) {
+  const [uptime, setUptime]     = useState("00:00:00");
+  const [startTime]             = useState(Date.now());
+  const [threatCount]           = useState(0);  // Will come from real backend threat log in future
 
-export default function Dashboard({ cpu, ram }) {
+  // Live uptime counter
+  useEffect(() => {
+    const t = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const h = String(Math.floor(elapsed / 3600)).padStart(2, "0");
+      const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, "0");
+      const s = String(elapsed % 60).padStart(2, "0");
+      setUptime(`${h}:${m}:${s}`);
+    }, 1000);
+    return () => clearInterval(t);
+  }, [startTime]);
+
+  const activeCount   = Object.values(moduleStates).filter(Boolean).length;
+  const inactiveCount = Object.keys(MODULE_META).length - activeCount;
+
+  const shieldStatus = inactiveCount === 0
+    ? { text: "Kompyuter Himoyalangan", sub: "Barcha xavfsizlik modullari barqaror ishlamoqda.", cls: "protected" }
+    : { text: `${inactiveCount} ta modul o'CHIQ`, sub: "Ba'zi himoya modullari faol emas. Sozlamalardan yoqing.", cls: "warning" };
+
   return (
     <div className="page-enter">
       {/* Shield Status */}
-      <div className="glass-card shield-status">
-        <div className="shield-orb protected">🛡️</div>
+      <div className={`glass-card shield-status ${inactiveCount > 0 ? "shield-warn" : ""}`}>
+        <div className={`shield-orb ${shieldStatus.cls}`}>🛡️</div>
         <div className="shield-text">
-          <h2>Kompyuter Himoyalangan</h2>
-          <p>Barcha xavfsizlik modullari barqaror ishlamoqda. Hech qanday tahdid aniqlanmadi.</p>
+          <h2 style={{ color: inactiveCount > 0 ? "#ffa502" : undefined }}>{shieldStatus.text}</h2>
+          <p>{shieldStatus.sub}</p>
         </div>
       </div>
 
@@ -69,7 +48,7 @@ export default function Dashboard({ cpu, ram }) {
       <div className="stats-grid stagger">
         <div className="glass-card stat-card">
           <span className="stat-icon">🎯</span>
-          <div className="stat-value val-success">0</div>
+          <div className="stat-value val-success">{threatCount}</div>
           <div className="stat-label">Tahdidlar</div>
         </div>
         <div className="glass-card stat-card">
@@ -84,51 +63,71 @@ export default function Dashboard({ cpu, ram }) {
         </div>
         <div className="glass-card stat-card">
           <span className="stat-icon">⏱️</span>
-          <div className="stat-value val-warning">24/7</div>
-          <div className="stat-label">Himoya Vaqti</div>
+          <div className="stat-value val-warning" style={{ fontSize: 18 }}>{uptime}</div>
+          <div className="stat-label">Ishga tushganiga</div>
         </div>
       </div>
 
-      {/* Module Status */}
+      {/* Module Status — from real moduleStates prop */}
       <div className="section-title">
-        <span>📦</span> Modul Holati
+        <span>📦</span> Modul Holati ({activeCount}/{Object.keys(MODULE_META).length} faol)
       </div>
       <div className="module-grid stagger">
-        {modules.map((m, i) => (
-          <div
-            key={i}
-            className={`glass-card module-card ${
-              m.status === "active" ? "is-active" : "is-inactive"
-            }`}
-          >
-            <div className={`module-icon ${m.iconBg}`}>{m.icon}</div>
-            <div className="module-info">
-              <h4>{m.name}</h4>
-              <p>{m.desc}</p>
-            </div>
-            <span
-              className={`status-badge ${
-                m.status === "active" ? "badge-active" : "badge-inactive"
-              }`}
+        {Object.entries(MODULE_META).map(([key, m]) => {
+          const isActive = moduleStates[key] !== false; // default true
+          return (
+            <div
+              key={key}
+              className={`glass-card module-card ${isActive ? "is-active" : "is-inactive"}`}
             >
-              {m.status === "active" ? "FAOL" : "O'CHIQ"}
-            </span>
+              <div className={`module-icon ${m.iconBg}`}>{m.icon}</div>
+              <div className="module-info">
+                <h4>{m.name}</h4>
+                <p>{m.desc}</p>
+              </div>
+              <span className={`status-badge ${isActive ? "badge-active" : "badge-inactive"}`}>
+                {isActive ? "FAOL" : "O'CHIQ"}
+              </span>
+            </div>
+          );
+        })}
+        {/* Phone Link — always shows state from phonelink */}
+        <div className="glass-card module-card is-inactive">
+          <div className="module-icon accent-bg">📱</div>
+          <div className="module-info">
+            <h4>Phone Link</h4>
+            <p>Telefon bilan sinxronizatsiya</p>
           </div>
-        ))}
+          <span className="status-badge badge-inactive">O'CHIQ</span>
+        </div>
       </div>
 
-      {/* Activity Log */}
+      {/* Quick Actions */}
       <div className="section-title mt-lg">
-        <span>📋</span> So'nggi Hodisalar
+        <span>⚡</span> Tezkor Harakatlar
       </div>
-      <div className="activity-list stagger">
-        {activities.map((a, i) => (
-          <div key={i} className="activity-item">
-            <span className={`activity-dot ${a.dot}`} />
-            <span className="activity-text">{a.text}</span>
-            <span className="activity-time">{a.time}</span>
-          </div>
-        ))}
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <div className="glass-card" style={{ flex: 1, minWidth: 150, padding: "14px 16px", cursor: "pointer",
+          borderLeft: "3px solid #2ed573", transition: "all 0.2s" }}
+          onClick={() => {}}>
+          <div style={{ fontSize: 20, marginBottom: 4 }}>🔍</div>
+          <div style={{ fontSize: 12, fontWeight: 600 }}>Zaifliklarni skanerlash</div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Tizim tekshiruvi</div>
+        </div>
+        <div className="glass-card" style={{ flex: 1, minWidth: 150, padding: "14px 16px", cursor: "pointer",
+          borderLeft: "3px solid #5352ed", transition: "all 0.2s" }}
+          onClick={() => {}}>
+          <div style={{ fontSize: 20, marginBottom: 4 }}>🛡️</div>
+          <div style={{ fontSize: 12, fontWeight: 600 }}>Ma'lumot filtri</div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Tarmoqni kuzatish</div>
+        </div>
+        <div className="glass-card" style={{ flex: 1, minWidth: 150, padding: "14px 16px", cursor: "pointer",
+          borderLeft: "3px solid #ff6b35", transition: "all 0.2s" }}
+          onClick={() => {}}>
+          <div style={{ fontSize: 20, marginBottom: 4 }}>🌐</div>
+          <div style={{ fontSize: 12, fontWeight: 600 }}>Tarmoq skaneri</div>
+          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Qurilmalarni topish</div>
+        </div>
       </div>
     </div>
   );

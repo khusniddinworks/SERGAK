@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
 
 export default function Settings({
   deviceId,
@@ -6,18 +7,43 @@ export default function Settings({
   setLicenseKey,
   isPremium,
   onVerify,
+  moduleStates,
+  onModuleToggle,
 }) {
-  const [toggles, setToggles] = useState({
-    gateway: true,
-    usb: true,
-    camera: true,
-    keylogger: true,
-    honeypot: true,
-    autoStart: false,
-  });
+  const [autoStart, setAutoStart] = useState(false);
+  const [savingAutoStart, setSavingAutoStart] = useState(false);
+  const [appVersion, setAppVersion] = useState("1.0.0");
 
-  const toggle = (key) => {
-    setToggles((prev) => ({ ...prev, [key]: !prev[key] }));
+  useEffect(() => {
+    // Load real autostart status from Windows registry
+    invoke("get_autostart")
+      .then(val => setAutoStart(val))
+      .catch(() => {});
+  }, []);
+
+  const handleAutoStartToggle = async () => {
+    setSavingAutoStart(true);
+    const newVal = !autoStart;
+    try {
+      const ok = await invoke("set_autostart", { enabled: newVal });
+      if (ok) {
+        setAutoStart(newVal);
+      } else {
+        alert("Xatolik: Administrator huquqi kerak bo'lishi mumkin.");
+      }
+    } catch (e) {
+      alert("Xatolik: " + e);
+    } finally {
+      setSavingAutoStart(false);
+    }
+  };
+
+  const MODULE_LABELS = {
+    gateway:   { title: "Kiber Darvoza (DNS Blocker)", desc: "Zararli saytlarni bloklash" },
+    usb:       { title: "USB Qalqoni",                 desc: "Tashqi qurilmalarni skanerlash" },
+    camera:    { title: "Kamera / Mikrofon Himoyasi",  desc: "Privacy Guard moduli" },
+    keylogger: { title: "Anti-Keylogger",              desc: "Klaviatura himoyachisi" },
+    honeypot:  { title: "Ransomware Qopqon",           desc: "Honeypot fayllar kuzatuvi" },
   };
 
   return (
@@ -43,6 +69,7 @@ export default function Settings({
               className="glass-input"
               value={deviceId}
               readOnly
+              style={{ fontFamily: "monospace", fontSize: 13 }}
             />
           </div>
 
@@ -63,85 +90,48 @@ export default function Settings({
           </button>
 
           {isPremium && (
-            <div
-              className="text-success mt-md"
-              style={{ fontSize: 13, textAlign: "center", fontWeight: 600 }}
-            >
+            <div className="text-success mt-md"
+              style={{ fontSize: 13, textAlign: "center", fontWeight: 600 }}>
               ✅ Premium versiya faol!
             </div>
           )}
         </div>
 
-        {/* Security Toggles */}
+        {/* Security Module Toggles — REAL backend calls */}
         <div className="glass-card settings-card">
           <h3>🔐 Xavfsizlik Modullari</h3>
           <p className="card-desc">
             Har bir modul alohida yoqilishi yoki o'chirilishi mumkin.
+            O'zgarishlar darhol saqlanadi.
           </p>
 
-          <div className="toggle-row">
-            <div className="toggle-label">
-              <span className="t-title">Kiber Darvoza (DNS Blocker)</span>
-              <span className="t-desc">Zararli saytlarni bloklash</span>
+          {Object.entries(MODULE_LABELS).map(([key, label]) => (
+            <div key={key} className="toggle-row">
+              <div className="toggle-label">
+                <span className="t-title">{label.title}</span>
+                <span className="t-desc">{label.desc}</span>
+              </div>
+              <button
+                className={`toggle-switch ${moduleStates?.[key] !== false ? "on" : ""}`}
+                onClick={() => onModuleToggle?.(key)}
+                title={moduleStates?.[key] !== false ? "Yoqilgan — o'chirish uchun bosing" : "O'chirilgan — yoqish uchun bosing"}
+              />
             </div>
-            <button
-              className={`toggle-switch ${toggles.gateway ? "on" : ""}`}
-              onClick={() => toggle("gateway")}
-            />
-          </div>
+          ))}
 
-          <div className="toggle-row">
+          {/* Autostart — Real Windows registry */}
+          <div className="toggle-row" style={{ marginTop: 12, borderTop: "1px solid var(--border)", paddingTop: 12 }}>
             <div className="toggle-label">
-              <span className="t-title">USB Qalqoni</span>
-              <span className="t-desc">Tashqi qurilmalarni skanerlash</span>
+              <span className="t-title">
+                Windows bilan birga ishga tushish
+                {savingAutoStart && <span style={{ fontSize: 11, color: "var(--text-muted)", marginLeft: 8 }}>saqlanmoqda...</span>}
+              </span>
+              <span className="t-desc">SERGAK avtomatik yuklansin (Registry: HKCU\Run)</span>
             </div>
             <button
-              className={`toggle-switch ${toggles.usb ? "on" : ""}`}
-              onClick={() => toggle("usb")}
-            />
-          </div>
-
-          <div className="toggle-row">
-            <div className="toggle-label">
-              <span className="t-title">Kamera / Mikrofon Himoyasi</span>
-              <span className="t-desc">Privacy Guard moduli</span>
-            </div>
-            <button
-              className={`toggle-switch ${toggles.camera ? "on" : ""}`}
-              onClick={() => toggle("camera")}
-            />
-          </div>
-
-          <div className="toggle-row">
-            <div className="toggle-label">
-              <span className="t-title">Anti-Keylogger</span>
-              <span className="t-desc">Klaviatura himoyachisi</span>
-            </div>
-            <button
-              className={`toggle-switch ${toggles.keylogger ? "on" : ""}`}
-              onClick={() => toggle("keylogger")}
-            />
-          </div>
-
-          <div className="toggle-row">
-            <div className="toggle-label">
-              <span className="t-title">Ransomware Qopqon</span>
-              <span className="t-desc">Honeypot fayllar kuzatuvi</span>
-            </div>
-            <button
-              className={`toggle-switch ${toggles.honeypot ? "on" : ""}`}
-              onClick={() => toggle("honeypot")}
-            />
-          </div>
-
-          <div className="toggle-row">
-            <div className="toggle-label">
-              <span className="t-title">Windows bilan birga ishga tushish</span>
-              <span className="t-desc">SERGAK avtomatik yuklansin</span>
-            </div>
-            <button
-              className={`toggle-switch ${toggles.autoStart ? "on" : ""}`}
-              onClick={() => toggle("autoStart")}
+              className={`toggle-switch ${autoStart ? "on" : ""}`}
+              onClick={handleAutoStartToggle}
+              disabled={savingAutoStart}
             />
           </div>
         </div>
@@ -156,15 +146,21 @@ export default function Settings({
 
           <div className="toggle-row">
             <span className="t-title">Versiya</span>
-            <span className="text-accent text-mono">v2.0.0</span>
+            <span className="text-accent text-mono">v1.0.0</span>
           </div>
           <div className="toggle-row">
             <span className="t-title">Platforma</span>
-            <span className="text-muted text-mono">Tauri + React</span>
+            <span className="text-muted text-mono">Tauri v2 + React</span>
           </div>
           <div className="toggle-row">
             <span className="t-title">Yaratuvchi</span>
             <span className="text-muted">TAFU — Xavfsizlik Jamoasi</span>
+          </div>
+          <div className="toggle-row">
+            <span className="t-title">Litsenziya turi</span>
+            <span className={isPremium ? "text-accent" : "text-muted"}>
+              {isPremium ? "Premium ✅" : "Bepul rejim"}
+            </span>
           </div>
         </div>
       </div>
