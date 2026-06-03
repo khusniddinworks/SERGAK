@@ -20,7 +20,6 @@ export default function Sidebar({ activeTab, onTabChange, isPremium }) {
       <div className="logo-section">
         <div className="logo-icon">🛡️</div>
         <div className="logo-title">SERGAK PC</div>
-        <div className="logo-subtitle">Kiber Qalqon v2.0</div>
       </div>
 
       {/* Navigation */}

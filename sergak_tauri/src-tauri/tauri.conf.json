@@ -12,8 +12,8 @@
   "app": {
     "windows": [
       {
-        "title": "SERGAK PC - Kiber Qalqon v2.0",
-        "width": 1100,
+        "title": "SERGAK PC",
+        "width": 1200,
         "height": 700,
         "minWidth": 900,
         "minHeight": 600,

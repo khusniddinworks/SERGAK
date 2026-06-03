@@ -700,7 +700,7 @@ fn scan_network(target: String) -> Vec<NetworkDevice> {
                         prefix, "$_"
                     ),
                 ])
-                .output();
+                .spawn();
         }
 
         let arp_out = std::process::Command::new("arp").creation_flags(0x08000000).args(["-a"]).output();
