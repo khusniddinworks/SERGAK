@@ -124,11 +124,12 @@ async fn handle_connection(raw_stream: TcpStream) {
                     };
                     
                     if provided_otp == expected_otp {
-                        let mut state = PHONE_STATE.lock().unwrap();
-                        state.is_connected = true;
-                        state.device_name = Some(device_name.to_string());
-                        state.connection_time = Some(chrono::Utc::now().format("%Y-%m-%d %H:%M").to_string());
-                        
+                        {
+                            let mut state = PHONE_STATE.lock().unwrap();
+                            state.is_connected = true;
+                            state.device_name = Some(device_name.to_string());
+                            state.connection_time = Some(chrono::Utc::now().format("%Y-%m-%d %H:%M").to_string());
+                        }
                         let _ = write.send(tokio_tungstenite::tungstenite::Message::Text("AUTH_OK".into())).await;
                     } else {
                         let _ = write.send(tokio_tungstenite::tungstenite::Message::Text("AUTH_FAILED".into())).await;

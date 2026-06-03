@@ -29,7 +29,7 @@ pub fn get_process_tree() -> Vec<ProcessNode> {
     let mut nodes = Vec::new();
 
     for (pid, process) in sys.processes() {
-        let name = process.name().to_string_lossy().to_string();
+        let name = process.name().to_string();
         let ppid = process.parent().map(|p| p.as_u32());
         let pid_u32 = pid.as_u32();
 
@@ -52,7 +52,7 @@ pub fn get_process_tree() -> Vec<ProcessNode> {
         {
             if let Some(parent_pid) = ppid {
                 if let Some(parent) = sys.process(sysinfo::Pid::from_u32(parent_pid)) {
-                    let parent_name = parent.name().to_string_lossy().to_lowercase();
+                    let parent_name = parent.name().to_string().to_lowercase();
                     if [
                         "winword.exe",
                         "excel.exe",
