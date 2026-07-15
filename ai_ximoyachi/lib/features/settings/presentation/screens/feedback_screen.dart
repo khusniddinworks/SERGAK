@@ -16,9 +16,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   final TextEditingController _messageController = TextEditingController();
   bool _isLoading = false;
 
-  // DIQQAT: Telegram bot tokeningizni va o'zingizning Chat ID yoki Admin ID ngizni yozing
-  final String _botToken = "8919785570:AAGtLi0Y-8xBv1jyOXSS98Fg3JleAQEHWWw"; 
-  final String _adminChatId = "8332161047";
+  // DIQQAT: O'zingizning Render'dagi backend URL manzilingizni yozing
+  final String _backendUrl = "https://sergak.onrender.com/api/feedback";
 
   Future<void> _sendMessage() async {
     final message = _messageController.text.trim();
@@ -41,19 +40,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         deviceName = iosInfo.name;
       }
 
-      // Telegramga yuboriladigan xabar formati
-      final telegramMessage = "📝 *Yangi Fikr / Shikoyat*\n\n"
-          "📱 *Qurilma:* $deviceName\n"
-          "💬 *Xabar:* $message";
-
-      final url = Uri.parse('https://api.telegram.org/bot$_botToken/sendMessage');
+      // Backend API ga yuborish
+      final url = Uri.parse(_backendUrl);
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "chat_id": _adminChatId,
-          "text": telegramMessage,
-          "parse_mode": "Markdown",
+          "device_name": deviceName,
+          "message": message,
         }),
       );
 

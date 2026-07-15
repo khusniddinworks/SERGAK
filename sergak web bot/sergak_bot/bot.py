@@ -759,6 +759,44 @@ def main():
                     headers={"Access-Control-Allow-Origin": "*"}
                 )
 
+        async def handle_feedback(request):
+            try:
+                data = await request.json()
+                device_name = data.get("device_name", "Noma'lum qurilma")
+                message = data.get("message", "")
+                
+                if not message:
+                    return web.json_response(
+                        {"error": "Message is required"},
+                        status=400,
+                        headers={"Access-Control-Allow-Origin": "*"}
+                    )
+                
+                telegram_message = (
+                    f"📝 *Yangi Fikr / Shikoyat (Ilovadan)*\n\n"
+                    f"📱 *Qurilma:* {device_name}\n"
+                    f"💬 *Xabar:* {message}"
+                )
+                
+                # Bot orqali Adminga yuborish
+                await application.bot.send_message(
+                    chat_id=ADMIN_ID,
+                    text=telegram_message,
+                    parse_mode="Markdown"
+                )
+                
+                return web.json_response(
+                    {"success": True, "message": "Feedback sent to admin"},
+                    headers={"Access-Control-Allow-Origin": "*"}
+                )
+            except Exception as e:
+                logger.error(f"Feedback API xatosi: {e}")
+                return web.json_response(
+                    {"error": "Internal Server Error"},
+                    status=500,
+                    headers={"Access-Control-Allow-Origin": "*"}
+                )
+
         async def handle_options(request):
             return web.Response(
                 headers={
@@ -773,6 +811,8 @@ def main():
         web_app.router.add_get("/health", handle_health)
         web_app.router.add_options("/api/generate-license", handle_options)
         web_app.router.add_post("/api/generate-license", handle_generate_license)
+        web_app.router.add_options("/api/feedback", handle_options)
+        web_app.router.add_post("/api/feedback", handle_feedback)
         
         runner = web.AppRunner(web_app)
         await runner.setup()

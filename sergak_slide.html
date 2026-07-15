@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SERGAK - Muammo va Yechim</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f5f7f9;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            
+            /* Theme colors */
+            --blue-light: #eff6ff;
+            --blue-border: #bfdbfe;
+            --blue-main: #1d4ed8;
+            --blue-badge: #2563eb;
+            
+            --red-light: #fef2f2;
+            --red-border: #fecaca;
+            --red-main: #ef4444;
+            --red-badge: #dc2626;
+            
+            --yellow-light: #fefce8;
+            --yellow-border: #fef08a;
+            --yellow-main: #ca8a04;
+            --yellow-badge: #1f2937; /* dark badge for yellow section */
+            
+            --card-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        /* Slide Container */
+        .slide-container {
+            background-color: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 1300px;
+            padding: 3rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* Main Grid */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Section Boxes */
+        .section-box {
+            border-radius: 20px;
+            padding: 2rem 2rem 2rem 2rem;
+            position: relative;
+            border: 2px solid;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .section-blue {
+            background-color: var(--blue-light);
+            border-color: var(--blue-border);
+        }
+
+        .section-red {
+            background-color: var(--red-light);
+            border-color: var(--red-border);
+        }
+
+        /* Section Badges */
+        .section-badge {
+            position: absolute;
+            top: -20px;
+            left: 2rem;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge-blue {
+            background-color: var(--blue-badge);
+        }
+
+        .badge-red {
+            background-color: var(--red-badge);
+        }
+
+        .badge-icon {
+            background-color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .badge-blue .badge-icon { color: var(--blue-badge); }
+        .badge-red .badge-icon { color: var(--red-badge); }
+
+        /* Inner Cards */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Left Cards Content */
+        .number-badge {
+            background-color: var(--blue-main);
+            color: white;
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.5;
+            color: #334155;
+            flex-grow: 1;
+        }
+
+        .card-illustration {
+            font-size: 3rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* Right Cards Content */
+        .logos-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #475569;
+            min-width: 160px;
+            justify-content: center;
+        }
+        
+        .feature-icon-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 160px;
+            justify-content: center;
+        }
+        
+        .icon-box {
+            background-color: #f1f5f9;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 1.5rem;
+        }
+
+        .cross-mark {
+            color: var(--red-main);
+            font-size: 1.8rem;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* Bottom Solution Block */
+        .solution-box {
+            background-color: var(--yellow-light);
+            border: 2px solid var(--yellow-border);
+            border-radius: 20px;
+            padding: 2rem 2rem 2rem 14rem; /* padding for the absolute badge */
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            min-height: 120px;
+        }
+
+        .badge-yellow {
+            background-color: var(--yellow-badge);
+            position: absolute;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .badge-yellow .badge-icon {
+            color: var(--yellow-badge);
+        }
+
+        .solution-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .solution-illustration {
+            font-size: 4rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Warning Center Icon */
+        .center-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+            z-index: 10;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            .center-warning {
+                display: none;
+            }
+            .solution-box {
+                padding: 5rem 2rem 2rem 2rem;
+                flex-direction: column;
+                text-align: center;
+            }
+            .badge-yellow {
+                top: -20px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>MUAMMO TAHLILI VA MAVJUD YECHIMLARNING KAMCHILIKLARI</h1>
+            <p>SERGAK — O'zbekistondagi №1 AI Oflayn Kiberxavfsizlik Ilovasi uchun muammolar tahlili</p>
+        </div>
+
+        <!-- Warning Icon in Center -->
+        <div class="center-warning">⚠️</div>
+
+        <!-- Main Grid -->
+        <div class="grid-container">
+            
+            <!-- Left Column: Problems -->
+            <div class="section-box section-blue">
+                <div class="section-badge badge-blue">
+                    <span class="badge-icon">?</span> ASOSIY MUAMMOLAR
+                </div>
+
+                <!-- Card 1 -->
+                <div class="card">
+                    <div class="number-badge">1</div>
+                    <div class="card-text">
+                        An'anaviy antivirus va himoya tizimlari ma'lumotlarni tahlil qilish uchun <b>bulutli (Cloud) serverlarga</b> yuboradi. Bu maxfiylik yo'qolishiga olib keladi.
+                    </div>
+                    <div class="card-illustration">☁️🔓</div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card">
+                    <div class="number-badge">2</div>
+                    <div class="card-text">
+                        <b>Internetga bog'liqlik:</b> Tarmoq yo'q joyda qurilma kiberhujumlar, SMS fishing va firibgarliklarga qarshi butunlay himoyasiz qoladi.
+                    </div>
+                    <div class="card-illustration">📶🚫</div>
+                </div>
+            </div>
+
+            <!-- Right Column: Shortcomings -->
+            <div class="section-box section-red">
+                <div class="section-badge badge-red">
+                    <span class="badge-icon">❌</span> MAVJUD YECHIMLARNING KAMCHILIKLARI
+                </div>
+
+                <!-- Card 1 -->
+                <div class="card">
+                    <div class="logos-container">
+                        Kaspersky<br>Avast
+                    </div>
+                    <div class="card-text" style="font-weight: 500;">
+                        Aksariyat global antiviruslar <b>oflayn rejimda to'liq ishlamaydi</b> va foydalanuvchi ma'lumotlarini tashqi serverlarga jo'natadi.
+                    </div>
+                    <div class="cross-mark">❌</div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card">
+                    <div class="feature-icon-group">
+                        <span class="icon-box">🌍 EN</span>
+                        <span class="icon-box">💳 $$$</span>
+                    </div>
+                    <div class="card-text" style="font-weight: 500;">
+                        Xorijiy ilovalar asosan ingliz tilida bo'lib, ular <b>o'zbek tilidagi mahalliy firibgarlik (Click/Payme) matnlarini</b> tushunmaydi va narxi qimmat.
+                    </div>
+                    <div class="cross-mark">❌</div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card">
+                    <div class="feature-icon-group">
+                        <span class="icon-box">🇺🇿 C.:.</span>
+                        <span class="icon-box" style="font-weight: bold;">?</span>
+                    </div>
+                    <div class="card-text" style="font-weight: 500;">
+                        O'zbekistonda mahalliy SMS firibgarlik va fishingni <b>100% oflayn aniqlovchi maxsus AI platformalar</b> umuman mavjud emas.
+                    </div>
+                    <div class="cross-mark">❌</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Row: Solution -->
+        <div class="solution-box">
+            <div class="badge-yellow">
+                <span class="badge-icon">💡</span> YECHIM
+            </div>
+            
+            <div class="solution-text">
+                SERGAK tizimi yordamida barcha AI algoritmlar <b>to'liq oflayn rejimda (qurilmaning o'zida)</b> ishlaydi. U o'zbek tilidagi SMS firibgarlik, fishing va shaxsiy ma'lumotlar o'g'riligidan himoya qiluvchi eng ishonchli mobil kiber-qalqondir.
+            </div>
+
+            <div class="solution-illustration">
+                📱🛡️
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
