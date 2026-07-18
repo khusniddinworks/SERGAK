@@ -61,7 +61,7 @@ SERGAK bitta mukammal ilovada telefoningizni to'liq himoya qilish uchun quyidagi
 Loyiha **Toshkent Amaliy Fanlar Universiteti** talabalari va bitiruvchilari tomonidan yaratilgan:
 * **Xamidov Xusniddin** — Founder & Lead Developer (Loyiha g'oyasi muallifi, Flutter va Native Kotlin integratsiyasi arxitektori).
 * **Mamedov Kamron** — CTO & Pentester (Tizim xavfsizligi, zaifliklarni tekshirish va shifrlash muhandisi).
-* **Xakimov Muhammadulo** — Product Manager (UI/UX dizayni va marketing bo'yicha mas'ul).
+* **Eshchanov Shamsiddin** — Product Manager (UI/UX dizayni va marketing bo'yicha mas'ul).
 
 ---
 > **Tavsiya:** **SERGAK** ilovasi o'zbek foydalanuvchilari uchun maxsus moslashtirilgan bo'lib, hozirgi kunda ommalashayotgan Click/Payme firibgarligi, soxta aksiyalar va Telegram orqali tarqalayotgan xavfli havolalardan eng ishonchli va maxfiy qalqon hisoblanadi.
