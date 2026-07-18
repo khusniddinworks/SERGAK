@@ -50,3 +50,7 @@ wheels/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# 5. SDK va mahalliy muhitlar
+flutter/
+flutter_sdk/
