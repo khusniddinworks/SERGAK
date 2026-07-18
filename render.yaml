@@ -1,9 +1,22 @@
 services:
   - type: web
     name: sergak-bot
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m sergak_bot.app
+    env: docker
+    dockerContext: .
+    dockerfilePath: Dockerfile
+    plan: free
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11
+      - key: PORT
+        value: 8000
+      - key: BOT_TOKEN
+        sync: false
+        description: "Telegram BotFather'dan olingan token"
+      - key: ADMIN_ID
+        sync: false
+        description: "Sizning Telegram ID (raqamda)"
+      - key: BOT_USERNAME
+        sync: false
+        description: "Bot username (@ belgisiz, masalan: sergakaibot)"
+      - key: SECRET_KEY
+        sync: false
+        description: "Maxfiy HMAC-SHA256 kaliti (kamida 32 ta belgi)"
