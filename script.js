@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Send request to backend API (Localhost for dev, Render production for live)
         const apiUrl = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
           ? "http://localhost:8000/api/generate-license"
-          : "https://sergak-bot.onrender.com/api/generate-license";
+          : "https://sergak-z8tf.onrender.com/api/generate-license";
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
