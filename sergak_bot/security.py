@@ -230,21 +230,19 @@ def secure_handler(rate_limiter: RateLimiter):
             user = update.effective_user
             user_id = user.id
 
-            # 1. Rate limit tekshiruvi (faqat bir marta bitta update uchun)
-            if not getattr(update, "_rate_limit_checked", False):
-                if not rate_limiter.check(user_id):
-                    remaining = rate_limiter.remaining_ban(user_id)
-                    ThreatLogger.log(
-                        "RATE_LIMIT_BLOCKED",
-                        user_id=user_id,
-                        extra=f"remaining_ban={remaining}s"
-                    )
-                    await update.effective_message.reply_text(
-                        f"⛔ Siz juda tez so'rov yubordingiz.\n"
-                        f"🕐 {remaining} soniyadan keyin qayta urinib ko'ring."
-                    )
-                    return
-                setattr(update, "_rate_limit_checked", True)
+            # 1. Rate limit tekshiruvi
+            if not rate_limiter.check(user_id):
+                remaining = rate_limiter.remaining_ban(user_id)
+                ThreatLogger.log(
+                    "RATE_LIMIT_BLOCKED",
+                    user_id=user_id,
+                    extra=f"remaining_ban={remaining}s"
+                )
+                await update.effective_message.reply_text(
+                    f"⛔ Siz juda tez so'rov yubordingiz.\n"
+                    f"🕐 {remaining} soniyadan keyin qayta urinib ko'ring."
+                )
+                return
 
             return await func(update, context, *args, **kwargs)
         return wrapper
@@ -267,21 +265,19 @@ def admin_only(rate_limiter: RateLimiter, admin_guard: AdminGuard):
             user = update.effective_user
             user_id = user.id
 
-            # 1. Rate limit tekshiruvi (faqat bir marta bitta update uchun)
-            if not getattr(update, "_rate_limit_checked", False):
-                if not rate_limiter.check(user_id):
-                    remaining = rate_limiter.remaining_ban(user_id)
-                    ThreatLogger.log(
-                        "RATE_LIMIT_BLOCKED",
-                        user_id=user_id,
-                        extra=f"remaining_ban={remaining}s"
-                    )
-                    await update.effective_message.reply_text(
-                        f"⛔ Siz juda tez so'rov yubordingiz.\n"
-                        f"🕐 {remaining} soniyadan keyin qayta urinib ko'ring."
-                    )
-                    return
-                setattr(update, "_rate_limit_checked", True)
+            # 1. Rate limit tekshiruvi
+            if not rate_limiter.check(user_id):
+                remaining = rate_limiter.remaining_ban(user_id)
+                ThreatLogger.log(
+                    "RATE_LIMIT_BLOCKED",
+                    user_id=user_id,
+                    extra=f"remaining_ban={remaining}s"
+                )
+                await update.effective_message.reply_text(
+                    f"⛔ Siz juda tez so'rov yubordingiz.\n"
+                    f"🕐 {remaining} soniyadan keyin qayta urinib ko'ring."
+                )
+                return
 
             # 2. Admin tekshiruvi
             if not admin_guard.is_admin(user_id):

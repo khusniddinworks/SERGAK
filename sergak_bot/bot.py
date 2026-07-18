@@ -290,13 +290,11 @@ async def handle_menu_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = user.id
 
     # Rate limit tekshiruvi (faqat bir marta bitta update uchun)
-    if not getattr(update, "_rate_limit_checked", False):
-        if not rate_limiter.check(user_id):
-            remaining = rate_limiter.remaining_ban(user_id)
-            ThreatLogger.log("RATE_LIMIT_TEXT", user_id=user_id)
-            await update.message.reply_text(f"⛔ Juda tez! {remaining}s kuting.")
-            return
-        setattr(update, "_rate_limit_checked", True)
+    if not rate_limiter.check(user_id):
+        remaining = rate_limiter.remaining_ban(user_id)
+        ThreatLogger.log("RATE_LIMIT_TEXT", user_id=user_id)
+        await update.message.reply_text(f"⛔ Juda tez! {remaining}s kuting.")
+        return
 
     if text == "📱 APK Yuklab Olish":
         await send_apk(update, user_id)
