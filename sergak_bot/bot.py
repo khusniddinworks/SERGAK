@@ -369,41 +369,10 @@ async def send_website(update: Update, user_id: int):
     """Veb-sayt yuborish mantiqi."""
     logger.info(f"Website so'rovi — user_id={user_id}")
     
-    # Send the live website link first!
     await update.message.reply_text(
-        "🌐 *SERGAK Rasmiy Veb-Sayti:*\n👉 https://sergak.netlify.app/\n\n"
-        "⏳ _Pastda esa veb-saytning to'liq oflayn arxivini (ZIP formatida) yuklab olishingiz mumkin..._",
+        "🌐 *SERGAK Rasmiy Veb-Sayti:*\n👉 https://sergak.netlify.app/",
         parse_mode="Markdown"
     )
-
-    zip_data = build_website_zip()
-
-    if zip_data is None:
-        await update.message.reply_text("❌ Veb-sayt papkasi topilmadi.")
-        ThreatLogger.log("WEBSITE_NOT_FOUND", user_id=user_id)
-        return
-
-    if len(zip_data) == 0:
-        await update.message.reply_text("❌ Veb-sayt bo'sh.")
-        return
-
-    try:
-        zip_buf = io.BytesIO(zip_data)
-        zip_buf.name = "SERGAK_Website.zip"
-        await update.message.reply_document(
-            document=zip_buf,
-            filename="SERGAK_Website.zip",
-            caption=(
-                "🌐 *SERGAK Veb-Sayt Arxivi*\n"
-                "✅ Rasmiy va to'liq versiya\n"
-                "📦 Barcha sahifalar, stil va skriptlar"
-            ),
-            parse_mode="Markdown"
-        )
-        logger.info(f"Website ZIP yuborildi — user_id={user_id}, size={len(zip_data)//1024}KB")
-    except Exception as e:
-        logger.error(f"Website yuborishda xato: {e}")
-        await update.message.reply_text("❌ Xato yuz berdi.")
 
 
 async def send_about(update: Update):
