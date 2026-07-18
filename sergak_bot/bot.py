@@ -185,7 +185,8 @@ def get_main_keyboard(user_id: int) -> ReplyKeyboardMarkup:
     """Foydalanuvchi turiga qarab menyu qaytaradi."""
     keyboard = [
         [KeyboardButton("📱 APK Yuklab Olish"), KeyboardButton("🌐 Veb-Saytga O'tish")],
-        [KeyboardButton("ℹ️ Bot Haqida"), KeyboardButton("🌟 Premium Olish")]
+        [KeyboardButton("ℹ️ Bot Haqida"), KeyboardButton("✍️ Adminga Yozish")],
+        [KeyboardButton("🌟 Premium Olish")]
     ]
     if user_id == ADMIN_ID:
         keyboard.append([KeyboardButton("📊 Holat (Admin)"), KeyboardButton("🛠 Admin Panel")])
@@ -253,11 +254,15 @@ async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     web_exists = WEBSITE_PATH.is_dir()
     apk_size   = f"{APK_PATH.stat().st_size / 1_048_576:.1f} MB" if apk_exists else "Topilmadi"
     web_files  = sum(1 for _ in WEBSITE_PATH.rglob("*") if _.is_file()) if web_exists else 0
+    
+    from security import get_total_users
+    total_users = get_total_users()
 
     status_text = (
         "📊 *Bot Holati (Admin)*\n\n"
         f"📱 APK fayli: {'✅ Mavjud' if apk_exists else '❌ Topilmadi'} ({apk_size})\n"
         f"🌐 Veb-sayt: {'✅ Mavjud' if web_exists else '❌ Topilmadi'} ({web_files} ta fayl)\n"
+        f"👤 Jami foydalanuvchilar: `{total_users}` ta\n"
         f"🔒 Xavfsizlik: ✅ Faol\n"
         f"👤 Admin ID: `{ADMIN_ID}`"
     )
@@ -289,7 +294,17 @@ async def handle_menu_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     user_id = user.id
 
-    # Rate limit tekshiruvi (faqat bir marta bitta update uchun)
+    # Admin javob yozganda (reply)
+    if user_id == ADMIN_ID and update.message.reply_to_message:
+        await handle_admin_reply(update, context)
+        return
+
+    # Agar menyu tugmalari bosilsa, adminga yozish holatini tozalaymiz
+    menu_buttons = ["📱 APK Yuklab Olish", "🌐 Veb-Saytga O'tish", "ℹ️ Bot Haqida", "✍️ Adminga Yozish", "🌟 Premium Olish", "📊 Holat (Admin)", "🛠 Admin Panel"]
+    if text in menu_buttons:
+        context.user_data["waiting_for_support"] = False
+
+    # Rate limit tekshiruvi
     if not rate_limiter.check(user_id):
         remaining = rate_limiter.remaining_ban(user_id)
         ThreatLogger.log("RATE_LIMIT_TEXT", user_id=user_id)
@@ -302,6 +317,15 @@ async def handle_menu_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await send_website(update, user_id)
     elif text == "ℹ️ Bot Haqida":
         await send_about(update)
+    elif text == "✍️ Adminga Yozish":
+        context.user_data["waiting_for_support"] = True
+        await update.message.reply_text(
+            "✍️ *Adminga Murojaat Yo'llash*\n\n"
+            "Iltimos, o'zingizni qiziqtirgan savol, taklif yoki shikoyatingizni yozib yuboring. "
+            "Rasm yoki hujjat ham biriktirishingiz mumkin. "
+            "Admin tez orada sizga javob qaytaradi.",
+            parse_mode="Markdown"
+        )
     elif text == "🌟 Premium Olish":
         await send_premium_info(update, context)
     elif text == "📊 Holat (Admin)":
@@ -309,8 +333,12 @@ async def handle_menu_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif text == "🛠 Admin Panel":
         await send_admin_panel(update, user_id)
     else:
-        # Boshqa matnlar bo'lsa
-        await handle_unknown(update, context)
+        # Agar foydalanuvchi adminga savol yuborayotgan bo'lsa
+        if context.user_data.get("waiting_for_support"):
+            await forward_support_message(update, context)
+        else:
+            # Boshqa matnlar bo'lsa
+            await handle_unknown(update, context)
 
 
 async def send_apk(update: Update, user_id: int):
@@ -326,7 +354,6 @@ async def send_apk(update: Update, user_id: int):
             if saved_file_id:
                 await update.message.reply_document(
                     document=saved_file_id,
-                    filename="SERGAK.apk",
                     caption=(
                         "📱 *SERGAK Android Ilovasi*\n"
                         "✅ Rasmiy va xavfsiz versiya\n"
@@ -375,6 +402,107 @@ async def send_website(update: Update, user_id: int):
     )
 
 
+async def forward_support_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Foydalanuvchi yozgan murojaatni adminga forward qiladi."""
+    user = update.effective_user
+    user_id = user.id
+    import html
+    
+    full_name_esc = html.escape(user.full_name)
+    username_esc = html.escape(user.username) if user.username else "yo'q"
+    
+    admin_msg = (
+        f"💬 <b>YANGI MUROJAAT (Support)</b>\n\n"
+        f"👤 <b>Foydalanuvchi:</b> {full_name_esc}\n"
+        f"🆔 <b>User ID:</b> <code>{user_id}</code>\n"
+        f"🏷 <b>Username:</b> @{username_esc}\n\n"
+        f"Javob berish uchun ushbu xabarga <b>Reply</b> (Javob) qiling."
+    )
+    
+    try:
+        if update.message.text:
+            await context.bot.send_message(
+                chat_id=ADMIN_ID,
+                text=f"{admin_msg}\n\n✍️ <b>Xabar:</b>\n{html.escape(update.message.text)}",
+                parse_mode="HTML"
+            )
+        elif update.message.photo:
+            await context.bot.send_photo(
+                chat_id=ADMIN_ID,
+                photo=update.message.photo[-1].file_id,
+                caption=admin_msg,
+                parse_mode="HTML"
+            )
+        elif update.message.document:
+            await context.bot.send_document(
+                chat_id=ADMIN_ID,
+                document=update.message.document.file_id,
+                caption=admin_msg,
+                parse_mode="HTML"
+            )
+        else:
+            await context.bot.send_message(
+                chat_id=ADMIN_ID,
+                text=admin_msg,
+                parse_mode="HTML"
+            )
+            await update.message.forward(chat_id=ADMIN_ID)
+            
+        logger.info(f"Murojaat adminga yuborildi — user_id={user_id}")
+        context.user_data["waiting_for_support"] = False
+        
+        await update.message.reply_text(
+            "✅ *Murojaatingiz adminga yetkazildi!*\n\n"
+            "Tez orada loyiha ma'muri sizga javob qaytaradi. Rahmat!",
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        logger.error(f"Murojaat yuborishda xato: {e}")
+        await update.message.reply_text("❌ Murojaat yuborishda xatolik yuz berdi. Qayta urinib ko'ring.")
+
+
+async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin yozgan javobni tegishli foydalanuvchiga yuboradi."""
+    reply_to = update.message.reply_to_message
+    
+    text = reply_to.caption or reply_to.text or ""
+    import re
+    match = re.search(r"User ID:\s*(\d+)", text)
+    if not match:
+        match = re.search(r"🆔\s*User ID:\s*(\d+)", text)
+        if not match:
+            return
+            
+    target_user_id = int(match.group(1))
+    
+    try:
+        if update.message.text:
+            await context.bot.send_message(
+                chat_id=target_user_id,
+                text=f"💬 *Admin javobi:*\n\n{update.message.text}",
+                parse_mode="Markdown"
+            )
+        elif update.message.photo:
+            await context.bot.send_photo(
+                chat_id=target_user_id,
+                photo=update.message.photo[-1].file_id,
+                caption=f"💬 *Admin javobi:*\n\n{update.message.caption or ''}",
+                parse_mode="Markdown"
+            )
+        elif update.message.document:
+            await context.bot.send_document(
+                chat_id=target_user_id,
+                document=update.message.document.file_id,
+                caption=f"💬 *Admin javobi:*\n\n{update.message.caption or ''}",
+                parse_mode="Markdown"
+            )
+        await update.message.reply_text("✅ Javobingiz foydalanuvchiga yuborildi.")
+        logger.info(f"Admin javobi yuborildi — target_user_id={target_user_id}")
+    except Exception as e:
+        logger.error(f"Admin javobini yuborishda xato: {e}")
+        await update.message.reply_text(f"❌ Javobni yuborishda xatolik yuz berdi: {e}")
+
+
 async def send_about(update: Update):
     """Bot haqida yuborish mantiqi."""
     about_text = (
@@ -420,7 +548,12 @@ async def send_admin_panel(update: Update, user_id: int):
         "_(Masalan: /premium SRGK-1234-5678 12)_\n\n"
         "3. 📦 *Yangi APK yuklash:*\n"
         "Ilova yangilanganda uni to'g'ridan-to'g'ri shu botga yuboring (fayl sifatida). "
-        "Bot uni qabul qiladi va barcha foydalanuvchilarga shuni yetkazadi."
+        "Bot uni qabul qiladi va barcha foydalanuvchilarga shuni yetkazadi.\n\n"
+        "4. 📢 *E'lon tarqatish (Broadcast):*\n"
+        "Barcha foydalanuvchilarga xabar yuborish uchun:\n"
+        "👉 `/broadcast <xabar matni>`\n\n"
+        "5. 💬 *Murojaatlarga javob yuborish:*\n"
+        "Foydalanuvchi murojaatiga javob qaytarish uchun o'sha kelgan xabarni belgilab, javob (Reply) yozib yuboring."
     )
     await update.message.reply_text(admin_text, parse_mode="Markdown")
 
@@ -451,6 +584,16 @@ async def handle_payment_photo(update: Update, context: ContextTypes.DEFAULT_TYP
     """Foydalanuvchi to'lov cheki skrinshotini (rasm sifatida) yuborganda."""
     if not update.message.photo:
         return
+        
+    user = update.effective_user
+    if user.id == ADMIN_ID and update.message.reply_to_message:
+        await handle_admin_reply(update, context)
+        return
+
+    if context.user_data.get("waiting_for_support"):
+        await forward_support_message(update, context)
+        return
+
     await process_payment_screenshot(update, context, photo=update.message.photo[-1])
 
 
@@ -461,6 +604,14 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     doc = update.message.document
 
     if not doc or not doc.file_name:
+        return
+
+    if user.id == ADMIN_ID and update.message.reply_to_message:
+        await handle_admin_reply(update, context)
+        return
+
+    if context.user_data.get("waiting_for_support"):
+        await forward_support_message(update, context)
         return
 
     # Agar bu .apk fayl bo'lsa (Faqat admin uchun)
@@ -619,6 +770,54 @@ async def cmd_premium(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(success_msg, parse_mode="Markdown")
 
 
+@admin_only(rate_limiter, admin_guard)
+async def cmd_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin uchun barcha foydalanuvchilarga xabar tarqatish buyrug'i."""
+    args = context.args
+    if not args:
+        await update.message.reply_text(
+            "⚠️ *E'lon yuborish uchun quyidagicha yozing:*\n"
+            "`/broadcast <xabar matni>`",
+            parse_mode="Markdown"
+        )
+        return
+
+    broadcast_text = " ".join(args)
+    from security import get_all_users
+    users = get_all_users()
+    
+    if not users:
+        await update.message.reply_text("⚠️ Bazada hali birorta ham foydalanuvchi yo'q (tizim hozirgina o'rnatildi).")
+        return
+
+    await update.message.reply_text(f"⏳ *Matn tarqatilmoqda...* (Jami: {len(users)} ta manzil)")
+    
+    success = 0
+    failed = 0
+    
+    for uid in users:
+        if uid == ADMIN_ID:
+            continue
+        try:
+            await context.bot.send_message(
+                chat_id=uid,
+                text=f"📢 *SERGAK Rasmiy E'loni:*\n\n{broadcast_text}",
+                parse_mode="Markdown"
+            )
+            success += 1
+            await asyncio.sleep(0.05)
+        except Exception as e:
+            failed += 1
+            logger.warning(f"Foydalanuvchiga yuborib bo'lmadi: uid={uid}, err={e}")
+
+    await update.message.reply_text(
+        f"📢 *Tarqatish yakunlandi!*\n\n"
+        f"✅ Yetkazildi: `{success}` ta user\n"
+        f"❌ Yetkazilmadi (bloklanganlar): `{failed}` ta user",
+        parse_mode="Markdown"
+    )
+
+
 # ─────────────────────────────────────────────
 #  ASOSIY FUNKSIYA
 # ─────────────────────────────────────────────
@@ -634,6 +833,7 @@ def main():
     app.add_handler(CommandHandler("status", cmd_status))
     app.add_handler(CommandHandler("verify", cmd_verify))
     app.add_handler(CommandHandler("premium", cmd_premium))
+    app.add_handler(CommandHandler("broadcast", cmd_broadcast))
     app.add_handler(MessageHandler(filters.PHOTO, handle_payment_photo))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_menu_text))

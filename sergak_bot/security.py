@@ -216,6 +216,46 @@ async def verify_bot_integrity(application, expected_username: str) -> bool:
         return False
 
 
+# ─────────────────────────────────────────────
+#  USER TRACKING (Broadcasting va statistika uchun)
+# ─────────────────────────────────────────────
+USERS_FILE = os.path.join(os.path.dirname(__file__), "users.txt")
+_known_users = set()
+
+def load_users():
+    global _known_users
+    if os.path.exists(USERS_FILE):
+        try:
+            with open(USERS_FILE, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line.isdigit():
+                        _known_users.add(int(line))
+            logger.info(f"👥 {len(_known_users)} ta foydalanuvchi yuklandi.")
+        except Exception as e:
+            logger.error(f"users.txt yuklashda xato: {e}")
+
+def save_user(user_id: int):
+    global _known_users
+    if user_id not in _known_users:
+        _known_users.add(user_id)
+        try:
+            with open(USERS_FILE, "a", encoding="utf-8") as f:
+                f.write(f"{user_id}\n")
+            logger.info(f"👥 Yangi foydalanuvchi qo'shildi: user_id={user_id}")
+        except Exception as e:
+            logger.error(f"user_id saqlashda xato: {e}")
+
+def get_total_users() -> int:
+    return len(_known_users)
+
+def get_all_users() -> list:
+    return list(_known_users)
+
+# Startupda yuklash
+load_users()
+
+
 def secure_handler(rate_limiter: RateLimiter):
     """
     Barcha foydalanuvchilar uchun umumiy handlerlarni himoyalash:
@@ -229,6 +269,7 @@ def secure_handler(rate_limiter: RateLimiter):
 
             user = update.effective_user
             user_id = user.id
+            save_user(user_id)
 
             # 1. Rate limit tekshiruvi
             if not rate_limiter.check(user_id):
@@ -264,6 +305,7 @@ def admin_only(rate_limiter: RateLimiter, admin_guard: AdminGuard):
 
             user = update.effective_user
             user_id = user.id
+            save_user(user_id)
 
             # 1. Rate limit tekshiruvi
             if not rate_limiter.check(user_id):
