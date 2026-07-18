@@ -1,0 +1,6 @@
+{
+  "version": "1.0.1",
+  "build_number": 2,
+  "apk_url": "https://sergak-bot.netlify.app/app-release.apk",
+  "release_notes": "Added In-App Updater feature."
+}

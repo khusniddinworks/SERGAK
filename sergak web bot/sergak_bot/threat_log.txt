@@ -1,0 +1,53 @@
+[2026-05-20 10:50:00] EVENT=WEBSITE_NOT_FOUND | USER=8332161047 | 
+[2026-05-20 10:50:04] EVENT=APK_NOT_FOUND | USER=8332161047 | 
+[2026-05-20 10:50:15] EVENT=RATE_LIMIT_BLOCKED | USER=8332161047 | remaining_ban=59s
+[2026-05-20 10:50:26] EVENT=RATE_LIMIT_BLOCKED | USER=8332161047 | remaining_ban=48s
+[2026-05-20 10:50:33] EVENT=RATE_LIMIT_BLOCKED | USER=8332161047 | remaining_ban=42s
+[2026-05-20 11:21:13] EVENT=WEBSITE_NOT_FOUND | USER=8479358473 | 
+[2026-05-20 11:27:03] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=.gitignore
+[2026-05-20 11:27:03] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=copy_logo.py
+[2026-05-20 11:27:03] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=fix_git.bat
+[2026-05-20 11:27:03] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=push_this.bat
+[2026-05-20 11:27:03] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=.env
+[2026-05-20 11:27:03] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=.env.example
+[2026-05-20 11:27:03] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=bot.log
+[2026-05-20 11:27:03] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=bot.py
+[2026-05-20 11:27:03] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=get_bot_info.py
+[2026-05-20 11:27:03] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=security.py
+[2026-05-20 11:27:03] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=security.cpython-312.pyc
+[2026-05-20 11:33:41] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=.gitignore
+[2026-05-20 11:33:41] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=copy_logo.py
+[2026-05-20 11:33:41] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=fix_git.bat
+[2026-05-20 11:33:41] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=push_this.bat
+[2026-05-20 11:33:41] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=.env
+[2026-05-20 11:33:41] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=.env.example
+[2026-05-20 11:33:41] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=bot.log
+[2026-05-20 11:33:41] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=bot.py
+[2026-05-20 11:33:41] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=get_bot_info.py
+[2026-05-20 11:33:41] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=security.py
+[2026-05-20 11:33:41] EVENT=SUSPICIOUS_FILE_SKIPPED | USER=0 | file=security.cpython-312.pyc
+[2026-05-25 06:17:30] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:17:35] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:17:42] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:17:50] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:17:57] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:18:08] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:18:29] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:18:36] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:18:42] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:18:49] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:18:58] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:19:07] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:19:21] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:19:37] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:19:59] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:20:29] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:21:04] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:21:38] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:22:13] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:22:19] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:22:25] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:22:32] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:22:39] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:22:49] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[2026-05-25 06:23:01] EVENT=UNHANDLED_ERROR | USER=0 | Conflict: terminated by other getUpdates request; make sure that only one bot instance is running

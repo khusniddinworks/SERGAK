@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';">
+<title>SERGAK PC — Windows Demo Simulyatsiyasi</title>
+<meta name="description" content="SERGAK PC dasturining Windows versiyasini to'liq interaktiv simulyatsiya orqali sinab ko'ring. Barcha funksiyalar: skanerlash, AI yordamchi, tarmoq tahlili.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="windows.css">
+</head>
+<body>
+
+<!-- Back to Main Site -->
+<a href="index.html" class="back-link">← Bosh sahifaga qaytish</a>
+
+<!-- Page Header -->
+<div class="sim-page-header">
+  <h1>💻 SERGAK PC — Windows Simulyatsiyasi</h1>
+  <p>Haqiqiy dasturning to'liq interaktiv namoyishi. Tugmalarni bosib sinab ko'ring!</p>
+</div>
+
+<!-- ═══ WINDOW FRAME ═══ -->
+<div class="window-frame">
+  <!-- Title Bar -->
+  <div class="titlebar">
+    <div class="titlebar-left">
+      <span class="titlebar-icon">🛡️</span>
+      <span>SERGAK PC</span>
+    </div>
+    <div class="titlebar-right">
+      <button class="tb-btn">─</button>
+      <button class="tb-btn">□</button>
+      <button class="tb-btn close">✕</button>
+    </div>
+  </div>
+
+  <!-- App Layout -->
+  <div class="app-layout">
+    <!-- ─── SIDEBAR ─── -->
+    <div class="sim-sidebar">
+      <div class="sim-logo">
+        <div class="sim-logo-icon">🛡️</div>
+        <div class="sim-logo-text">SERGAK PC</div>
+      </div>
+
+      <div class="sim-nav-label">Boshqaruv</div>
+      <div class="sim-nav">
+        <button class="sim-nav-item active" data-tab="home"><span class="sim-nav-icon">🏠</span>Dashboard</button>
+        <button class="sim-nav-item" data-tab="vuln"><span class="sim-nav-icon">🔍</span>Tizim Skaneri</button>
+        <button class="sim-nav-item" data-tab="dataguard"><span class="sim-nav-icon">🛡️</span>Ma'lumot Filtr</button>
+        <button class="sim-nav-item" data-tab="fsmonitor"><span class="sim-nav-icon">📁</span>Fayl Skaneri</button>
+        <button class="sim-nav-item" data-tab="processes"><span class="sim-nav-icon">⚙️</span>Jarayonlar</button>
+        <button class="sim-nav-item" data-tab="network"><span class="sim-nav-icon">🌐</span>Tarmoq</button>
+        <button class="sim-nav-item" data-tab="ai"><span class="sim-nav-icon">🤖</span>AI Yordamchi</button>
+        <button class="sim-nav-item" data-tab="quarantine"><span class="sim-nav-icon">🔒</span>Karantin</button>
+        <button class="sim-nav-item" data-tab="phone"><span class="sim-nav-icon">📱</span>Telefon</button>
+        <button class="sim-nav-item" data-tab="settings"><span class="sim-nav-icon">⚙️</span>Sozlamalar</button>
+      </div>
+
+      <div class="sim-sidebar-footer">
+        <div class="sim-premium-badge">
+          <span class="sim-premium-dot"></span>
+          Premium Faol
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── MAIN CONTENT ─── -->
+    <div class="sim-main">
+
+      <!-- ═══════════ DASHBOARD ═══════════ -->
+      <div class="sim-tab-content active" id="tab-home">
+        <div class="sim-page-title"><span class="icon">📊</span><h2>Boshqaruv Paneli</h2></div>
+        <div class="sim-page-desc">Kompyuteringizning xavfsizlik holati va tizim yuklanishi</div>
+
+        <div class="sim-stats stagger">
+          <div class="sim-card sim-stat">
+            <div class="sim-stat-icon">🛡️</div>
+            <div class="sim-stat-value val-success" id="security-score">100%</div>
+            <div class="sim-stat-label">Xavfsizlik Darajasi</div>
+          </div>
+          <div class="sim-card sim-stat">
+            <div class="sim-stat-icon">⚡</div>
+            <div class="sim-stat-value val-accent" id="cpu-usage">24%</div>
+            <div class="sim-stat-label">CPU Yuklanishi</div>
+          </div>
+          <div class="sim-card sim-stat">
+            <div class="sim-stat-icon">🧠</div>
+            <div class="sim-stat-value val-purple" id="ram-usage">61%</div>
+            <div class="sim-stat-label">RAM Yuklanishi</div>
+          </div>
+        </div>
+
+        <div class="sim-section-title"><span>📦</span> Faol Himoya Modullari</div>
+        <div class="sim-modules stagger">
+          <div class="sim-card sim-module"><div class="sim-module-icon success-bg">🌐</div><div class="sim-module-info"><h4>Tarmoq Gateway</h4><p>Phishing saytlarni bloklash</p></div><span class="sim-badge active">FAOL</span></div>
+          <div class="sim-card sim-module"><div class="sim-module-icon accent-bg">💾</div><div class="sim-module-info"><h4>USB Qalqon</h4><p>Tashqi qurilmalarni nazorat</p></div><span class="sim-badge active">FAOL</span></div>
+          <div class="sim-card sim-module"><div class="sim-module-icon danger-bg">⌨️</div><div class="sim-module-info"><h4>Anti-Keylogger</h4><p>Klaviatura himoyasi</p></div><span class="sim-badge active">FAOL</span></div>
+          <div class="sim-card sim-module"><div class="sim-module-icon purple-bg">📷</div><div class="sim-module-info"><h4>Kamera Himoyasi</h4><p>Privacy Guard moduli</p></div><span class="sim-badge active">FAOL</span></div>
+          <div class="sim-card sim-module"><div class="sim-module-icon warning-bg">🍯</div><div class="sim-module-info"><h4>Honeypot (Qopqon)</h4><p>Honeypot fayllar</p></div><span class="sim-badge active">FAOL</span></div>
+        </div>
+
+        <div class="sim-section-title"><span>⚡</span> Tezkor Harakatlar</div>
+        <div class="sim-quick-actions stagger">
+          <div class="sim-card sim-quick-card" onclick="switchTab('vuln')"><div class="sim-quick-icon">🔍</div><div class="sim-quick-label">Tizim Skaneri</div></div>
+          <div class="sim-card sim-quick-card" onclick="switchTab('fsmonitor')"><div class="sim-quick-icon">📁</div><div class="sim-quick-label">Fayl Skaneri</div></div>
+          <div class="sim-card sim-quick-card" onclick="switchTab('ai')"><div class="sim-quick-icon">🤖</div><div class="sim-quick-label">AI Yordamchi</div></div>
+        </div>
+      </div>
+
+      <!-- ═══════════ VULN SCANNER ═══════════ -->
+      <div class="sim-tab-content" id="tab-vuln">
+        <div class="sim-page-title"><span class="icon">🔍</span><h2>Zaiflik Skaneri</h2></div>
+        <div class="sim-page-desc">Tizimda xavfsizlik zaifliklarini aniqlash va avtomatik yopish</div>
+
+        <div class="sim-action-bar">
+          <button class="sim-btn sim-btn-primary" id="vuln-scan-btn" onclick="startVulnScan()">🔍 Tizimni Skaner Qilish</button>
+          <button class="sim-btn sim-btn-danger" id="vuln-fix-all-btn" onclick="fixAllVulns()" style="display:none">🛠️ Barchasini Yop</button>
+        </div>
+
+        <div id="vuln-spinner" style="display:none">
+          <div class="sim-card sim-spinner">
+            <div class="icon">🔍</div>
+            <p>Tizim tekshirilmoqda... Iltimos kuting.</p>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:4px">Firewall, Defender, RDP, SMB, ochiq portlar va boshqalar...</p>
+          </div>
+        </div>
+
+        <div id="vuln-summary" style="display:none" class="sim-stats">
+          <div class="sim-card sim-stat"><span class="sim-stat-icon">🚨</span><div class="sim-stat-value val-danger" id="vuln-critical">0</div><div class="sim-stat-label">Kritik Zaiflik</div></div>
+          <div class="sim-card sim-stat"><span class="sim-stat-icon">⚠️</span><div class="sim-stat-value val-warning" id="vuln-high">0</div><div class="sim-stat-label">Yuqori Xavf</div></div>
+          <div class="sim-card sim-stat"><span class="sim-stat-icon">🛠️</span><div class="sim-stat-value val-success" id="vuln-fixed">0</div><div class="sim-stat-label">Yopilgan</div></div>
+        </div>
+
+        <div id="vuln-results"></div>
+
+        <div id="vuln-placeholder" class="sim-card" style="text-align:center;padding:48px">
+          <div style="font-size:64px;margin-bottom:16px">🛡️</div>
+          <h3>Tizimni tekshirish uchun "Skaner Qilish" tugmasini bosing</h3>
+          <p style="color:var(--text-muted);font-size:13px;margin-top:8px">Firewall, Defender, RDP, SMBv1, ochiq portlar, UAC va boshqa 10+ zaiflik tekshiriladi.</p>
+        </div>
+      </div>
+
+      <!-- ═══════════ DATA GUARD ═══════════ -->
+      <div class="sim-tab-content" id="tab-dataguard">
+        <div class="sim-page-title"><span class="icon">🛡️</span><h2>Ma'lumot Filtri (Data Guard)</h2></div>
+        <div class="sim-page-desc">Kirib/chiqib ketayotgan ma'lumotlarni real-time filtr qilish</div>
+
+        <div class="sim-dataguard-stats stagger">
+          <div class="sim-card sim-dg-stat"><div class="sim-dg-stat-icon">🌐</div><div class="sim-dg-stat-value val-accent">1,247</div><div class="sim-dg-stat-label">Jami So'rovlar</div></div>
+          <div class="sim-card sim-dg-stat"><div class="sim-dg-stat-icon">🚫</div><div class="sim-dg-stat-value val-danger">38</div><div class="sim-dg-stat-label">Bloklangan</div></div>
+          <div class="sim-card sim-dg-stat"><div class="sim-dg-stat-icon">⚠️</div><div class="sim-dg-stat-value val-warning">12</div><div class="sim-dg-stat-label">Shubhali</div></div>
+          <div class="sim-card sim-dg-stat"><div class="sim-dg-stat-icon">✅</div><div class="sim-dg-stat-value val-success">1,197</div><div class="sim-dg-stat-label">Xavfsiz</div></div>
+        </div>
+
+        <div class="sim-section-title"><span>🔒</span> Oxirgi Bloklangan Ulanishlar</div>
+        <div class="sim-vulns stagger">
+          <div class="sim-card sim-vuln-item" style="border-left:3px solid var(--danger)"><div><div class="sim-vuln-header"><span>🚨</span><h4>malware-c2.darksite.ru</h4><span class="sim-vuln-severity" style="background:var(--danger-dim);color:var(--danger)">BLOKLANDI</span></div><p class="sim-vuln-desc">C2 (Command & Control) serveriga ulanish urinishi. DNS so'rov bloklangan.</p></div></div>
+          <div class="sim-card sim-vuln-item" style="border-left:3px solid var(--warning)"><div><div class="sim-vuln-header"><span>⚠️</span><h4>tracking.ad-network.com</h4><span class="sim-vuln-severity" style="background:var(--warning-dim);color:var(--warning)">SHUBHALI</span></div><p class="sim-vuln-desc">Reklama tarmoq kuzatuvchisi. Foydalanuvchi faoliyatini kuzatishga harakat.</p></div></div>
+          <div class="sim-card sim-vuln-item" style="border-left:3px solid var(--danger)"><div><div class="sim-vuln-header"><span>🚨</span><h4>phishing-login.example.xyz</h4><span class="sim-vuln-severity" style="background:var(--danger-dim);color:var(--danger)">BLOKLANDI</span></div><p class="sim-vuln-desc">Fishing sahifasi — soxta bank login sahifasi aniqlandi va darhol bloklangan.</p></div></div>
+        </div>
+      </div>
+
+      <!-- ═══════════ FS MONITOR ═══════════ -->
+      <div class="sim-tab-content" id="tab-fsmonitor">
+        <div class="sim-card sim-fs-header">
+          <div>
+            <div class="sim-fs-title">Fayl Tizimi Himoyasi</div>
+            <div class="sim-fs-subtitle">Yangi va o'zgartirilgan fayllarni real vaqtda zararli dasturlarga tekshirish</div>
+          </div>
+          <button class="sim-btn sim-btn-success" id="fs-monitor-btn" onclick="toggleFsMonitor()">Monitoringni Boshlash</button>
+        </div>
+
+        <div class="sim-fs-stats">
+          <div class="sim-card sim-fs-stat">
+            <div><div class="sim-fs-stat-label">Hash Ma'lumotlar Bazasi</div><div class="sim-fs-stat-value">56,340 ta xavf</div></div>
+            <div class="sim-fs-stat-icon">🦠</div>
+          </div>
+          <div class="sim-card sim-fs-stat">
+            <div><div class="sim-fs-stat-label">Oxirgi Yangilanish</div><div class="sim-fs-stat-value" style="font-size:14px">2026-06-02 19:45</div></div>
+            <button class="sim-btn" style="background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.2);padding:6px 14px;font-size:11px">Yangilash</button>
+          </div>
+        </div>
+
+        <div class="sim-card" style="padding:0;overflow:hidden">
+          <div class="sim-feed-header">
+            <h3>Jonli Tarmoq (Live Feed)</h3>
+            <div class="sim-feed-dot" id="fs-live-dot" style="display:none"></div>
+          </div>
+          <div class="sim-feed-list" id="fs-feed">
+            <div style="padding:32px;text-align:center;color:var(--text-muted)">Monitoring to'xtatilgan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ PROCESS MONITOR ═══════════ -->
+      <div class="sim-tab-content" id="tab-processes">
+        <div class="sim-card sim-proc-header">
+          <div>
+            <div class="sim-proc-title">Jarayonlar va Avtoyuklanish</div>
+            <div class="sim-proc-subtitle">Xavfli jarayonlar daraxti va yashirin avtoyuklanish dasturlarini tahlil qilish</div>
+          </div>
+          <div class="sim-proc-tabs">
+            <button class="sim-proc-tab active" onclick="showProcTab('processes', this)">Jarayonlar Daraxti</button>
+            <button class="sim-proc-tab" onclick="showProcTab('startup', this)">Avtoyuklanish</button>
+          </div>
+        </div>
+
+        <div class="sim-card" style="padding:0;overflow:hidden" id="proc-table-area">
+          <table class="sim-table">
+            <thead><tr><th>Jarayon nomi (PID)</th><th>Holati</th><th>Tafsilotlar</th></tr></thead>
+            <tbody id="proc-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="sim-card" style="padding:0;overflow:hidden;display:none" id="startup-table-area">
+          <table class="sim-table">
+            <thead><tr><th>Dastur Nomi</th><th>Buyruq (Command)</th><th>Joylashuvi</th></tr></thead>
+            <tbody id="startup-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════ NETWORK SCANNER ═══════════ -->
+      <div class="sim-tab-content" id="tab-network">
+        <div class="sim-page-title"><span class="icon">🌐</span><h2>Tarmoq Skaneri</h2></div>
+        <div class="sim-page-desc">Mahalliy tarmoqda ulangan barcha qurilmalarni ARP orqali aniqlash va tahlil qilish</div>
+
+        <div class="sim-scanner-controls">
+          <input class="sim-scan-input" type="text" value="192.168.1.0/24" id="net-target" placeholder="IP yoki tarmoq diapazoni">
+          <button class="sim-btn sim-btn-primary" id="net-scan-btn" onclick="startNetScan()">🔍 Skanerlash</button>
+        </div>
+
+        <div class="sim-info-note">
+          ℹ️ Skaner ARP jadvali va ping orqali ishlaydi. Natijalar 1-3 daqiqa olishi mumkin.
+          <span id="net-scan-time" style="color:var(--accent);margin-left:8px"></span>
+        </div>
+
+        <div id="net-ring">
+          <div class="sim-scan-ring" id="net-scan-ring">
+            <span class="sim-scan-icon" id="net-ring-icon">🔍</span>
+            <span class="sim-scan-text" id="net-ring-text">Boshlash uchun tugmani bosing</span>
+          </div>
+        </div>
+
+        <div id="net-summary" style="display:none" class="sim-stats">
+          <div class="sim-card sim-stat"><span class="sim-stat-icon">🔗</span><div class="sim-stat-value val-accent" id="net-total">0</div><div class="sim-stat-label">Jami Qurilma</div></div>
+          <div class="sim-card sim-stat"><span class="sim-stat-icon">✅</span><div class="sim-stat-value val-success" id="net-safe">0</div><div class="sim-stat-label">Xavfsiz</div></div>
+          <div class="sim-card sim-stat"><span class="sim-stat-icon">❓</span><div class="sim-stat-value val-warning" id="net-unknown">0</div><div class="sim-stat-label">Noma'lum</div></div>
+        </div>
+
+        <div id="net-results" class="sim-devices stagger"></div>
+      </div>
+
+      <!-- ═══════════ AI ASSISTANT ═══════════ -->
+      <div class="sim-tab-content" id="tab-ai">
+        <div class="sim-card sim-ai-header">
+          <div>
+            <div class="sim-ai-title">AI Assistant</div>
+            <div class="sim-ai-subtitle">SERGAK sun'iy idroki bilan suhbat</div>
+          </div>
+          <div class="sim-ai-badges">
+            <div class="sim-ai-badge online"><span class="sim-ai-dot green"></span>Ollama: O'rnatilgan</div>
+            <div class="sim-ai-badge model"><span class="sim-ai-dot blue"></span>Llama 3.2: Tayyor</div>
+          </div>
+        </div>
+
+        <div class="sim-card sim-chat-area" style="padding:0">
+          <div class="sim-chat-messages" id="chat-messages">
+            <div class="sim-chat-msg assistant">Salom! Men SERGAK AI yordamchisiman. Tizimdagi tahdidlar yoki xavfsizlik haqida savollaringiz bormi?</div>
+          </div>
+        </div>
+
+        <div class="sim-chat-input-area">
+          <input class="sim-chat-input" type="text" id="chat-input" placeholder="Savolingizni yozing..." onkeypress="if(event.key==='Enter')sendChat()">
+          <button class="sim-chat-send" onclick="sendChat()">Yuborish</button>
+        </div>
+      </div>
+
+      <!-- ═══════════ QUARANTINE ═══════════ -->
+      <div class="sim-tab-content" id="tab-quarantine">
+        <div class="sim-page-title"><span class="icon">🔒</span><h2>Karantin Zonasi</h2></div>
+        <div class="sim-page-desc">Zararli deb topilgan fayllar shu yerda saqlanadi</div>
+
+        <div class="sim-quarantine-list stagger" id="quarantine-list">
+          <div class="sim-card sim-quarantine-item"><div class="sim-quarantine-icon">🦠</div><div class="sim-quarantine-info"><h4>Trojan.GenericKD.46587</h4><p>C:\Users\Downloads\keygen_crack.exe</p></div></div>
+          <div class="sim-card sim-quarantine-item"><div class="sim-quarantine-icon">🐛</div><div class="sim-quarantine-info"><h4>Worm.Win32.AutoRun</h4><p>E:\autorun.inf</p></div></div>
+          <div class="sim-card sim-quarantine-item"><div class="sim-quarantine-icon">💀</div><div class="sim-quarantine-info"><h4>Ransomware.Cerber.v3</h4><p>C:\Users\AppData\Temp\svchost_fake.exe</p></div></div>
+        </div>
+      </div>
+
+      <!-- ═══════════ PHONE LINK ═══════════ -->
+      <div class="sim-tab-content" id="tab-phone">
+        <div class="sim-card sim-phone-header">
+          <div class="sim-phone-title">PhoneLink — Mobil Boshqaruv</div>
+          <div class="sim-phone-subtitle">Kompyuterni mobil telefoningiz orqali masofadan himoya qiling va qulflang</div>
+        </div>
+
+        <div class="sim-phone-grid">
+          <div class="sim-card sim-phone-qr-area">
+            <div class="sim-qr-placeholder">
+              <!-- Simple fake QR code grid -->
+              <svg width="150" height="150" viewBox="0 0 150 150">
+                <rect width="150" height="150" fill="white"/>
+                <rect x="10" y="10" width="40" height="40" rx="4" fill="#222"/>
+                <rect x="100" y="10" width="40" height="40" rx="4" fill="#222"/>
+                <rect x="10" y="100" width="40" height="40" rx="4" fill="#222"/>
+                <rect x="17" y="17" width="26" height="26" rx="2" fill="white"/>
+                <rect x="107" y="17" width="26" height="26" rx="2" fill="white"/>
+                <rect x="17" y="107" width="26" height="26" rx="2" fill="white"/>
+                <rect x="23" y="23" width="14" height="14" rx="1" fill="#222"/>
+                <rect x="113" y="23" width="14" height="14" rx="1" fill="#222"/>
+                <rect x="23" y="113" width="14" height="14" rx="1" fill="#222"/>
+                <rect x="60" y="10" width="8" height="8" fill="#222"/>
+                <rect x="75" y="10" width="8" height="8" fill="#222"/>
+                <rect x="60" y="25" width="8" height="8" fill="#222"/>
+                <rect x="82" y="25" width="8" height="8" fill="#222"/>
+                <rect x="60" y="40" width="8" height="8" fill="#222"/>
+                <rect x="68" y="40" width="8" height="8" fill="#222"/>
+                <rect x="60" y="60" width="8" height="8" fill="#222"/>
+                <rect x="75" y="60" width="8" height="8" fill="#222"/>
+                <rect x="90" y="60" width="8" height="8" fill="#222"/>
+                <rect x="105" y="60" width="8" height="8" fill="#222"/>
+                <rect x="120" y="60" width="8" height="8" fill="#222"/>
+                <rect x="60" y="75" width="8" height="8" fill="#222"/>
+                <rect x="82" y="75" width="8" height="8" fill="#222"/>
+                <rect x="120" y="75" width="8" height="8" fill="#222"/>
+                <rect x="60" y="90" width="8" height="8" fill="#222"/>
+                <rect x="75" y="90" width="8" height="8" fill="#222"/>
+                <rect x="90" y="90" width="8" height="8" fill="#222"/>
+                <rect x="10" y="60" width="8" height="8" fill="#222"/>
+                <rect x="25" y="60" width="8" height="8" fill="#222"/>
+                <rect x="10" y="75" width="8" height="8" fill="#222"/>
+                <rect x="40" y="75" width="8" height="8" fill="#222"/>
+                <rect x="25" y="90" width="8" height="8" fill="#222"/>
+                <rect x="40" y="90" width="8" height="8" fill="#222"/>
+                <rect x="105" y="90" width="8" height="8" fill="#222"/>
+                <rect x="120" y="90" width="8" height="8" fill="#222"/>
+                <rect x="135" y="90" width="8" height="8" fill="#222"/>
+                <rect x="105" y="105" width="8" height="8" fill="#222"/>
+                <rect x="120" y="105" width="8" height="8" fill="#222"/>
+                <rect x="105" y="120" width="8" height="8" fill="#222"/>
+                <rect x="135" y="105" width="8" height="8" fill="#222"/>
+                <rect x="135" y="120" width="8" height="8" fill="#222"/>
+                <rect x="135" y="135" width="8" height="8" fill="#222"/>
+                <rect x="120" y="135" width="8" height="8" fill="#222"/>
+              </svg>
+            </div>
+            <div class="sim-qr-label">Mobil ilovadan skanerlang</div>
+            <div class="sim-qr-info">IP: 192.168.1.105:8765 | KOD: 284510</div>
+          </div>
+
+          <div class="sim-card sim-phone-status-area">
+            <h3>Ulanish Holati</h3>
+            <div class="sim-status-row"><div class="sim-status-label">Qurilma Nomi</div><div class="sim-status-value">Ulanmagan</div></div>
+            <div class="sim-status-row"><div class="sim-status-label">Ulanish Vaqti</div><div class="sim-status-value">-</div></div>
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+              <button class="sim-btn sim-btn-full" style="background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid var(--border);cursor:not-allowed">Uzib qo'yish</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ SETTINGS ═══════════ -->
+      <div class="sim-tab-content" id="tab-settings">
+        <div class="sim-page-title"><span class="icon">⚙️</span><h2>Sozlamalar</h2></div>
+        <div class="sim-page-desc">Premium versiyani faollashtirish va xavfsizlik modullarini sozlash</div>
+
+        <div class="sim-settings-grid">
+          <!-- License -->
+          <div class="sim-card sim-settings-card">
+            <h3>🔑 Litsenziya Faollashtirish</h3>
+            <p class="card-desc">Saytdan xarid qilingan Premium kalitni kiriting. Kalitingiz Device ID ga bog'langan.</p>
+            <div class="sim-input-group"><label>Sizning Device ID</label><input class="sim-glass-input" value="SRGK-PC-a8f3e72b" readonly></div>
+            <div class="sim-input-group"><label>Premium Kalitni Kiriting</label><input class="sim-glass-input" placeholder="SRGK-XXXX-XXXX-XXXX..."></div>
+            <button class="sim-btn sim-btn-primary sim-btn-full" style="margin-top:8px">✨ Kalitni Tekshirish</button>
+            <div style="text-align:center;margin-top:12px;font-size:13px;font-weight:600;color:var(--success)">✅ Premium versiya faol!</div>
+          </div>
+
+          <!-- Modules -->
+          <div class="sim-card sim-settings-card">
+            <h3>🔐 Xavfsizlik Modullari</h3>
+            <p class="card-desc">Har bir modul alohida yoqilishi yoki o'chirilishi mumkin.</p>
+            <div class="sim-toggle-row"><div><span class="sim-t-title">Kiber Darvoza (DNS Blocker)</span><span class="sim-t-desc">Zararli saytlarni bloklash</span></div><button class="sim-toggle on" onclick="this.classList.toggle('on')"></button></div>
+            <div class="sim-toggle-row"><div><span class="sim-t-title">USB Qalqoni</span><span class="sim-t-desc">Tashqi qurilmalarni skanerlash</span></div><button class="sim-toggle on" onclick="this.classList.toggle('on')"></button></div>
+            <div class="sim-toggle-row"><div><span class="sim-t-title">Kamera / Mikrofon Himoyasi</span><span class="sim-t-desc">Privacy Guard moduli</span></div><button class="sim-toggle on" onclick="this.classList.toggle('on')"></button></div>
+            <div class="sim-toggle-row"><div><span class="sim-t-title">Anti-Keylogger</span><span class="sim-t-desc">Klaviatura himoyachisi</span></div><button class="sim-toggle on" onclick="this.classList.toggle('on')"></button></div>
+            <div class="sim-toggle-row"><div><span class="sim-t-title">Ransomware Qopqon</span><span class="sim-t-desc">Honeypot fayllar kuzatuvi</span></div><button class="sim-toggle on" onclick="this.classList.toggle('on')"></button></div>
+            <div class="sim-toggle-row" style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px"><div><span class="sim-t-title">Windows bilan birga ishga tushish</span><span class="sim-t-desc">SERGAK avtomatik yuklansin (Registry: HKCU\Run)</span></div><button class="sim-toggle on" onclick="this.classList.toggle('on')"></button></div>
+          </div>
+
+          <!-- About -->
+          <div class="sim-card sim-settings-card" style="grid-column: span 2;">
+            <h3>ℹ️ Ilova Haqida</h3>
+            <p class="card-desc">SERGAK PC — O'zbekistonlik dasturchilar tomonidan yaratilgan zamonaviy kiberxavfsizlik tizimi.</p>
+            <div class="sim-about-row"><span class="sim-about-label">Versiya</span><span class="sim-about-value accent">v1.0.0</span></div>
+            <div class="sim-about-row"><span class="sim-about-label">Platforma</span><span class="sim-about-value">Tauri v2 + React</span></div>
+            <div class="sim-about-row"><span class="sim-about-label">Yaratuvchi</span><span class="sim-about-value">TAFU — Xavfsizlik Jamoasi</span></div>
+            <div class="sim-about-row"><span class="sim-about-label">Litsenziya turi</span><span class="sim-about-value accent">Premium ✅</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sim-main -->
+  </div><!-- /app-layout -->
+</div><!-- /window-frame -->
+
+<script src="windows.js"></script>
+</body>
+</html>
