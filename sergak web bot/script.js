@@ -300,29 +300,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Klik hodisalarni qo'shimcha himoya qilish
+  // Klik hodisalarni qo'shimcha himoya qilish va yangilash modalini ko'rsatish
   const handleSecureRedirect = (e) => {
-    enforceSecurity();
-    const currentHref = e.currentTarget.getAttribute('href');
-    if (currentHref !== OFFICIAL_BOT_URL) {
-      e.preventDefault();
-      alert("❌ XAVFSIZLIK OGOHLANTIRISHI: Havola buzilgan yoki o'zgartirilgan! Rasmiy botga yo'naltirilmoqda.");
-      window.open(OFFICIAL_BOT_URL, '_blank');
-    }
+    e.preventDefault();
+    showMaintenanceModal();
   };
 
   if (btnApk) btnApk.addEventListener('click', handleSecureRedirect);
 
-  // Also protect the premium Telegram button
+  // Also protect the premium Telegram button and show maintenance
   const btnPremiumTg = document.getElementById('btnPremiumTelegram');
   if (btnPremiumTg) {
     btnPremiumTg.addEventListener('click', (e) => {
-      const href = e.currentTarget.getAttribute('href');
-      if (href !== OFFICIAL_BOT_URL) {
-        e.preventDefault();
-        alert("❌ XAVFSIZLIK OGOHLANTIRISHI: Premium bot havolasi buzilgan! Rasmiy botga yo'naltirilmoqda.");
-        window.open(OFFICIAL_BOT_URL, '_blank');
-      }
+      e.preventDefault();
+      showMaintenanceModal();
+    });
+  }
+
+  // Live support widget click handler
+  const liveSupportWidget = document.querySelector('.live-support-widget');
+  if (liveSupportWidget) {
+    liveSupportWidget.addEventListener('click', (e) => {
+      e.preventDefault();
+      showMaintenanceModal();
+    });
+  }
+
+  // 12. TELEGRAM BOT MAINTENANCE MODAL CONTROLLER
+  const maintenanceModal = document.getElementById('maintenanceModal');
+  const closeBtn = document.getElementById('closeMaintenanceModal');
+  const closeBtn2 = document.getElementById('btnMaintenanceClose');
+
+  function showMaintenanceModal() {
+    if (maintenanceModal) {
+      maintenanceModal.classList.add('active');
+    }
+  }
+
+  function hideMaintenanceModal() {
+    if (maintenanceModal) {
+      maintenanceModal.classList.remove('active');
+    }
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', hideMaintenanceModal);
+  if (closeBtn2) closeBtn2.addEventListener('click', hideMaintenanceModal);
+  if (maintenanceModal) {
+    maintenanceModal.addEventListener('click', (e) => {
+      if (e.target === maintenanceModal) hideMaintenanceModal();
     });
   }
 

@@ -817,7 +817,7 @@
             <span class="s-icon" style="font-size: 1.8rem;">📱</span>
             <div class="s-text" style="text-align: left;">
               <small style="font-size: 0.8rem; opacity: 0.8;">Android uchun (Telegram Bot)</small>
-              <strong style="font-size: 1.2rem; display: block; margin-top: 2px;">APK Yuklab Olish</strong>
+              <strong style="font-size: 1.05rem; display: block; margin-top: 2px;">APK Yuklab Olish<br><span style="font-size: 0.75rem; color: #ff3366; font-weight: bold;">(Yangilash ishlari olib borilmoqda)</span></strong>
             </div>
           </a>
           
@@ -842,7 +842,7 @@
           <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.8rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid rgba(255,255,255,0.04);">
               <span style="color: #94a3b8; font-weight: 600;">Rasmiy Bot User:</span>
-              <strong style="color: #fff; font-family: 'Outfit', sans-serif; font-size: 0.9rem;" id="txtOfficialBot">@sergakaibot</strong>
+              <strong style="color: #fff; font-family: 'Outfit', sans-serif; font-size: 0.9rem;" id="txtOfficialBot">@sergakaibot (Yangilashda)</strong>
             </div>
             <div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid rgba(255,255,255,0.04);">
               <span style="color: #94a3b8; font-weight: 600;">Cryptographic Key Hash (HMAC-SHA256 Signature):</span>
@@ -894,6 +894,17 @@
   <a href="https://t.me/sergakaibot" target="_blank" class="live-support-widget" title="Yordam kerakmi?">
     <div class="support-icon">💬</div>
   </a>
+
+  <!-- Telegram Maintenance Modal -->
+  <div id="maintenanceModal" class="maintenance-modal-overlay">
+    <div class="maintenance-modal-content">
+      <div class="maintenance-modal-close" id="closeMaintenanceModal">&times;</div>
+      <div class="maintenance-modal-icon">⚙️</div>
+      <h3>Yangilash ishlari</h3>
+      <p>Hozirda Telegram botimizda yangilash ishlari olib borilmoqda. Noqulayliklar uchun uzr so'raymiz.</p>
+      <button class="btn-maintenance-close" id="btnMaintenanceClose">Tushunarli</button>
+    </div>
+  </div>
 
   <div id="copyToast" class="copy-toast">Karta raqami nusxalandi! 📋</div>
 
