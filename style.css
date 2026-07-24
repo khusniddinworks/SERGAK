@@ -2358,6 +2358,14 @@ body {
 .faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease; color: var(--text-secondary); line-height: 1.6; }
 .faq-item.active .faq-answer { padding: 0 20px 20px; max-height: 500px; }
 
+/* ==================== COMPARISON TABLE ==================== */
+.comparison-table tbody tr { transition: 0.3s; }
+.comparison-table tbody tr:hover { background: rgba(0, 230, 118, 0.05); }
+.comparison-table td, .comparison-table th { padding: 18px 24px; }
+@media (max-width: 768px) {
+  .comparison-table-wrapper { border-radius: 10px; margin: 20px -20px; border-left: none; border-right: none; }
+}
+
 /* ==================== LIVE SUPPORT WIDGET ==================== */
 .live-support-widget { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: linear-gradient(135deg, #00E676, #00e5ff); border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 30px rgba(0, 230, 118, 0.4); z-index: 1000; text-decoration: none; transition: 0.3s; animation: floatIcon 3s ease-in-out infinite; }
 .live-support-widget:hover { transform: scale(1.1); box-shadow: 0 15px 40px rgba(0, 230, 118, 0.6); }
