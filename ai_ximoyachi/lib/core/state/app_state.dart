@@ -170,18 +170,7 @@ class AppState extends ChangeNotifier {
       final expiryStr = parts[1];
       
       final msg = '$_deviceId|$expiryStr';
-      var isSignatureValid = _verifyRsaSignature(msg, signature);
-      
-      // Fallback to legacy HMAC verification
-      if (!isSignatureValid) {
-        const secretKey = 'SERGAKxavfsizlik2026TAFUxusniddinSecret!';
-        final hmac = Hmac(sha256, utf8.encode(secretKey));
-        final digest = hmac.convert(utf8.encode(_deviceId + expiryStr));
-        final expectedSignature = base64Encode(digest.bytes);
-        if (signature == expectedSignature) {
-          isSignatureValid = true;
-        }
-      }
+      final isSignatureValid = _verifyRsaSignature(msg, signature);
       
       if (isSignatureValid) {
         final expiryDate = DateTime.tryParse(expiryStr);

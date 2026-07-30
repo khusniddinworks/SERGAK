@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import '../../presentation/screens/apk_warning_screen.dart';
 import '../../presentation/screens/url_scan_screen.dart';
@@ -11,6 +12,7 @@ class DeepLinkService {
   factory DeepLinkService() => _instance;
   DeepLinkService._internal();
 
+  static const _apkChannel = MethodChannel('com.aiximoyachi/apk_interceptor');
   final _appLinks = AppLinks();
   StreamSubscription<Uri>? _linkSubscription;
   StreamSubscription<List<SharedMediaFile>>? _intentSubscription;
@@ -18,6 +20,35 @@ class DeepLinkService {
 
   void init(GlobalKey<NavigatorState> navigatorKey) {
     _navigatorKey = navigatorKey;
+
+    _apkChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onApkReceived') {
+        final String? apkUri = call.arguments as String?;
+        if (apkUri != null) {
+          final context = _navigatorKey?.currentContext;
+          if (context != null) {
+            _navigateToApkWarning(context, apkUri);
+          }
+        }
+      }
+    });
+
+    _apkChannel.invokeMethod<String>('getInitialApkUri').then((apkUri) {
+      if (apkUri != null) {
+        final context = _navigatorKey?.currentContext;
+        if (context != null) {
+          _navigateToApkWarning(context, apkUri);
+        } else {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            final retryContext = _navigatorKey?.currentContext;
+            if (retryContext != null) {
+              _navigateToApkWarning(retryContext, apkUri);
+            }
+          });
+        }
+      }
+    });
+
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
       _handleDeepLink(uri);
     });

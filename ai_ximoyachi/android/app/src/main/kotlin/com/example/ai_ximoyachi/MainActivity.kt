@@ -20,6 +20,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import java.io.ByteArrayOutputStream
+import android.os.Bundle
 
 class MainActivity : FlutterActivity() {
 
@@ -28,9 +29,47 @@ class MainActivity : FlutterActivity() {
     private val CHANNEL_APPS    = "com.aiximoyachi/app_analyzer"
     private val PERMISSION_CODE = 1001
 
+    private var initialApkUri: String? = null
+    private var apkChannel: MethodChannel? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        if (intent == null) return
+        if (intent.action == Intent.ACTION_VIEW) {
+            val type = intent.type ?: intent.data?.let { contentResolver.getType(it) }
+            if (type == "application/vnd.android.package-archive") {
+                val uriString = intent.data?.toString()
+                if (uriString != null) {
+                    initialApkUri = uriString
+                    apkChannel?.invokeMethod("onApkReceived", uriString)
+                }
+            }
+        }
+    }
+
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         // FraudCheckWorker.schedule(this)
+
+        apkChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.aiximoyachi/apk_interceptor").apply {
+            setMethodCallHandler { call, result ->
+                if (call.method == "getInitialApkUri") {
+                    result.success(initialApkUri)
+                    initialApkUri = null
+                } else {
+                    result.notImplemented()
+                }
+            }
+        }
 
         // ── Fraud monitor channel ─────────────────────────────
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_FRAUD)

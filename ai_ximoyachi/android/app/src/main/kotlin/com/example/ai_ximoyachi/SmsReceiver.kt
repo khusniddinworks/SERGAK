@@ -18,11 +18,15 @@ class SmsReceiver : BroadcastReceiver() {
                 val codePattern = Regex("\\b\\d{4,8}\\b")
                 val hasCode = codePattern.containsMatchIn(messageBody)
                 
-                val keywords = listOf("kod", "parol", "tasdiqlash", "bank", "click", "payme")
+                val keywords = listOf(
+                    "kod", "parol", "tasdiqlash", "bank", "click", "payme",
+                    "код", "пароль", "подтверждение", "банк",
+                    "code", "verify", "otp", "password"
+                )
                 val hasKeyword = keywords.any { messageBody.contains(it) }
 
                 val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-                val isCallActive = telephonyManager?.callState != TelephonyManager.CALL_STATE_IDLE ?: false
+                val isCallActive = (telephonyManager?.callState ?: TelephonyManager.CALL_STATE_IDLE) != TelephonyManager.CALL_STATE_IDLE
 
                 // AGAR: Qo'ng'iroq bo'layotgan bo'lsa + Kod bo'lsa + Kalit so'z bo'lsa -> Bu Fraud!
                 if (isCallActive && hasCode && hasKeyword) {
