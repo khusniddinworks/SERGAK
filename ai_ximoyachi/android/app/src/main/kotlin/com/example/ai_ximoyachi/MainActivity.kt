@@ -21,6 +21,8 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import java.io.ByteArrayOutputStream
 import android.os.Bundle
+import kotlinx.coroutines.*
+
 
 class MainActivity : FlutterActivity() {
 
@@ -191,7 +193,18 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_APPS)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
-                    "getInstalledApps" -> result.success(getInstalledApps())
+                    "getInstalledApps" -> {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            try {
+                                val apps = withContext(Dispatchers.IO) {
+                                    getInstalledApps()
+                                }
+                                result.success(apps)
+                            } catch (e: Exception) {
+                                result.error("ERROR", e.message, null)
+                            }
+                        }
+                    }
                     "openAppSettings" -> {
                         val packageName = call.argument<String>("packageName")
                         if (packageName != null) {

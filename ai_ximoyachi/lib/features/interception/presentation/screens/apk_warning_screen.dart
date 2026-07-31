@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../core/localization/app_translations.dart';
 import '../../../../core/state/app_state.dart';
 
 class ApkWarningScreen extends StatelessWidget {

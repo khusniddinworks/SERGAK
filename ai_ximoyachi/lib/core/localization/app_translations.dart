@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 class AppTranslations {
   static String get(String key, String lang) {

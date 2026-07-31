@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/state/app_state.dart';
-import '../../../../core/theme/app_colors.dart';
 
 class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});

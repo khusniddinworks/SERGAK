@@ -16,7 +16,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObserver {
-  static const _fraudChannel = MethodChannel('com.aiximoyachi/fraud_monitor');
   Map<Permission, bool> _permStatus = {};
 
   @override
@@ -69,14 +68,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 
   String tr(String key) => AppTranslations.get(key, AppState().language);
 
-  Future<void> _toggleFraudMonitor(bool value) async {
-    final appState = AppState();
-  }
-
   @override
   Widget build(BuildContext context) {
     final appState = AppState();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,

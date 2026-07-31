@@ -96,7 +96,6 @@ class UpdateService {
 
     try {
       var request = await http.Client().send(http.Request('GET', Uri.parse(apkUrl)));
-      int totalBytes = request.contentLength ?? 0;
       
       List<int> bytes = [];
       request.stream.listen((List<int> chunk) {
