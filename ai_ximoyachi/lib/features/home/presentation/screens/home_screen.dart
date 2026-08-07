@@ -9,8 +9,8 @@ import '../../../../core/localization/app_translations.dart';
 import '../../../fraud_monitor/presentation/screens/fraud_monitor_screen.dart';
 import '../../../safe_url/presentation/screens/safe_url_screen.dart';
 import '../../../permission_analyzer/presentation/screens/permission_screen.dart';
-import '../../smart_scan/presentation/screens/smart_scan_screen.dart';
-import '../../qr_scanner/presentation/screens/qr_scanner_screen.dart';
+import '../../../smart_scan/presentation/screens/smart_scan_screen.dart';
+import '../../../qr_scanner/presentation/screens/qr_scanner_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -316,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             HugeIcon(
-              icon: HugeIcons.strokeRoundedQrScanner,
+              icon: HugeIcons.strokeRoundedQrCode,
               color: AppColors.textOnPrimary,
               size: 22,
             ),
@@ -418,7 +418,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildActionCard({
     required String title,
     required String subtitle,
-    required IconData icon,
+    required List<List<dynamic>> icon,
     required Color iconBg,
     required Color iconColor,
     required Widget trailing,

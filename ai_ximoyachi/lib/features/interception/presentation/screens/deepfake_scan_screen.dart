@@ -148,9 +148,7 @@ class _DeepfakeScanScreenState extends State<DeepfakeScanScreen> with TickerProv
     return Column(
       children: [
         HugeIcon(
-          icon: _isFinished 
-            ? (_isFake ? HugeIcons.strokeRoundedShieldAlert : HugeIcons.strokeRoundedShieldCheck)
-            : HugeIcons.strokeRoundedVoice,
+          icon: _isFinished ? HugeIcons.strokeRoundedShield01 : HugeIcons.strokeRoundedVoice,
           size: 48,
           color: _currentColor,
         ),

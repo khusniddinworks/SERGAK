@@ -8,14 +8,14 @@ import '../../../threat_center/presentation/screens/threat_center_screen.dart';
 import '../../../vault/presentation/screens/vault_screen.dart';
 import '../../../ai_chat/presentation/screens/ai_chat_screen.dart';
 import '../../../interception/presentation/screens/deepfake_scan_screen.dart';
-import '../../smart_scan/presentation/screens/smart_scan_screen.dart';
-import '../../qr_scanner/presentation/screens/qr_scanner_screen.dart';
-import '../../privacy_center/presentation/screens/privacy_center_screen.dart';
+import '../../../smart_scan/presentation/screens/smart_scan_screen.dart';
+import '../../../qr_scanner/presentation/screens/qr_scanner_screen.dart';
+import '../../../privacy_center/presentation/screens/privacy_center_screen.dart';
 
 class FeatureItem {
   final String title;
   final String subtitle;
-  final IconData icon;
+  final List<List<dynamic>> icon;
   final Color iconColor;
   final Color iconBgColor;
   final bool isPremium;
@@ -41,7 +41,7 @@ class FeaturesScreen extends StatelessWidget {
       FeatureItem(
         title: 'SMS Shield',
         subtitle: 'Fraud SMSlardan proaktiv himoya',
-        icon: HugeIcons.strokeRoundedMessageSquareLock,
+        icon: HugeIcons.strokeRoundedMessageLock01,
         iconColor: AppColors.primary,
         iconBgColor: AppColors.primaryLight,
         destinationScreen: const FraudMonitorScreen(),
@@ -69,7 +69,7 @@ class FeaturesScreen extends StatelessWidget {
       FeatureItem(
         title: 'Ilovalar tahlili',
         subtitle: 'Xavfli ruxsatnomalarni tahlil qilish',
-        icon: HugeIcons.strokeRoundedApps,
+        icon: HugeIcons.strokeRoundedGridView,
         iconColor: AppColors.primary,
         iconBgColor: AppColors.primaryLight,
         destinationScreen: const PermissionScreen(),
@@ -85,7 +85,7 @@ class FeaturesScreen extends StatelessWidget {
       FeatureItem(
         title: 'Smart Scan',
         subtitle: 'Yuklangan xavfli fayllarni skanerlash',
-        icon: HugeIcons.strokeRoundedQrScanner,
+        icon: HugeIcons.strokeRoundedQrCode,
         iconColor: AppColors.primary,
         iconBgColor: AppColors.primaryLight,
         destinationScreen: const SmartScanScreen(),
@@ -264,7 +264,7 @@ class FeaturesScreen extends StatelessWidget {
               )
             else
               const HugeIcon(
-                icon: HugeIcons.strokeRoundedChevronRight,
+                icon: HugeIcons.strokeRoundedArrowRight01,
                 color: AppColors.textDisabled,
                 size: 18,
               ),

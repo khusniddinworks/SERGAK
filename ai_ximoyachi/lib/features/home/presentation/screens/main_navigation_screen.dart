@@ -82,7 +82,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     children: [
                       _buildNavItem(0, HugeIcons.strokeRoundedHome01, 'Bosh'),
                       _buildNavItem(1, HugeIcons.strokeRoundedAlert02, 'Tahdid'),
-                      _buildNavItem(2, HugeIcons.strokeRoundedShield, 'Himoya'),
+                      _buildNavItem(2, HugeIcons.strokeRoundedShield01, 'Himoya'),
                       _buildNavItem(3, HugeIcons.strokeRoundedAiChat02, 'AI'),
                       _buildNavItem(4, HugeIcons.strokeRoundedSettings01, 'Sozlamalar'),
                     ],
@@ -96,7 +96,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData iconData, String label) {
+  Widget _buildNavItem(int index, List<List<dynamic>> iconData, String label) {
     final isSelected = _currentIndex == index;
     
     return GestureDetector(

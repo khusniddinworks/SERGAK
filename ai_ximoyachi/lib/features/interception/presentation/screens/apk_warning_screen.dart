@@ -23,7 +23,7 @@ class ApkWarningScreen extends StatelessWidget {
     switch (lang) {
       case 'ru': return 'Друг, вы загружаете этот APK-файл через Telegram. Такие файлы иногда могут быть небезопасными. Подумайте перед установкой. Выбор за вами.';
       case 'en': return 'Friend, you are downloading this APK file via Telegram. Such files can sometimes be unsafe. Think carefully before installing. The choice is yours.';
-      default: return 'Do\'stim, bu APK faylni Telegram orqali yuklab olayapsiz. Bunday fayllar ba\'zan xavfli bo\'lishi mumkin. Uni o\'rnatishdan avval yaxshilab o\'ylab ko'ring. Tanlov sizniki.';
+      default: return 'Do\'stim, bu APK faylni Telegram orqali yuklab olayapsiz. Bunday fayllar ba\'zan xavfli bo\'lishi mumkin. Uni o\'rnatishdan avval yaxshilab o\'ylab ko\'ring. Tanlov sizniki.';
     }
   }
 
