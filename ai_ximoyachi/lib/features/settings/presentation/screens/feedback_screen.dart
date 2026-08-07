@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:http/http.dart' as http;
 import 'package:device_info_plus/device_info_plus.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});
@@ -16,7 +18,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   final TextEditingController _messageController = TextEditingController();
   bool _isLoading = false;
 
-  // DIQQAT: O'zingizning Render'dagi backend URL manzilingizni yozing
   final String _backendUrl = "https://sergak.onrender.com/api/feedback";
 
   Future<void> _sendMessage() async {
@@ -28,7 +29,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     });
 
     try {
-      // Qurilma nomini aniqlash
       String deviceName = "Noma'lum qurilma";
       final deviceInfo = DeviceInfoPlugin();
       
@@ -40,7 +40,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         deviceName = iosInfo.name;
       }
 
-      // Backend API ga yuborish
       final url = Uri.parse(_backendUrl);
       final response = await http.post(
         url,
@@ -54,7 +53,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       if (response.statusCode == 200) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Xabaringiz muvaffaqiyatli yuborildi! Katta rahmat!'), backgroundColor: Colors.green),
+            const SnackBar(content: Text('Xabaringiz muvaffaqiyatli yuborildi! Katta rahmat!'), backgroundColor: AppColors.safe),
           );
           _messageController.clear();
           Navigator.pop(context);
@@ -62,14 +61,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Xatolik yuz berdi. Bot sozlamalarini tekshiring!'), backgroundColor: Colors.red),
+            const SnackBar(content: Text('Xatolik yuz berdi. Bot sozlamalarini tekshiring!'), backgroundColor: AppColors.danger),
           );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Internetga ulanishda xatolik!'), backgroundColor: Colors.red),
+          const SnackBar(content: Text('Internetga ulanishda xatolik!'), backgroundColor: AppColors.danger),
         );
       }
     } finally {
@@ -81,17 +80,21 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black),
+        leading: IconButton(
+          icon: const HugeIcon(
+            icon: HugeIcons.strokeRoundedArrowLeft01,
+            color: AppColors.textPrimary,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Text(
           'Fikr va Mulohazalar',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black),
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
         ),
         centerTitle: true,
       ),
@@ -104,34 +107,34 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.blueAccent.withOpacity(0.1),
+                  color: AppColors.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.support_agent_rounded, size: 64, color: Colors.blueAccent),
+                child: const HugeIcon(icon: HugeIcons.strokeRoundedMessage01, size: 64, color: AppColors.primary),
               ),
             ),
             const SizedBox(height: 32),
             Text(
               'Bizga xabar qoldiring',
-              style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black87),
+              style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             ),
             const SizedBox(height: 8),
             Text(
               "Ilova bo'yicha taklif, shikoyat yoki topilgan xatoliklarni yozib yuboring. Xabaringiz to'g'ridan-to'g'ri dasturchiga yetib boradi.",
-              style: GoogleFonts.outfit(fontSize: 15, color: isDark ? Colors.white70 : Colors.black54, height: 1.5),
+              style: GoogleFonts.outfit(fontSize: 15, color: AppColors.textSecondary, height: 1.5),
             ),
             const SizedBox(height: 32),
             TextField(
               controller: _messageController,
               maxLines: 6,
-              style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              style: const TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Xabaringizni bu yerga yozing...',
-                hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.black38),
+                hintStyle: const TextStyle(color: AppColors.textDisabled),
                 filled: true,
-                fillColor: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[100],
+                fillColor: AppColors.backgroundInput,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.all(20),
@@ -141,8 +144,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             ElevatedButton(
               onPressed: _isLoading ? null : _sendMessage,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.textOnPrimary,
                 minimumSize: const Size(double.infinity, 56),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),

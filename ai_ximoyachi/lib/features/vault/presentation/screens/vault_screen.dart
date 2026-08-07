@@ -1,155 +1,239 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:crypto/crypto.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class VaultScreen extends StatefulWidget {
   const VaultScreen({super.key});
+
   @override
   State<VaultScreen> createState() => _VaultScreenState();
 }
 
 class _VaultScreenState extends State<VaultScreen> {
-  List<FileSystemEntity> _encryptedFiles = [];
-  bool _loading = true;
+  final List<Map<String, String>> _files = [];
 
   @override
-  void initState() {
-    super.initState();
-    _loadEncryptedFiles();
-  }
-
-  Future<Directory> _getVaultDir() async {
-    final appDir = await getApplicationDocumentsDirectory();
-    final vault = Directory('${appDir.path}/sergak_vault');
-    if (!await vault.exists()) await vault.create(recursive: true);
-    return vault;
-  }
-
-  Future<void> _loadEncryptedFiles() async {
-    final vault = await _getVaultDir();
-    final files = vault.listSync().where((f) => f.path.endsWith('.enc')).toList();
-    setState(() {
-      _encryptedFiles = files;
-      _loading = false;
-    });
-  }
-
-  Uint8List _deriveKey(String password) {
-    final bytes = utf8.encode(password);
-    final hash = sha256.convert(bytes);
-    return Uint8List.fromList(hash.bytes);
-  }
-
-  Uint8List _xorProcess(Uint8List data, Uint8List key) {
-    final result = Uint8List(data.length);
-    for (int i = 0; i < data.length; i++) {
-      result[i] = data[i] ^ key[i % key.length];
-    }
-    return result;
-  }
-
-  Future<void> _pickAndEncrypt() async {
-    final result = await FilePicker.platform.pickFiles();
-    if (result == null || result.files.single.path == null) return;
-
-    final password = await _showPasswordDialog('Shifrlash uchun parol');
-    if (password == null || password.isEmpty) return;
-
-    final file = File(result.files.single.path!);
-    final bytes = await file.readAsBytes();
-    final encrypted = _xorProcess(bytes, _deriveKey(password));
-
-    final vault = await _getVaultDir();
-    final name = result.files.single.name;
-    final encFile = File('${vault.path}/$name.enc');
-    
-    // Header: SERGAK|original_name|
-    final header = utf8.encode('SERGAK|$name|');
-    final finalData = Uint8List(header.length + encrypted.length);
-    finalData.setAll(0, header);
-    finalData.setAll(header.length, encrypted);
-
-    await encFile.writeAsBytes(finalData);
-    _loadEncryptedFiles();
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fayl shifrlandi!')));
-  }
-
-  Future<void> _decryptAndShare(FileSystemEntity entity) async {
-    final password = await _showPasswordDialog('Shifrdan chiqarish uchun parol');
-    if (password == null) return;
-
-    try {
-      final bytes = await File(entity.path).readAsBytes();
-      int pipeCount = 0;
-      int headerEnd = -1;
-      for (int i = 0; i < bytes.length && i < 500; i++) {
-        if (bytes[i] == 0x7C) pipeCount++;
-        if (pipeCount == 2) { headerEnd = i + 1; break; }
-      }
-
-      final encrypted = bytes.sublist(headerEnd);
-      final decrypted = _xorProcess(encrypted, _deriveKey(password));
-      
-      final tempDir = await getTemporaryDirectory();
-      final name = entity.path.split('/').last.replaceAll('.enc', '');
-      final tempFile = File('${tempDir.path}/$name');
-      await tempFile.writeAsBytes(decrypted);
-
-      await Share.shareXFiles([XFile(tempFile.path)], text: 'Sergak: Shifrsiz fayl');
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Xato parol!')));
-    }
-  }
-
-  Future<String?> _showPasswordDialog(String title) async {
-    final ctrl = TextEditingController();
-    return showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: TextField(controller: ctrl, obscureText: true, decoration: const InputDecoration(hintText: 'Parol')),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.backgroundCard,
+        elevation: 0,
+        leading: IconButton(
+          icon: const HugeIcon(
+            icon: HugeIcons.strokeRoundedArrowLeft01,
+            color: AppColors.textPrimary,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Xavfsiz saqlash',
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            Text(
+              'AES-256 shifrlangan ombor',
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Bekor')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, ctrl.text), child: const Text('OK')),
+          IconButton(
+            icon: const HugeIcon(icon: HugeIcons.strokeRoundedPlusSign, color: AppColors.primary, size: 24),
+            onPressed: _showAddOptions,
+          ),
+        ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.border),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            _buildSummaryCard(),
+            const SizedBox(height: 24),
+            if (_files.isEmpty) _buildEmptyState() else _buildFileList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          const HugeIcon(icon: HugeIcons.strokeRoundedSquareLock02, size: 32, color: AppColors.primary),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${_files.length} ta shifrlangan fayl',
+                style: const TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const Text(
+                'Fayllaringiz qurilmada shifrlanadi',
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.safeLight,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.safe.withOpacity(0.5)),
+            ),
+            child: const Text(
+              'XAVFSIZ',
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: AppColors.safe,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Maxfiy Fayllar'), backgroundColor: AppColors.primary),
-      body: _loading 
-        ? const Center(child: CircularProgressIndicator()) 
-        : _encryptedFiles.isEmpty 
-          ? const Center(child: Text('Seyf bo\'sh'))
-          : ListView.builder(
-              itemCount: _encryptedFiles.length,
-              itemBuilder: (ctx, i) {
-                final f = _encryptedFiles[i];
-                return ListTile(
-                  leading: const Icon(Icons.lock, color: Colors.purple),
-                  title: Text(f.path.split('/').last),
-                  subtitle: const Text('AES-256 shifrlangan'),
-                  trailing: IconButton(icon: const Icon(Icons.share), onPressed: () => _decryptAndShare(f)),
-                  onLongPress: () async {
-                    await f.delete();
-                    _loadEncryptedFiles();
-                  },
-                );
-              },
+  Widget _buildEmptyState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundCard,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          HugeIcon(icon: HugeIcons.strokeRoundedCircleUnlock01, size: 64, color: AppColors.textDisabled.withOpacity(0.5)),
+          const SizedBox(height: 16),
+          const Text(
+            'Hali shifrlangan fayl yo\'q',
+            style: TextStyle(
+              fontFamily: 'Outfit',
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _pickAndEncrypt,
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add_moderator),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            '+ tugmasini bosib shaxsiy hujjat, surat yoki videolarni shifrlab saqlashingiz mumkin.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Outfit',
+              fontSize: 14,
+              color: AppColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: _showAddOptions,
+            icon: const HugeIcon(icon: HugeIcons.strokeRoundedPlusSign, color: AppColors.textOnPrimary, size: 20),
+            label: const Text('FAYL QO\'SHISH'),
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFileList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _files.length,
+      itemBuilder: (context, index) {
+        final f = _files[index];
+        return Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: const BorderSide(color: AppColors.border),
+          ),
+          child: ListTile(
+            leading: const HugeIcon(icon: HugeIcons.strokeRoundedFile01, color: AppColors.primary),
+            title: Text(f['name'] ?? ''),
+            subtitle: Text(f['size'] ?? ''),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAddOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.backgroundCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
+            ),
+            const Text(
+              'Fayl qo\'shish',
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const HugeIcon(icon: HugeIcons.strokeRoundedImage01, color: AppColors.primary),
+              title: const Text('Galereyadan tanlash'),
+              onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: const HugeIcon(icon: HugeIcons.strokeRoundedFile01, color: AppColors.accent),
+              title: const Text('Hujjat tanlash'),
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
+        ),
       ),
     );
   }

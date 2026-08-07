@@ -1,138 +1,276 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/state/app_state.dart';
-import '../../../../core/localization/app_translations.dart';
-import '../../../vault/presentation/screens/vault_screen.dart';
+import '../../../fraud_monitor/presentation/screens/fraud_monitor_screen.dart';
+import '../../../safe_url/presentation/screens/safe_url_screen.dart';
 import '../../../permission_analyzer/presentation/screens/permission_screen.dart';
-import '../../../payment/presentation/screens/premium_screen.dart';
+import '../../../threat_center/presentation/screens/threat_center_screen.dart';
+import '../../../vault/presentation/screens/vault_screen.dart';
+import '../../../ai_chat/presentation/screens/ai_chat_screen.dart';
+import '../../../interception/presentation/screens/deepfake_scan_screen.dart';
+import '../../smart_scan/presentation/screens/smart_scan_screen.dart';
+import '../../qr_scanner/presentation/screens/qr_scanner_screen.dart';
+import '../../privacy_center/presentation/screens/privacy_center_screen.dart';
+
+class FeatureItem {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBgColor;
+  final bool isPremium;
+  final Widget destinationScreen;
+
+  FeatureItem({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.iconColor,
+    required this.iconBgColor,
+    this.isPremium = false,
+    required this.destinationScreen,
+  });
+}
 
 class FeaturesScreen extends StatelessWidget {
   const FeaturesScreen({super.key});
 
-  String tr(String key) => AppTranslations.get(key, AppState().language);
-
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: AppState(),
-      builder: (context, _) {
-        return Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildHeader(),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(tr('extra_features'), 
-                          style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 20),
-                      
-                      _buildFeatureCard(
-                        context,
-                        tr('vault'), 
-                        tr('vault_desc'), 
-                        Icons.lock_rounded, 
-                        Colors.purpleAccent, 
-                        'AES-256',
-                        VaultScreen()
-                      ),
-                      
-                      _buildFeatureCard(
-                        context,
-                        tr('perm_analyzer'), 
-                        tr('perm_desc'), 
-                        Icons.settings_suggest_rounded, 
-                        Colors.green, 
-                        'Aqlli',
-                        PermissionScreen()
-                      ),
-                    ],
+    final protectionFeatures = [
+      FeatureItem(
+        title: 'SMS Shield',
+        subtitle: 'Fraud SMSlardan proaktiv himoya',
+        icon: HugeIcons.strokeRoundedMessageSquareLock,
+        iconColor: AppColors.primary,
+        iconBgColor: AppColors.primaryLight,
+        destinationScreen: const FraudMonitorScreen(),
+      ),
+      FeatureItem(
+        title: 'URL Skanerlash',
+        subtitle: 'Phishing va zararli havolalar tekshiruvi',
+        icon: HugeIcons.strokeRoundedLink01,
+        iconColor: AppColors.primary,
+        iconBgColor: AppColors.primaryLight,
+        destinationScreen: const SafeUrlScreen(),
+      ),
+      FeatureItem(
+        title: 'Deepfake Ovoz',
+        subtitle: 'AI bilan ovoz soxtaligini aniqlash',
+        icon: HugeIcons.strokeRoundedVoice,
+        iconColor: AppColors.premium,
+        iconBgColor: AppColors.premiumLight,
+        isPremium: true,
+        destinationScreen: const DeepfakeScanScreen(audioPath: ''),
+      ),
+    ];
+
+    final analysisFeatures = [
+      FeatureItem(
+        title: 'Ilovalar tahlili',
+        subtitle: 'Xavfli ruxsatnomalarni tahlil qilish',
+        icon: HugeIcons.strokeRoundedApps,
+        iconColor: AppColors.primary,
+        iconBgColor: AppColors.primaryLight,
+        destinationScreen: const PermissionScreen(),
+      ),
+      FeatureItem(
+        title: 'Tahdidlar markazi',
+        subtitle: 'Aniqlangan barcha tahdidlar tarixi',
+        icon: HugeIcons.strokeRoundedAlert02,
+        iconColor: AppColors.danger,
+        iconBgColor: AppColors.dangerLight,
+        destinationScreen: const ThreatCenterScreen(),
+      ),
+      FeatureItem(
+        title: 'Smart Scan',
+        subtitle: 'Yuklangan xavfli fayllarni skanerlash',
+        icon: HugeIcons.strokeRoundedQrScanner,
+        iconColor: AppColors.primary,
+        iconBgColor: AppColors.primaryLight,
+        destinationScreen: const SmartScanScreen(),
+      ),
+      FeatureItem(
+        title: 'QR Scanner',
+        subtitle: 'Xavfsiz QR-kodlarni skanerlash',
+        icon: HugeIcons.strokeRoundedQrCode,
+        iconColor: AppColors.primary,
+        iconBgColor: AppColors.primaryLight,
+        destinationScreen: const QrScannerScreen(),
+      ),
+    ];
+
+    final vaultAndAiFeatures = [
+      FeatureItem(
+        title: 'Xavfsiz saqlash (Vault)',
+        subtitle: 'AES-256 shifrlangan fayllar ombori',
+        icon: HugeIcons.strokeRoundedSquareLock02,
+        iconColor: AppColors.premium,
+        iconBgColor: AppColors.premiumLight,
+        isPremium: true,
+        destinationScreen: const VaultScreen(),
+      ),
+      FeatureItem(
+        title: 'AI Yordamchi',
+        subtitle: 'Oflayn kiberxavfsizlik maslahatgichi',
+        icon: HugeIcons.strokeRoundedAiChat02,
+        iconColor: AppColors.primary,
+        iconBgColor: AppColors.primaryLight,
+        destinationScreen: const AiChatScreen(),
+      ),
+      FeatureItem(
+        title: 'Privacy Center',
+        subtitle: 'Ruxsatnomalar boshqaruvi',
+        icon: HugeIcons.strokeRoundedShieldUser,
+        iconColor: AppColors.primary,
+        iconBgColor: AppColors.primaryLight,
+        destinationScreen: const PrivacyCenterScreen(),
+      ),
+    ];
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.backgroundCard,
+        elevation: 0,
+        title: const Text(
+          'Barcha funksiyalar',
+          style: TextStyle(
+            fontFamily: 'Outfit',
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.border),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildCategoryTitle('Himoya vositalari'),
+            ...protectionFeatures.map((f) => _buildFeatureCard(context, f)),
+            const SizedBox(height: 16),
+            _buildCategoryTitle('Tahlil vositalari'),
+            ...analysisFeatures.map((f) => _buildFeatureCard(context, f)),
+            const SizedBox(height: 16),
+            _buildCategoryTitle('Saqlash, AI va Maxfiylik'),
+            ...vaultAndAiFeatures.map((f) => _buildFeatureCard(context, f)),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontFamily: 'Outfit',
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textSecondary,
+          letterSpacing: 0.8,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard(BuildContext context, FeatureItem feature) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => feature.destinationScreen),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundCard,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.border),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: feature.iconBgColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: HugeIcon(icon: feature.icon, color: feature.iconColor, size: 22),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    feature.title,
+                    style: const TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    feature.subtitle,
+                    style: const TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (feature.isPremium)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.premium.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.premiumGold, width: 1),
+                ),
+                child: const Text(
+                  'PRO',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.premiumGold,
                   ),
                 ),
-              ],
-            ),
-          ),
-        );
-      }
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 60, bottom: 40, left: 20, right: 20),
-      decoration: const BoxDecoration(
-        gradient: AppColors.headerGradient, 
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30))
-      ),
-      child: Column(children: [
-        const Icon(Icons.shield_rounded, color: Colors.white, size: 50),
-        const SizedBox(height: 10),
-
-        Text('SERGAK', style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2)),
-        const SizedBox(height: 4),
-        Text(tr('device_protected'), style: GoogleFonts.outfit(fontSize: 14, color: Colors.white.withOpacity(0.9))),
-      ]),
-    );
-  }
-
-  Widget _buildFeatureCard(BuildContext context, String title, String subtitle, IconData icon, Color color, String badge, Widget destinationScreen) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white, 
-        borderRadius: BorderRadius.circular(24), 
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))]
-      ),
-      child: Column(children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(color: color, borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24))),
-          child: Row(children: [
-            Container(
-              padding: const EdgeInsets.all(12), 
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(16)), 
-              child: Icon(icon, color: Colors.white, size: 28)
-            ),
-            const SizedBox(width: 16),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-              Text(subtitle, style: GoogleFonts.outfit(fontSize: 13, color: Colors.white.withOpacity(0.9))),
-            ])),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), 
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(20)), 
-              child: Text(badge, style: GoogleFonts.outfit(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white))
-            ),
-          ]),
+              )
+            else
+              const HugeIcon(
+                icon: HugeIcons.strokeRoundedChevronRight,
+                color: AppColors.textDisabled,
+                size: 18,
+              ),
+          ],
         ),
-        Container(
-          width: double.infinity, 
-          padding: const EdgeInsets.all(16), 
-          child: ElevatedButton(
-            onPressed: () {
-              if (title == tr('vault') && !AppState().isPremium) {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumScreen()));
-              } else {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => destinationScreen));
-              }
-            }, 
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark ? Colors.white10 : Colors.grey.withOpacity(0.1), 
-              foregroundColor: isDark ? Colors.white : AppColors.textPrimary, 
-              elevation: 0, 
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
-            ), 
-            child: Text(tr('open'))
-          )
-        ),
-      ]),
+      ),
     );
   }
 }

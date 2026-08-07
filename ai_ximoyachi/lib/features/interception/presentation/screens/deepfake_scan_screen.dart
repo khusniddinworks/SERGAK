@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../../../core/localization/app_translations.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../payment/presentation/screens/premium_screen.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class DeepfakeScanScreen extends StatefulWidget {
   final String audioPath;
@@ -53,7 +55,7 @@ class _DeepfakeScanScreenState extends State<DeepfakeScanScreen> with TickerProv
       return;
     }
 
-    // Simulyatsiya: 3 soniyadan so'ng natija tayyor bo'ladi
+    // Simulyatsiya: 4 soniyadan so'ng natija tayyor bo'ladi
     Future.delayed(const Duration(seconds: 4), () {
       if (mounted) {
         setState(() {
@@ -80,19 +82,22 @@ class _DeepfakeScanScreenState extends State<DeepfakeScanScreen> with TickerProv
   String get _lang => AppState().language;
 
   Color get _currentColor {
-    if (!_isFinished) return const Color(0xFF00F0FF); // Scanning (Cyan)
-    return _isFake ? const Color(0xFFFF3366) : const Color(0xFF00FF66); // Red or Green
+    if (!_isFinished) return AppColors.primary; // Scanning (Cyan)
+    return _isFake ? AppColors.danger : AppColors.safe; // Red or Green
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0C10),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const HugeIcon(
+            icon: HugeIcons.strokeRoundedArrowLeft01,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -142,10 +147,10 @@ class _DeepfakeScanScreenState extends State<DeepfakeScanScreen> with TickerProv
   Widget _buildHeader() {
     return Column(
       children: [
-        Icon(
-          _isFinished 
-            ? (_isFake ? Icons.warning_rounded : Icons.check_circle_rounded)
-            : Icons.graphic_eq_rounded,
+        HugeIcon(
+          icon: _isFinished 
+            ? (_isFake ? HugeIcons.strokeRoundedShieldAlert : HugeIcons.strokeRoundedShieldCheck)
+            : HugeIcons.strokeRoundedVoice,
           size: 48,
           color: _currentColor,
         ),
@@ -155,7 +160,7 @@ class _DeepfakeScanScreenState extends State<DeepfakeScanScreen> with TickerProv
           style: GoogleFonts.outfit(
             fontSize: 24,
             fontWeight: FontWeight.w800,
-            color: Colors.white,
+            color: AppColors.textPrimary,
             letterSpacing: 2.0,
           ),
         ),
@@ -207,8 +212,8 @@ class _DeepfakeScanScreenState extends State<DeepfakeScanScreen> with TickerProv
           ? Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(20),
+                color: AppColors.backgroundCard,
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: _currentColor.withOpacity(0.3), width: 1.5),
               ),
               child: Column(
@@ -220,8 +225,9 @@ class _DeepfakeScanScreenState extends State<DeepfakeScanScreen> with TickerProv
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
                       fontSize: 16,
-                      color: Colors.white70,
+                      color: AppColors.textSecondary,
                       height: 1.5,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -231,7 +237,7 @@ class _DeepfakeScanScreenState extends State<DeepfakeScanScreen> with TickerProv
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: _currentColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: _currentColor.withOpacity(0.5), width: 2),
               ),
               child: Column(
@@ -251,7 +257,7 @@ class _DeepfakeScanScreenState extends State<DeepfakeScanScreen> with TickerProv
                     style: GoogleFonts.outfit(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -260,7 +266,7 @@ class _DeepfakeScanScreenState extends State<DeepfakeScanScreen> with TickerProv
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
                       fontSize: 15,
-                      color: Colors.white70,
+                      color: AppColors.textSecondary,
                       height: 1.5,
                     ),
                   ),
@@ -274,16 +280,16 @@ class _DeepfakeScanScreenState extends State<DeepfakeScanScreen> with TickerProv
     return ElevatedButton(
       onPressed: () => Navigator.pop(context),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white.withOpacity(0.1),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.backgroundCard,
+        foregroundColor: AppColors.textPrimary,
         minimumSize: const Size(double.infinity, 56),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Colors.white24),
+          side: const BorderSide(color: AppColors.border),
         ),
       ),
       child: Text(
-        AppTranslations.get('home', _lang), // or a close button text
+        AppTranslations.get('home', _lang),
         style: GoogleFonts.outfit(
           fontSize: 16,
           fontWeight: FontWeight.bold,

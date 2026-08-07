@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/state/app_state.dart';
 
 class ApkWarningScreen extends StatelessWidget {
@@ -11,17 +13,17 @@ class ApkWarningScreen extends StatelessWidget {
 
   String _getApkWarningTitle(String lang) {
     switch (lang) {
-      case 'ru': return 'ОБНАРУЖЕНА УГРОЗА!';
-      case 'en': return 'THREAT DETECTED!';
-      default: return 'XAVF ANIQLANDI!';
+      case 'ru': return 'Будьте осторожны!';
+      case 'en': return 'Be Careful!';
+      default: return 'Ehtiyot bo\'ling!';
     }
   }
 
   String _getApkWarningDesc(String lang) {
     switch (lang) {
-      case 'ru': return 'Установка этого APK-файла, загруженного из Telegram или браузера, может быть опасной для вашего устройства. SERGAK не рекомендует его установку.';
-      case 'en': return 'This APK file downloaded from Telegram or a browser might be dangerous for your device. SERGAK does not recommend installing it.';
-      default: return 'Telegram yoki brauzerdan yuklangan ushbu APK fayl qurilmangiz uchun xavfli bo\'lishi mumkin. SERGAK uni o\'rnatishni tavsiya etmaydi.';
+      case 'ru': return 'Друг, вы загружаете этот APK-файл через Telegram. Такие файлы иногда могут быть небезопасными. Подумайте перед установкой. Выбор за вами.';
+      case 'en': return 'Friend, you are downloading this APK file via Telegram. Such files can sometimes be unsafe. Think carefully before installing. The choice is yours.';
+      default: return 'Do\'stim, bu APK faylni Telegram orqali yuklab olayapsiz. Bunday fayllar ba\'zan xavfli bo\'lishi mumkin. Uni o\'rnatishdan avval yaxshilab o\'ylab ko'ring. Tanlov sizniki.';
     }
   }
 
@@ -43,15 +45,18 @@ class ApkWarningScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const warningColor = Color(0xFFFF3366); // Neon Warning Red/Pink
+    const warningColor = AppColors.warning; // Modern warning color (amber/orange)
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0C10), // Matching the app dark background
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: const HugeIcon(
+            icon: HugeIcons.strokeRoundedArrowLeft01,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -87,8 +92,8 @@ class ApkWarningScreen extends StatelessWidget {
                   // Header
                   Column(
                     children: [
-                      const Icon(
-                        Icons.warning_rounded,
+                      const HugeIcon(
+                        icon: HugeIcons.strokeRoundedAlertCircle,
                         size: 56,
                         color: warningColor,
                       ),
@@ -98,7 +103,7 @@ class ApkWarningScreen extends StatelessWidget {
                         style: GoogleFonts.outfit(
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           letterSpacing: 2.0,
                         ),
                       ),
@@ -132,10 +137,12 @@ class ApkWarningScreen extends StatelessWidget {
                               width: 4,
                             ),
                           ),
-                          child: const Icon(
-                            Icons.security_update_warning_rounded,
-                            size: 40,
-                            color: warningColor,
+                          child: const Center(
+                            child: HugeIcon(
+                              icon: HugeIcons.strokeRoundedFileDownload,
+                              size: 32,
+                              color: warningColor,
+                            ),
                           ),
                         ),
                       ],
@@ -147,10 +154,10 @@ class ApkWarningScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: warningColor.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: warningColor.withOpacity(0.4),
-                        width: 2,
+                        width: 1.5,
                       ),
                     ),
                     child: Column(
@@ -169,7 +176,7 @@ class ApkWarningScreen extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.outfit(
                             fontSize: 15,
-                            color: Colors.white70,
+                            color: AppColors.textSecondary,
                             height: 1.5,
                           ),
                         ),
@@ -182,7 +189,7 @@ class ApkWarningScreen extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: warningColor,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.textOnPrimary,
                       minimumSize: const Size(double.infinity, 56),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -215,10 +222,10 @@ class ApkWarningScreen extends StatelessWidget {
                     child: Text(
                       _getInstallAnywayText(_lang),
                       style: GoogleFonts.outfit(
-                        color: Colors.white54,
+                        color: AppColors.textSecondary,
                         fontSize: 14,
                         decoration: TextDecoration.underline,
-                        decorationColor: Colors.white54,
+                        decorationColor: AppColors.textSecondary,
                       ),
                     ),
                   ),

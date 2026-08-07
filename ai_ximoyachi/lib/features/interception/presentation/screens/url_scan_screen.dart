@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:hugeicons/hugeicons.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class UrlScanScreen extends StatefulWidget {
   final String url;
@@ -114,7 +116,7 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
       if (_isSafe) {
         _statusMessage = 'XAVFSIZ';
       } else {
-        _statusMessage = 'XAVFLI: $_riskScore% risk aniqlandi';
+        _statusMessage = 'Bu havola xavfli bo\'lishi mumkin ($_riskScore% risk)';
       }
     });
 
@@ -145,14 +147,14 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
   }
 
   Color get _currentColor {
-    if (!_isFinished) return const Color(0xFF00F0FF); // Cyan for scanning
-    return _isSafe ? const Color(0xFF00FF66) : const Color(0xFFFF3366); // Neon Green or Red
+    if (!_isFinished) return AppColors.primary; // Cyan for scanning
+    return _isSafe ? AppColors.safe : AppColors.danger; // Neon Green or Red
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0C10),
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           // Background Glow Effect
@@ -202,10 +204,8 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          _isFinished 
-            ? (_isSafe ? Icons.gpp_good_rounded : Icons.gpp_bad_rounded)
-            : Icons.security_rounded,
+        HugeIcon(
+          icon: HugeIcons.strokeRoundedShield01,
           size: 32,
           color: _currentColor,
         ),
@@ -358,7 +358,11 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
             children: [
               Row(
                 children: [
-                  const Icon(Icons.link_rounded, color: Colors.white54, size: 20),
+                  const HugeIcon(
+                    icon: HugeIcons.strokeRoundedLink01,
+                    color: Colors.white54,
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'MANZIL:',
@@ -386,11 +390,11 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
                 const SizedBox(height: 16),
                 const Divider(color: Colors.white10, height: 1),
                 const SizedBox(height: 16),
-                _buildDetailRow(Icons.category_rounded, 'Kategoriya', _category),
-                _buildDetailRow(Icons.public_rounded, 'Server', _countryCode.isNotEmpty ? _countryCode : 'Noma\'lum'),
-                if (_domainAge.isNotEmpty) _buildDetailRow(Icons.hourglass_empty_rounded, 'Yoshi', _domainAge),
-                _buildDetailRow(Icons.phishing_rounded, 'Fishing', _isPhishing ? 'Mavjud' : 'Xavfsiz', isAlert: _isPhishing),
-                _buildDetailRow(Icons.bug_report_rounded, 'Malware', _isMalware ? 'Mavjud' : 'Xavfsiz', isAlert: _isMalware),
+                _buildDetailRow(HugeIcons.strokeRoundedFolder01, 'Kategoriya', _category),
+                _buildDetailRow(HugeIcons.strokeRoundedGlobe02, 'Server', _countryCode.isNotEmpty ? _countryCode : 'Noma\'lum'),
+                if (_domainAge.isNotEmpty) _buildDetailRow(HugeIcons.strokeRoundedHourglass, 'Yoshi', _domainAge),
+                _buildDetailRow(HugeIcons.strokeRoundedShield01, 'Fishing', _isPhishing ? 'Mavjud' : 'Xavfsiz', isAlert: _isPhishing),
+                _buildDetailRow(HugeIcons.strokeRoundedBug01, 'Malware', _isMalware ? 'Mavjud' : 'Xavfsiz', isAlert: _isMalware),
               ],
             ],
           ),
@@ -399,8 +403,8 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value, {bool isAlert = false}) {
-    final valueColor = isAlert ? const Color(0xFFFF3366) : (value == 'Xavfsiz' ? const Color(0xFF00FF66) : Colors.white);
+  Widget _buildDetailRow(List<List<dynamic>> icon, String label, String value, {bool isAlert = false}) {
+    final valueColor = isAlert ? AppColors.danger : (value == 'Xavfsiz' ? AppColors.safe : Colors.white);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
@@ -408,7 +412,7 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: Colors.white38),
+              HugeIcon(icon: icon, size: 16, color: Colors.white38),
               const SizedBox(width: 8),
               Text(
                 label,
@@ -438,17 +442,17 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
         if (_isSafe)
           _buildActionButton(
             label: 'SAYTGA O\'TISH',
-            color: const Color(0xFF00FF66),
-            icon: Icons.open_in_browser_rounded,
+            color: AppColors.safe,
+            icon: HugeIcons.strokeRoundedGlobe02,
             onPressed: _launchSafeUrl,
           )
         else
           Column(
             children: [
               _buildActionButton(
-                label: 'SAHIFANI YOPISH',
-                color: const Color(0xFFFF3366),
-                icon: Icons.warning_amber_rounded,
+                label: 'ORQAGA QAYTISH',
+                color: AppColors.danger,
+                icon: HugeIcons.strokeRoundedArrowLeft01,
                 onPressed: () => Navigator.pop(context),
               ),
               const SizedBox(height: 16),
@@ -458,7 +462,7 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
                   if (mounted) Navigator.pop(context);
                 },
                 child: Text(
-                  'Baribir kirish (Tavsiya etilmaydi)',
+                  'Baribir ochmoqchiman (o\'z javobgarligimda)',
                   style: GoogleFonts.outfit(
                     color: Colors.grey,
                     decoration: TextDecoration.underline,
@@ -469,21 +473,6 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
             ],
           ),
         const SizedBox(height: 16),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white54,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-          ),
-          child: Text(
-            'ORQAGA QAYTISH',
-            style: GoogleFonts.outfit(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -491,7 +480,7 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
   Widget _buildActionButton({
     required String label,
     required Color color,
-    required IconData icon,
+    required List<List<dynamic>> icon,
     required VoidCallback onPressed,
   }) {
     return Container(
@@ -511,7 +500,7 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: const Color(0xFF0B0C10),
+          foregroundColor: AppColors.textOnPrimary,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -520,7 +509,7 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 24),
+            HugeIcon(icon: icon, size: 24, color: AppColors.textOnPrimary),
             const SizedBox(width: 12),
             Text(
               label,

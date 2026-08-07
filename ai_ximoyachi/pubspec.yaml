@@ -36,6 +36,8 @@ dependencies:
   receive_sharing_intent: ^1.4.5
   device_info_plus: ^10.1.0
   package_info_plus: ^9.0.1
+  hugeicons: ^1.1.0
+  mobile_scanner: ^5.1.1
 
 dev_dependencies:
   flutter_test:

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/state/app_state.dart';
-import '../../../../core/localization/app_translations.dart';
 import '../../../payment/presentation/screens/premium_screen.dart';
+import '../../../privacy_center/presentation/screens/privacy_center_screen.dart';
 import 'feedback_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -15,226 +13,326 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObserver {
-  Map<Permission, bool> _permStatus = {};
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _checkAllPermissions();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _checkAllPermissions();
-    }
-  }
-
-  Future<void> _checkAllPermissions() async {
-    final sms = await Permission.sms.status;
-    final phone = await Permission.phone.status;
-    final notification = await Permission.notification.status;
-    final manageExternalStorage = await Permission.manageExternalStorage.status;
-    final systemAlertWindow = await Permission.systemAlertWindow.status;
-    
-    if (mounted) {
-      setState(() {
-        _permStatus[Permission.sms] = sms.isGranted;
-        _permStatus[Permission.phone] = phone.isGranted;
-        _permStatus[Permission.notification] = notification.isGranted;
-        _permStatus[Permission.manageExternalStorage] = manageExternalStorage.isGranted;
-        _permStatus[Permission.systemAlertWindow] = systemAlertWindow.isGranted;
-      });
-    }
-  }
-
-  Future<void> _togglePermission(Permission p) async {
-    if (await p.isGranted) {
-      // Androidda ruxsat berilgan bo'lsa, uni faqat telefon sozlamalaridan o'chirish mumkin
-      await openAppSettings();
-    } else {
-      await p.request();
-    }
-    _checkAllPermissions();
-  }
-
-  String tr(String key) => AppTranslations.get(key, AppState().language);
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _notifEnabled = true;
 
   @override
   Widget build(BuildContext context) {
-    final appState = AppState();
+    return ListenableBuilder(
+      listenable: AppState(),
+      builder: (context, _) {
+        final isPremium = AppState().isPremium;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: ListenableBuilder(
-        listenable: appState,
-        builder: (context, _) {
-          return SingleChildScrollView(
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            backgroundColor: AppColors.backgroundCard,
+            elevation: 0,
+            title: const Text(
+              'Sozlamalar',
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            bottom: const PreferredSize(
+              preferredSize: Size.fromHeight(1),
+              child: Divider(height: 1, color: AppColors.border),
+            ),
+          ),
+          body: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(tr('settings'), style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 24),
-                      
-                      _buildSectionTitle(Icons.language, tr('language')),
-                      _buildCard([
-                        _buildLangOption('O\'zbek tili', 'uz', appState),
-                        _buildLangOption('Русский язык', 'ru', appState),
-                        _buildLangOption('English', 'en', appState),
-                      ]),
-                      
-                      const SizedBox(height: 24),
-                      _buildSectionTitle(Icons.brightness_4, tr('dark_mode')),
-                      _buildCard([
-                        _buildSwitch(tr('dark_mode'), appState.themeMode == ThemeMode.dark, (v) => appState.toggleTheme(v)),
-                      ]),
+                _buildLicenseCard(isPremium),
+                
+                _buildGroup('XAVFSIZLIK', [
+                  _buildSettingsTile(
+                    icon: HugeIcons.strokeRoundedShieldUser,
+                    title: 'Privacy Center',
+                    subtitle: 'Ruxsatnomalar va xavfsizlik audit',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PrivacyCenterScreen()),
+                      );
+                    },
+                  ),
+                  _buildSettingsTile(
+                    icon: HugeIcons.strokeRoundedCpu,
+                    title: 'Device ID',
+                    subtitle: AppState().deviceId,
+                  ),
+                ]),
+                
+                _buildGroup('BILDIRISHNOMALAR', [
+                  _buildSettingsTile(
+                    icon: HugeIcons.strokeRoundedNotification03,
+                    title: 'Fraud ogohlantirishlari',
+                    subtitle: 'Xavf aniqlanganda ogohlantirishlar',
+                    trailing: SizedBox(
+                      height: 28,
+                      width: 44,
+                      child: FittedBox(
+                        fit: BoxFit.fill,
+                        child: Switch(
+                          value: _notifEnabled,
+                          onChanged: (v) => setState(() => _notifEnabled = v),
+                        ),
+                      ),
+                    ),
+                  ),
+                ]),
+                
+                _buildGroup('PREMIUM', [
+                  _buildSettingsTile(
+                    icon: HugeIcons.strokeRoundedCrown,
+                    title: 'Litsenziya holati',
+                    subtitle: isPremium ? 'Premium Faol' : 'Bepul Sinov Rejimi',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PremiumScreen()),
+                      );
+                    },
+                  ),
+                ]),
+                
+                _buildGroup('HAQIDA', [
+                  _buildSettingsTile(
+                    icon: HugeIcons.strokeRoundedGlobe02,
+                    title: 'Til (Language)',
+                    subtitle: AppState().language == 'uz' ? 'O\'zbekcha' : (AppState().language == 'ru' ? 'Русский' : 'English'),
+                    onTap: _showLanguagePicker,
+                  ),
+                  _buildSettingsTile(
+                    icon: HugeIcons.strokeRoundedShield01,
+                    title: 'Maxfiylik siyosati',
+                    onTap: () {},
+                  ),
+                  _buildSettingsTile(
+                    icon: HugeIcons.strokeRoundedMessage01,
+                    title: 'Fikr-mulohaza yuborish',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const FeedbackScreen()),
+                      );
+                    },
+                  ),
+                  _buildSettingsTile(
+                    icon: HugeIcons.strokeRoundedInformationCircle,
+                    title: 'Versiya',
+                    subtitle: '1.0.0',
+                  ),
+                ]),
+                const SizedBox(height: 32),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-                      const SizedBox(height: 24),
-                      _buildSectionTitle(Icons.lock_person_rounded, 'Tizim Ruxsatnomalari'),
-                      _buildCard([
-                        _buildPermTile('SMS Monitoring', Permission.sms),
-                        _buildPermTile('Telefon holati', Permission.phone),
-                        _buildPermTile('Bildirishnomalar', Permission.notification),
-                        _buildPermTile('Barcha fayllarga kirish', Permission.manageExternalStorage),
-                        _buildPermTile('Ekran ustida ko\'rinish', Permission.systemAlertWindow),
-                      ]),
-
-                      const SizedBox(height: 24),
-                      _buildSectionTitle(Icons.star_rounded, 'Premium va To\'lov'),
-                      _buildPremiumCard(),
-
-                      const SizedBox(height: 24),
-                      _buildSectionTitle(Icons.security, tr('security')),
-                      _buildCard([
-                        _buildSwitch(tr('vibration'), appState.vibrationEnabled, (v) => appState.toggleVibration(v)),
-                        _buildOption('Xizmatni to\'xtatish', () {}),
-                      ]),
-
-                      const SizedBox(height: 24),
-                      _buildSectionTitle(Icons.support_agent_rounded, 'Aloqa va Yordam'),
-                      _buildCard([
-                        _buildOption('Fikr va mulohazalar', () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const FeedbackScreen()));
-                        }),
-                      ]),
-                      const SizedBox(height: 40),
-
-                    ],
+  Widget _buildLicenseCard(bool isPremium) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: isPremium ? AppColors.premiumGradient : AppColors.headerGradient,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: (isPremium ? AppColors.premium : AppColors.primary).withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          HugeIcon(
+            icon: HugeIcons.strokeRoundedCrown,
+            color: isPremium ? AppColors.premiumGold : Colors.white,
+            size: 36,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isPremium ? 'Premium Faol' : 'Bepul Sinov Rejimi',
+                  style: const TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  isPremium ? 'Litsenziya faollashtirilgan' : '7-kunlik sinov davri',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
               ],
             ),
-          );
-        }
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.only(top: 60, bottom: 40, left: 20, right: 20),
-      decoration: const BoxDecoration(gradient: AppColors.headerGradient, borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30))),
-      child: Column(children: [
-        const Icon(Icons.shield_rounded, color: Colors.white, size: 50),
-        const SizedBox(height: 10),
-
-        Text('SERGAK', style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
-        Text(tr('device_protected'), style: GoogleFonts.outfit(fontSize: 14, color: Colors.white70)),
-      ]),
-    );
-  }
-
-  Widget _buildSectionTitle(IconData icon, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 12),
-      child: Row(children: [Icon(icon, color: AppColors.primary, size: 20), const SizedBox(width: 8), Text(title, style: const TextStyle(fontWeight: FontWeight.bold))]),
-    );
-  }
-
-  Widget _buildCard(List<Widget> children) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.white, 
-        borderRadius: BorderRadius.circular(20), 
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]
-      ),
-      child: Column(children: children),
-    );
-  }
-
-  Widget _buildLangOption(String title, String code, AppState state) {
-    final isSelected = state.language == code;
-    return ListTile(
-      title: Text(title), 
-      trailing: isSelected ? const Icon(Icons.check_circle, color: Colors.green) : const Icon(Icons.circle_outlined, size: 20),
-      onTap: () => state.setLanguage(code),
-    );
-  }
-
-  Widget _buildPermTile(String title, Permission p) {
-    final isGranted = _permStatus[p] ?? false;
-    return ListTile(
-      title: Text(title, style: const TextStyle(fontSize: 14)),
-      trailing: Switch(
-        value: isGranted,
-        onChanged: (val) => _togglePermission(p),
-        activeColor: Colors.green,
-      ),
-    );
-  }
-
-  Widget _buildPremiumCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Color(0xFFFFD700), Color(0xFFFFA500)]),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('SERGAK PREMIUM', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
-              Icon(Icons.workspace_premium_rounded, color: Colors.black87),
-            ],
           ),
-          const SizedBox(height: 8),
-          const Text('Barcha himoya vositalari va cheksiz seifdan foydalanish uchun aktivlashtiring.', style: TextStyle(fontSize: 12, color: Colors.black54)),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const PremiumScreen()));
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-            child: const Center(child: Text('Hozir faollashtirish')),
-          ),
+          if (!isPremium)
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PremiumScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppColors.primaryDark,
+                minimumSize: const Size(90, 38),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('PRO', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildOption(String title, VoidCallback onTap) {
-    return ListTile(title: Text(title, style: const TextStyle(fontSize: 14)), trailing: const Icon(Icons.chevron_right, size: 20), onTap: onTap);
+  Widget _buildGroup(String title, List<Widget> tiles) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontFamily: 'Outfit',
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textSecondary,
+              letterSpacing: 0.8,
+            ),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundCard,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            children: tiles.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final tile = entry.value;
+              return Column(
+                children: [
+                  tile,
+                  if (idx < tiles.length - 1) const Divider(height: 1, indent: 56),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
   }
 
-  Widget _buildSwitch(String title, bool val, Function(bool) onChanged) {
-    return ListTile(title: Text(title, style: const TextStyle(fontSize: 14)), trailing: Switch(value: val, onChanged: onChanged, activeColor: Colors.green));
+  Widget _buildSettingsTile({
+    required List<List<dynamic>> icon,
+    required String title,
+    String? subtitle,
+    Widget? trailing,
+    VoidCallback? onTap,
+  }) {
+    return ListTile(
+      leading: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: AppColors.backgroundInput,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(
+          child: HugeIcon(icon: icon, size: 20, color: AppColors.textSecondary),
+        ),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontFamily: 'Outfit',
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+      ),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: const TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
+            )
+          : null,
+      trailing: trailing ?? (onTap != null ? const HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: AppColors.textDisabled, size: 18) : null),
+      onTap: onTap,
+    );
+  }
+
+  void _showLanguagePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.backgroundCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Tilni tanlang',
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              title: const Text('O\'zbekcha'),
+              trailing: AppState().language == 'uz' ? const Icon(Icons.check, color: AppColors.primary) : null,
+              onTap: () {
+                AppState().setLanguage('uz');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Русский'),
+              trailing: AppState().language == 'ru' ? const Icon(Icons.check, color: AppColors.primary) : null,
+              onTap: () {
+                AppState().setLanguage('ru');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('English'),
+              trailing: AppState().language == 'en' ? const Icon(Icons.check, color: AppColors.primary) : null,
+              onTap: () {
+                AppState().setLanguage('en');
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -6,6 +6,7 @@ import 'features/home/presentation/screens/main_navigation_screen.dart';
 import 'features/permission_gate/presentation/screens/permission_gate_screen.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 import 'features/interception/data/services/deep_link_service.dart';
+import 'core/theme/app_theme.dart';
 import 'core/state/app_state.dart';
 import 'core/services/notification_service.dart';
 
@@ -88,24 +89,13 @@ class _SergakAppState extends State<SergakApp> {
     return ListenableBuilder(
       listenable: AppState(),
       builder: (context, _) {
-        final appState = AppState();
         return MaterialApp(
           navigatorKey: _navigatorKey,
           title: 'Sergak',
           debugShowCheckedModeBanner: false,
-          themeMode: appState.themeMode,
-          theme: ThemeData(
-            primarySwatch: Colors.green,
-            useMaterial3: true,
-            brightness: Brightness.light,
-            scaffoldBackgroundColor: const Color(0xFFF8F9FA),
-          ),
-          darkTheme: ThemeData(
-            primarySwatch: Colors.green,
-            useMaterial3: true,
-            brightness: Brightness.dark,
-            scaffoldBackgroundColor: const Color(0xFF121212),
-          ),
+          themeMode: ThemeMode.dark,
+          theme: AppTheme.darkTheme,
+          darkTheme: AppTheme.darkTheme,
           home: _showSplash
               ? SplashScreen(onFinish: _onSplashFinish)
               : (_permissionsReady

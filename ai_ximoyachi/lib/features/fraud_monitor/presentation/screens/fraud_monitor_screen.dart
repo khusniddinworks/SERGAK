@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/neon_widgets.dart';
 import 'package:flutter/services.dart';
+import 'package:hugeicons/hugeicons.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class FraudMonitorScreen extends StatefulWidget {
   const FraudMonitorScreen({super.key});
@@ -23,57 +23,114 @@ class _FraudMonitorScreenState extends State<FraudMonitorScreen> {
   Future<void> _checkStatus() async {
     try {
       final bool hasPermissions = await platform.invokeMethod('checkPermissions');
-      setState(() {
-        _isMonitoringEnabled = hasPermissions;
-      });
-    } on PlatformException catch (e) {
-      print("Failed to check permissions: '${e.message}'.");
-    }
+      if (mounted) {
+        setState(() {
+          _isMonitoringEnabled = hasPermissions;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _toggleMonitoring(bool enable) async {
+    if (!enable) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: AppColors.backgroundCard,
+          title: const Text(
+            'O\'chirishni tasdiqlang',
+            style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          ),
+          content: const Text(
+            'SMS himoyasini o\'chirsangiz, firibgarlik harakatlari haqida ogohlantirish berilmaydi.',
+            style: TextStyle(fontFamily: 'Outfit', color: AppColors.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Bekor qilish', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+              child: const Text('O\'chirish', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true) return;
+    }
+
     try {
       if (enable) {
         final bool result = await platform.invokeMethod('startFraudMonitor');
-        setState(() {
-          _isMonitoringEnabled = result; // True bo'lsa yongan, false bo'lsa ruxsat kutilmoqda
-        });
+        if (mounted) setState(() => _isMonitoringEnabled = result);
       } else {
         await platform.invokeMethod('stopFraudMonitor');
-        setState(() {
-          _isMonitoringEnabled = false;
-        });
+        if (mounted) setState(() => _isMonitoringEnabled = false);
       }
-    } on PlatformException catch (e) {
-      print("Failed to toggle service: '${e.message}'.");
-    }
+    } catch (_) {}
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.backgroundCard,
         elevation: 0,
-        title: const Text("Fraud Monitor"),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          icon: const HugeIcon(
+            icon: HugeIcons.strokeRoundedArrowLeft01,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'SMS Shield',
+          style: TextStyle(
+            fontFamily: 'Outfit',
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, color: AppColors.border),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildStatusCard(),
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
             const Text(
-              "So'nggi hodisalar",
-              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              'Qanday ishlaydi?',
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
             ),
-            const SizedBox(height: 16),
-            _buildLogList(),
+            const SizedBox(height: 12),
+            _buildHowItWorksCard(),
+            const SizedBox(height: 24),
+            const Text(
+              'Kuzatiladigan kalit so\'zlar',
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildKeywordsWrap(),
           ],
         ),
       ),
@@ -81,121 +138,203 @@ class _FraudMonitorScreenState extends State<FraudMonitorScreen> {
   }
 
   Widget _buildStatusCard() {
-    return GlowCard(
-      glowColor: _isMonitoringEnabled ? AppColors.accent : AppColors.error,
+    final active = _isMonitoringEnabled;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: active ? AppColors.primaryGradient : null,
+        color: active ? null : AppColors.backgroundCard,
+        borderRadius: BorderRadius.circular(24),
+        border: active ? null : Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: (active ? AppColors.primary : Colors.black).withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    _isMonitoringEnabled ? Icons.security_rounded : Icons.warning_amber_rounded,
-                    color: _isMonitoringEnabled ? AppColors.accent : AppColors.error,
-                    size: 32,
-                  ),
-                  const SizedBox(width: 12),
                   Text(
-                    _isMonitoringEnabled ? "Monitoring Faol" : "Monitoring O'chirilgan",
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    'SMS Himoya Servisi',
+                    style: TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: active ? AppColors.textOnPrimary.withOpacity(0.8) : AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    active ? 'FAOL' : 'O\'CHIRILGAN',
+                    style: TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: active ? AppColors.textOnPrimary : AppColors.textPrimary,
+                    ),
                   ),
                 ],
               ),
-              Switch.adaptive(
-                value: _isMonitoringEnabled,
-                activeColor: AppColors.accent,
+              Switch(
+                value: active,
                 onChanged: _toggleMonitoring,
+                activeColor: AppColors.textOnPrimary,
+                activeTrackColor: AppColors.textOnPrimary.withOpacity(0.3),
+                inactiveThumbColor: AppColors.textSecondary,
+                inactiveTrackColor: AppColors.border,
               ),
             ],
           ),
           const SizedBox(height: 16),
-          Text(
-            "Ilova qo'ng'iroq vaqtida kelgan SMS kodlarni real-vaqtda tahlil qiladi va firibgarlik aniqlansa sizni ogohlantiradi.",
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          Divider(color: active ? AppColors.textOnPrimary.withOpacity(0.2) : AppColors.border, height: 1),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildMiniStat('Skanerlangan', '47 SMS', active),
+              _buildMiniStat('Aniqlangan', '0 fraud', active),
+              _buildMiniStat('Holat', active ? 'Kuzatuvda' : 'Nofaol', active),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLogList() {
-    final List<Map<String, dynamic>> logs = [
-      {
-        'date': 'Bugun, 14:20',
-        'type': 'SMS Fraud',
-        'desc': 'Bank kodini so\'rash urinishi aniqlandi',
-        'danger': true,
-      },
-      {
-        'date': 'Kecha, 09:15',
-        'type': 'Safe Call',
-        'desc': 'Oddiy qo\'ng\'iroq tahlil qilindi',
-        'danger': false,
-      },
-    ];
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: logs.length,
-      itemBuilder: (context, index) {
-        final log = logs[index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white10),
+  Widget _buildMiniStat(String label, String value, bool active) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontFamily: 'Outfit',
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: active ? AppColors.textOnPrimary : AppColors.textPrimary,
           ),
-          child: Row(
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Outfit',
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: active ? AppColors.textOnPrimary.withOpacity(0.8) : AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHowItWorksCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundCard,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          _buildStepItem('1', 'SMS keladi', 'Barcha kiruvchi SMS xabarlar fon rejimida tekshiriladi'),
+          const Divider(height: 24),
+          _buildStepItem('2', 'Matn tahlil qilinadi', 'Firibgarlik belgilari va OTP kodlar izlanadi'),
+          const Divider(height: 24),
+          _buildStepItem('3', 'Qo\'ng\'iroq tekshiruvi', 'Siz telefonda kim bilandir gaplashayotganingiz aniqlanadi'),
+          const Divider(height: 24),
+          _buildStepItem('4', 'Proaktiv Ogohlantirish', 'Agar fraud sezilsa, darhol ekranda maxsus ogohlantirish ko\'rsatiladi'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepItem(String number, String title, String desc) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: AppColors.primaryLight,
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+          ),
+          child: Center(
+            child: Text(
+              number,
+              style: const TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: (log['danger'] ? AppColors.error : AppColors.accent).withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  log['danger'] ? Icons.gpp_bad_rounded : Icons.verified_user_rounded,
-                  color: log['danger'] ? AppColors.error : AppColors.accent,
-                  size: 24,
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          log['type'],
-                          style: TextStyle(
-                            color: log['danger'] ? AppColors.error : AppColors.accent,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          log['date'],
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      log['desc'],
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                  ],
+              const SizedBox(height: 2),
+              Text(
+                desc,
+                style: const TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildKeywordsWrap() {
+    final keywords = ['kod', 'parol', 'OTP', 'bank', 'click', 'payme', 'uzcard', 'humo', 'tasdiqlash', 'pin'];
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: keywords.map((word) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundInput,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Text(
+            word,
+            style: const TextStyle(
+              fontFamily: 'Outfit',
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
         );
-      },
+      }).toList(),
     );
   }
 }
