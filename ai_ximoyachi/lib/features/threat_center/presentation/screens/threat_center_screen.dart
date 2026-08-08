@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class ThreatCenterScreen extends StatefulWidget {
@@ -11,6 +12,24 @@ class ThreatCenterScreen extends StatefulWidget {
 
 class _ThreatCenterScreenState extends State<ThreatCenterScreen> {
   String _selectedFilter = 'Hammasi';
+  int _dangerousCount = 0;
+  int _threatsBlocked = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _dangerousCount = prefs.getInt('dangerous_count') ?? 0;
+        _threatsBlocked = prefs.getInt('threats_blocked_count') ?? 0;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,10 +88,10 @@ class _ThreatCenterScreenState extends State<ThreatCenterScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        _buildStatCard('SMS Fraud', '0', AppColors.danger, HugeIcons.strokeRoundedMessageLock01),
+        _buildStatCard('SMS Fraud', _threatsBlocked.toString(), AppColors.danger, HugeIcons.strokeRoundedMessageLock01),
         _buildStatCard('Xavfli APK', '0', AppColors.warning, HugeIcons.strokeRoundedFileDownload),
         _buildStatCard('Xavfli URL', '0', AppColors.primary, HugeIcons.strokeRoundedLink01),
-        _buildStatCard('Ruxsatlar', '0', AppColors.safe, HugeIcons.strokeRoundedGridView),
+        _buildStatCard('Ruxsatlar', _dangerousCount.toString(), AppColors.safe, HugeIcons.strokeRoundedGridView),
       ],
     );
   }

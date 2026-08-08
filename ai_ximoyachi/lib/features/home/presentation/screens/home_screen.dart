@@ -21,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   static const _statsCh = MethodChannel('com.aiximoyachi/system_stats');
   static const _fraudCh = MethodChannel('com.aiximoyachi/fraud_monitor');
+  static const _appsCh = MethodChannel('com.aiximoyachi/app_analyzer');
 
   bool _fraudEnabled   = true;
   double _ramUsage     = 0.64;
@@ -56,10 +57,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadCounts() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _dangerousCount = prefs.getInt('dangerous_count') ?? 0;
-      _threatsBlocked = prefs.getInt('threats_blocked_count') ?? 0;
-    });
+    
+    // Set cached values first
+    if (mounted) {
+      setState(() {
+        _dangerousCount = prefs.getInt('dangerous_count') ?? 0;
+        _threatsBlocked = prefs.getInt('threats_blocked_count') ?? 0;
+      });
+    }
+
+    // Load actual apps and calculate count dynamically
+    try {
+      final List<dynamic>? result = await _appsCh.invokeListMethod('getInstalledApps');
+      if (result != null) {
+        final apps = result.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        final highRiskCount = apps.where((app) => app['riskLevel'] == 'HIGH').length;
+        await prefs.setInt('dangerous_count', highRiskCount);
+        if (mounted) {
+          setState(() {
+            _dangerousCount = highRiskCount;
+          });
+        }
+      }
+    } catch (_) {}
   }
 
   Future<void> _fetchStats() async {

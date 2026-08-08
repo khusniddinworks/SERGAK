@@ -51,7 +51,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => UrlScanScreen(url: result),
+          builder: (_) => UrlScanScreen(url: result, isExternal: false),
         ),
       );
     } else {

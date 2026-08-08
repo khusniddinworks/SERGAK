@@ -11,8 +11,9 @@ import '../../../../core/theme/app_colors.dart';
 
 class UrlScanScreen extends StatefulWidget {
   final String url;
+  final bool isExternal;
 
-  const UrlScanScreen({super.key, required this.url});
+  const UrlScanScreen({super.key, required this.url, this.isExternal = true});
 
   @override
   State<UrlScanScreen> createState() => _UrlScanScreenState();
@@ -143,7 +144,13 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
 
   Future<void> _launchSafeUrl() async {
     await _launchUrlBypassingSergak(widget.url);
-    if (mounted) Navigator.pop(context);
+    if (mounted) {
+      if (widget.isExternal) {
+        SystemNavigator.pop();
+      } else {
+        Navigator.pop(context);
+      }
+    }
   }
 
   Color get _currentColor {
@@ -153,9 +160,18 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Stack(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (widget.isExternal) {
+          SystemNavigator.pop();
+        } else {
+          Navigator.pop(context);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: Stack(
         children: [
           // Background Glow Effect
           Positioned(
@@ -197,6 +213,7 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -453,13 +470,25 @@ class _UrlScanScreenState extends State<UrlScanScreen> with TickerProviderStateM
                 label: 'ORQAGA QAYTISH',
                 color: AppColors.danger,
                 icon: HugeIcons.strokeRoundedArrowLeft01,
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  if (widget.isExternal) {
+                    SystemNavigator.pop();
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
               ),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () async {
                   await _launchUrlBypassingSergak(widget.url);
-                  if (mounted) Navigator.pop(context);
+                  if (mounted) {
+                    if (widget.isExternal) {
+                      SystemNavigator.pop();
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  }
                 },
                 child: Text(
                   'Baribir ochmoqchiman (o\'z javobgarligimda)',
