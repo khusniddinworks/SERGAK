@@ -35,6 +35,12 @@ class _PermissionScreenState extends State<PermissionScreen> {
     if (mounted) setState(() => _isLoading = false);
   }
 
+  Future<void> _openAppSettings(String packageName) async {
+    try {
+      await _appsCh.invokeMethod('openAppSettings', {'packageName': packageName});
+    } catch (_) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredApps = _apps.where((app) {
@@ -202,15 +208,22 @@ class _PermissionScreenState extends State<PermissionScreen> {
       badgeBg = AppColors.warningLight;
     }
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundCard,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
+    return GestureDetector(
+      onTap: () {
+        final pkg = app['packageName'] as String?;
+        if (pkg != null && pkg.isNotEmpty) {
+          _openAppSettings(pkg);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundCard,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: iconBytes != null && iconBytes.isNotEmpty
@@ -272,8 +285,15 @@ class _PermissionScreenState extends State<PermissionScreen> {
               ],
             ),
           ),
+          const SizedBox(width: 8),
+          const HugeIcon(
+            icon: HugeIcons.strokeRoundedSettings02,
+            color: AppColors.textSecondary,
+            size: 20,
+          ),
         ],
       ),
+    ),
     );
   }
 }

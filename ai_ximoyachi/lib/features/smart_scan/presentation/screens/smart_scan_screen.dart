@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:crypto/crypto.dart';
+import 'package:http/http.dart' as http;
 import '../../../../core/theme/app_colors.dart';
 import '../../../interception/presentation/screens/apk_warning_screen.dart';
 
@@ -67,9 +70,37 @@ class _SmartScanScreenState extends State<SmartScanScreen> with SingleTickerProv
     await _performDirectoryScan();
   }
 
+  Future<String> _calculateFileSHA256(File file) async {
+    try {
+      final stream = file.openRead();
+      final hash = await sha256.bind(stream).first;
+      return hash.toString();
+    } catch (_) {
+      return '';
+    }
+  }
+
+  Future<bool> _checkKoodousMalware(String sha256Hash) async {
+    if (sha256Hash.isEmpty) return false;
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.koodous.com/apks/$sha256Hash'),
+      ).timeout(const Duration(seconds: 4));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final bool isDetected = data['detected'] == true || 
+                                (data['rating'] != null && (data['rating'] as num) < 0) ||
+                                data['is_malware'] == true;
+        return isDetected;
+      }
+    } catch (_) {}
+    return false;
+  }
+
   Future<void> _performDirectoryScan() async {
     // Request storage permission first
-    final status = await Permission.storage.request();
+    await Permission.storage.request();
     
     List<FileItem> items = [];
 
@@ -90,10 +121,22 @@ class _SmartScanScreenState extends State<SmartScanScreen> with SingleTickerProv
               final name = entity.path.split('/').last;
               if (name.endsWith('.apk') || name.endsWith('.exe')) {
                 final source = path.contains('telegram') ? 'Telegram' : 'Download';
-                final isDangerous = name.toLowerCase().contains('bank') || 
+                
+                // Heuristics check first
+                bool isDangerous = name.toLowerCase().contains('bank') || 
                                     name.toLowerCase().contains('click') || 
                                     name.toLowerCase().contains('payme') ||
                                     name.toLowerCase().contains('sovg');
+                
+                // Real scan: calculate SHA-256 and query Koodous API
+                final sha256Hash = await _calculateFileSHA256(entity);
+                if (sha256Hash.isNotEmpty) {
+                  final koodousResult = await _checkKoodousMalware(sha256Hash);
+                  if (koodousResult) {
+                    isDangerous = true;
+                  }
+                }
+
                 items.add(FileItem(
                   name: name,
                   path: entity.path,

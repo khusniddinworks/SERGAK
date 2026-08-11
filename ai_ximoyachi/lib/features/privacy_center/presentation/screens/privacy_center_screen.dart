@@ -11,7 +11,7 @@ class PrivacyCenterScreen extends StatefulWidget {
   State<PrivacyCenterScreen> createState() => _PrivacyCenterScreenState();
 }
 
-class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
+class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> with WidgetsBindingObserver {
   bool _smsGranted = false;
   bool _phoneGranted = false;
   bool _storageGranted = false;
@@ -21,7 +21,21 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkPermissions();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkPermissions();
+    }
   }
 
   Future<void> _checkPermissions() async {
@@ -219,20 +233,19 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isGranted ? AppColors.safeLight : AppColors.dangerLight,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  isGranted ? 'RUXSAT BERILGAN' : 'RUHSATSIZ',
-                  style: GoogleFonts.outfit(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: isGranted ? AppColors.safe : AppColors.danger,
-                  ),
-                ),
+              Switch(
+                value: isGranted,
+                activeColor: AppColors.primary,
+                onChanged: (value) async {
+                  if (value) {
+                    final status = await permission.request();
+                    if (status.isGranted) {
+                      _checkPermissions();
+                    }
+                  } else {
+                    await openAppSettings();
+                  }
+                },
               ),
             ],
           ),
@@ -245,24 +258,6 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
               height: 1.4,
             ),
           ),
-          if (!isGranted) ...[
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () async {
-                final res = await permission.request();
-                if (res.isGranted) {
-                  _checkPermissions();
-                }
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                padding: EdgeInsets.zero,
-                minimumSize: const Size(0, 0),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: const Text('Ruxsat berish'),
-            ),
-          ],
         ],
       ),
     );
