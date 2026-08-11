@@ -384,7 +384,6 @@ body {
 }
 
 .p-icon {
-  font-size: 1.8rem;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
   width: 48px;
@@ -393,6 +392,22 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.p-icon i {
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.5;
+}
+
+.p-icon i.icon-cyan {
+  color: var(--cyan);
+  filter: drop-shadow(0 0 8px var(--cyan-glow));
+}
+
+.p-icon i.icon-primary {
+  color: var(--primary);
+  filter: drop-shadow(0 0 8px var(--primary-glow));
 }
 
 .preview-item strong {
@@ -1201,10 +1216,39 @@ body {
 }
 
 .f-icon-premium {
-  font-size: 2.2rem;
   margin-bottom: 24px;
   display: block;
-  filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+}
+
+.f-icon-premium i {
+  width: 40px;
+  height: 40px;
+  stroke-width: 1.5;
+}
+
+.f-icon-premium i.icon-cyan {
+  color: var(--cyan);
+  filter: drop-shadow(0 0 12px var(--cyan-glow));
+}
+
+.f-icon-premium i.icon-primary {
+  color: var(--primary);
+  filter: drop-shadow(0 0 12px var(--primary-glow));
+}
+
+.f-icon-premium i.icon-purple {
+  color: var(--purple);
+  filter: drop-shadow(0 0 12px var(--purple-glow));
+}
+
+.f-icon-premium i.icon-danger {
+  color: var(--danger);
+  filter: drop-shadow(0 0 12px var(--danger-glow));
+}
+
+.f-icon-premium i.icon-warning {
+  color: var(--warning);
+  filter: drop-shadow(0 0 12px rgba(255, 145, 0, 0.3));
 }
 
 .premium-feature-card h3 {
@@ -1231,8 +1275,20 @@ body {
 
 .f-bullets li {
   font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-weight: 500;
+  color: var(--text-secondary);
+  position: relative;
+  padding-left: 24px;
+  line-height: 1.4;
+}
+
+.f-bullets li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+  font-weight: 900;
+  font-size: 1.05rem;
 }
 
 .featured-badge {
