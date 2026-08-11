@@ -47,9 +47,14 @@ class ApkWarningScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     const warningColor = AppColors.warning; // Modern warning color (amber/orange)
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        SystemNavigator.pop();
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -186,7 +191,7 @@ class ApkWarningScreen extends StatelessWidget {
                   const Spacer(),
                   // Actions
                   ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => SystemNavigator.pop(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: warningColor,
                       foregroundColor: AppColors.textOnPrimary,
@@ -217,7 +222,7 @@ class ApkWarningScreen extends StatelessWidget {
                           debugPrint('Install error: $e');
                         }
                       }
-                      if (context.mounted) Navigator.pop(context);
+                      SystemNavigator.pop();
                     },
                     child: Text(
                       _getInstallAnywayText(_lang),
@@ -236,6 +241,7 @@ class ApkWarningScreen extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }
