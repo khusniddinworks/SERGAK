@@ -20,7 +20,10 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import android.os.Bundle
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.*
 
 
@@ -93,31 +96,62 @@ class MainActivity : FlutterActivity() {
                 if (call.method == "installApk") {
                     val uriString = call.argument<String>("uri")
                     if (uriString != null) {
-                        try {
-                            val intent = Intent(Intent.ACTION_VIEW)
-                            intent.setDataAndType(Uri.parse(uriString), "application/vnd.android.package-archive")
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            
-                            // SERGAK'dan tashqari boshqa o'rnatuvchini topish (Google Package Installer)
-                            val pm = packageManager
-                            val resolveInfos = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-                            var packageInstallerName: String? = null
-                            for (info in resolveInfos) {
-                                if (info.activityInfo.packageName != packageName) {
-                                    packageInstallerName = info.activityInfo.packageName
-                                    break
+                        CoroutineScope(Dispatchers.Main).launch {
+                            try {
+                                val inputUri = Uri.parse(uriString)
+                                val finalFile = withContext(Dispatchers.IO) {
+                                    val tempFile = File(cacheDir, "temp_install.apk")
+                                    if (tempFile.exists()) tempFile.delete()
+                                    
+                                    val inputStream = contentResolver.openInputStream(inputUri)
+                                    if (inputStream != null) {
+                                        val outputStream = FileOutputStream(tempFile)
+                                        inputStream.use { input ->
+                                            outputStream.use { output ->
+                                                input.copyTo(output)
+                                            }
+                                        }
+                                        tempFile
+                                    } else {
+                                        null
+                                    }
                                 }
+                                
+                                if (finalFile != null && finalFile.exists()) {
+                                    val contentUri = FileProvider.getUriForFile(
+                                        this@MainActivity,
+                                        "$packageName.fileprovider",
+                                        finalFile
+                                    )
+                                    
+                                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                                        setDataAndType(contentUri, "application/vnd.android.package-archive")
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    }
+                                    
+                                    val pm = packageManager
+                                    val resolveInfos = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+                                    var packageInstallerName: String? = null
+                                    for (info in resolveInfos) {
+                                        if (info.activityInfo.packageName != packageName) {
+                                            packageInstallerName = info.activityInfo.packageName
+                                            break
+                                        }
+                                    }
+                                    
+                                    if (packageInstallerName != null) {
+                                        intent.setPackage(packageInstallerName)
+                                    }
+                                    
+                                    startActivity(intent)
+                                    result.success(true)
+                                } else {
+                                    result.error("ERROR", "Faylni nusxalash imkoni bo'lmadi", null)
+                                }
+                            } catch (e: Exception) {
+                                result.error("ERROR", e.message, null)
                             }
-                            
-                            if (packageInstallerName != null) {
-                                intent.setPackage(packageInstallerName)
-                            }
-                            
-                            startActivity(intent)
-                            result.success(true)
-                        } catch (e: Exception) {
-                            result.error("ERROR", e.message, null)
                         }
                     } else {
                         result.error("ERROR", "URI mavjud emas", null)

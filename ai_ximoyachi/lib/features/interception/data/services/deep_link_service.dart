@@ -98,13 +98,17 @@ class DeepLinkService {
     }
 
     for (var file in files) {
+      final pathLower = file.path.toLowerCase();
       // Audio fayl ekanligini tekshiramiz
-      if (file.path.endsWith('.m4a') || file.path.endsWith('.ogg') || file.path.endsWith('.mp3') || file.path.endsWith('.wav')) {
+      if (pathLower.endsWith('.m4a') || pathLower.endsWith('.ogg') || pathLower.endsWith('.mp3') || pathLower.endsWith('.wav')) {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => DeepfakeScanScreen(audioPath: file.path)),
         );
         break; // Bitta audio uchun skanerni ochamiz
+      } else if (pathLower.endsWith('.apk')) {
+        _navigateToApkWarning(context, file.path);
+        break; // Bitta APK uchun ogohlantirish oynasini ochamiz
       }
     }
   }
