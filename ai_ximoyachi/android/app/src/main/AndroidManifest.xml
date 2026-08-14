@@ -102,12 +102,11 @@
                 <data android:mimeType="audio/*" />
             </intent-filter>
 
-            <!-- APK share interception (receive shared APK files) -->
+            <!-- Universal share interception (receive shared APKs, Audios, and files) -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="application/vnd.android.package-archive" />
-                <data android:mimeType="application/octet-stream" />
+                <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
 
