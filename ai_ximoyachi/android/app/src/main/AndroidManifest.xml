@@ -63,19 +63,15 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <action android:name="android.intent.action.INSTALL_PACKAGE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="file" android:mimeType="application/vnd.android.package-archive"/>
-                <data android:scheme="content" android:mimeType="application/vnd.android.package-archive"/>
+                <data android:mimeType="application/vnd.android.package-archive"/>
             </intent-filter>
 
             <!-- Extension-based APK interception for custom Android ROMs (like Honor, Huawei) -->
             <intent-filter android:label="SERGAK orqali tekshirish">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="file"/>
                 <data android:scheme="content"/>
-                <data android:host="*"/>
                 <data android:mimeType="*/*"/>
                 <data android:pathPattern=".*\\.apk"/>
                 <data android:pathPattern=".*\\..*\\.apk"/>

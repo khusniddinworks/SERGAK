@@ -51,12 +51,12 @@ class MainActivity : FlutterActivity() {
         if (intent == null) return
         if (intent.action == Intent.ACTION_VIEW) {
             val type = intent.type ?: intent.data?.let { contentResolver.getType(it) }
-            if (type == "application/vnd.android.package-archive") {
-                val uriString = intent.data?.toString()
-                if (uriString != null) {
-                    initialApkUri = uriString
-                    apkChannel?.invokeMethod("onApkReceived", uriString)
-                }
+            val uriString = intent.data?.toString()
+            val isApk = (type == "application/vnd.android.package-archive") ||
+                        (uriString != null && uriString.contains(".apk", ignoreCase = true))
+            if (isApk && uriString != null) {
+                initialApkUri = uriString
+                apkChannel?.invokeMethod("onApkReceived", uriString)
             }
         }
     }
