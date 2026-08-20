@@ -688,73 +688,90 @@
 
 <!-- DOWNLOAD SECTION -->
 <section id="download" class="py-20 md:py-32 bg-gray-50 border-t border-gray-200 relative overflow-hidden">
-  <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,113,227,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,113,227,0.015)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none"></div>
+  <!-- Subtle tech grid bg -->
+  <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,113,227,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,113,227,0.01)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none"></div>
 
   <div class="max-w-7xl mx-auto px-6 relative z-10">
-    <div class="bg-gradient-to-r from-gray-900 to-slate-950 text-white rounded-[2.5rem] p-8 md:p-16 border border-white/5 shadow-2xl relative overflow-hidden">
-      <!-- Glow effect -->
-      <div class="absolute -right-24 -bottom-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
       
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        <!-- Text details -->
-        <div class="lg:col-span-8 space-y-6">
-          <h2 class="text-3xl md:text-5xl font-black leading-tight tracking-tight">Kiberxavfsizlikni keyingi bosqichga olib chiqing</h2>
-          <p class="text-gray-400 text-base md:text-lg leading-relaxed max-w-2xl font-medium">Endi nafaqat mobil telefonlar, balki kompyuterlar uchun ham 100% oflayn kiber qalqon! SERGAK rasmiy Telegram boti orqali Android ilovani yoki to'g'diran-to'g'ri SERGAK PC (Windows) dasturini yuklab oling.</p>
+      <!-- Left Column: Action & Buttons -->
+      <div class="lg:col-span-6 space-y-6">
+        <span class="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider">
+          <i class="fas fa-download text-[10px]"></i> Yuklab olish
+        </span>
+        <h2 class="text-3xl md:text-5xl font-black text-gray-900 leading-tight tracking-tight">
+          Qurilmalaringizni bugunoq himoya qiling
+        </h2>
+        <p class="text-gray-600 text-base md:text-lg leading-relaxed max-w-xl">
+          Endi nafaqat mobil telefonlar, balki kompyuterlar uchun ham 100% oflayn kiber-qalqon. SERGAK ilovasini Android yoki Windows operatsion tizimi uchun bepul yuklab oling.
+        </p>
+        
+        <!-- Download Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+          <!-- Android Button -->
+          <a href="https://t.me/sergakaibot" class="flex-1 bg-gray-900 hover:bg-gray-800 text-white rounded-2xl p-4 flex items-center gap-4 transition shadow-md hover:shadow-lg hover:-translate-y-0.5" id="btnApkDownload">
+            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl text-green-400">
+              <i class="fab fa-android"></i>
+            </div>
+            <div class="text-left">
+              <span class="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Android uchun (.apk)</span>
+              <span class="text-sm font-black block">Telegram Bot orqali</span>
+              <span class="text-[9px] text-red-400 block font-semibold">(Yangilash ishlari ketmoqda)</span>
+            </div>
+          </a>
           
-          <!-- Download Buttons -->
-          <div class="flex flex-col sm:flex-row gap-4 pt-4">
-            <a href="https://t.me/sergakaibot" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3 transition shadow-lg shadow-blue-600/20 w-full sm:w-auto justify-center" id="btnApkDownload">
-              <span class="text-2xl">📱</span>
-              <div class="text-left leading-tight">
-                <span class="text-[10px] text-blue-200 block uppercase font-bold tracking-wider">Android uchun (Telegram Bot)</span>
-                <span class="text-sm font-black">APK Yuklab Olish</span>
-                <span class="text-[9px] text-red-300 block font-bold">(Yangilash ishlari ketmoqda)</span>
-              </div>
-            </a>
-            
-            <a href="https://github.com/khusniddinworks/SERGAK/releases" class="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-8 py-4 rounded-2xl font-bold flex items-center gap-3 transition w-full sm:w-auto justify-center" id="btnWindowsDownload">
-              <span class="text-2xl">💻</span>
-              <div class="text-left leading-tight">
-                <span class="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Windows 10/11 uchun</span>
-                <span class="text-sm font-black">SERGAK PC (.exe)</span>
-              </div>
-            </a>
-          </div>
-
-          <!-- Cryptographic Verification Panel -->
-          <div class="relative bg-white/5 border border-white/10 rounded-2xl p-6 overflow-hidden backdrop-blur mt-8">
-            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-green-400 to-cyan-400"></div>
-            <h4 class="text-green-400 font-bold text-sm flex items-center gap-2 mb-2">
-              <i class="fas fa-shield-halved text-xs"></i> Bot Integrity Verification (Haqiqiylikni Kriptografik Tasdiqlash)
-            </h4>
-            <p class="text-xs text-gray-400 leading-relaxed mb-4">
-              Kiberhujumchilar ushbu saytni buzib, yuklab olish havolasini o'zlarining zararli botlariga almashtirib qo'yishining oldini olish uchun <strong>Kriptografik Haqiqiylik Tizimi</strong> o'rnatilgan. Telegram botga ulanib, <code>/status</code> yoki <code>/verify</code> deb yozing va bot qaytargan ma'lumotlar quyidagiga 100% mosligini tekshiring:
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-              <div class="flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded-xl">
-                <span class="text-gray-400">Rasmiy Bot User:</span>
-                <strong class="text-white font-mono text-sm">@sergakaibot</strong>
-              </div>
-              <div class="flex flex-col gap-1 p-3 bg-white/5 border border-white/5 rounded-xl">
-                <span class="text-gray-400">Kalit imzosi (HMAC-SHA256):</span>
-                <code class="text-cyan-400 font-mono text-[9px] break-all">b67c1e82591599fb5d540c756d9c001be27a3ff7c80a3e3b385c839616680a2a</code>
-              </div>
+          <!-- Windows Button -->
+          <a href="https://github.com/khusniddinworks/SERGAK/releases" class="flex-1 bg-white border border-gray-200 text-gray-800 hover:bg-gray-50 rounded-2xl p-4 flex items-center gap-4 transition shadow-sm hover:shadow-md hover:-translate-y-0.5" id="btnWindowsDownload">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-xl text-blue-600">
+              <i class="fab fa-windows"></i>
             </div>
-            <div class="mt-4 text-[10px] text-red-400 flex items-center gap-2 font-medium">
-              <span>⚠️</span>
-              <span>Agar bot username yoki kalit imzosi mos kelmasa, yuklab olmang va zudlik bilan bizga xabar bering!</span>
+            <div class="text-left">
+              <span class="text-[10px] text-gray-500 block uppercase font-bold tracking-wider">Windows 10/11 (.exe)</span>
+              <span class="text-sm font-black block">To'g'ridan-to'g'ri yuklash</span>
             </div>
-          </div>
-
+          </a>
         </div>
-
-        <!-- Big Shield Graphics -->
-        <div class="lg:col-span-4 flex justify-center">
-          <div class="w-48 h-48 rounded-full bg-blue-500/5 border border-blue-500/10 flex items-center justify-center text-7xl text-blue-500 shadow-2xl shadow-blue-500/5 animate-pulse">
-            <i class="fas fa-shield-halved"></i>
+      </div>
+      
+      <!-- Right Column: Security Verification -->
+      <div class="lg:col-span-6">
+        <div class="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-green-400 to-cyan-500"></div>
+          
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-600 text-sm">
+              <i class="fas fa-shield-halved"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900">Bot Integrity Verification</h3>
+          </div>
+          
+          <p class="text-sm text-gray-600 leading-relaxed mb-6">
+            Kiberhujumchilar yuklab olish havolasini soxtalashtirishining oldini olish maqsadida <strong>Kriptografik Haqiqiylik Tizimi</strong> o'rnatilgan. Botga ulanib, <code>/status</code> buyrug'ini yuboring va quyidagi ma'lumotlar bilan mosligini tasdiqlang:
+          </p>
+          
+          <div class="space-y-4">
+            <!-- Official Bot Info -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 gap-2">
+              <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Rasmiy Bot Username</span>
+              <strong class="text-sm text-gray-900 font-mono">@sergakaibot</strong>
+            </div>
+            
+            <!-- Cryptographic HMAC Signature -->
+            <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
+              <span class="text-xs font-bold text-gray-500 uppercase tracking-wider block">Cryptographic Key (HMAC-SHA256)</span>
+              <code class="text-xs text-blue-600 font-mono break-all block tracking-wide select-all bg-white p-2.5 rounded-lg border border-gray-200">b67c1e82591599fb5d540c756d9c001be27a3ff7c80a3e3b385c839616680a2a</code>
+            </div>
+          </div>
+          
+          <div class="mt-6 p-4 bg-red-50 rounded-xl flex items-start gap-3 border border-red-100">
+            <span class="text-red-500 mt-0.5"><i class="fas fa-triangle-exclamation"></i></span>
+            <p class="text-xs text-red-700 leading-relaxed font-medium">
+              Agar bot username yoki kalit imzosi mos kelmasa, yuklab olmang va zudlik bilan bizga xabar bering!
+            </p>
           </div>
         </div>
       </div>
+      
     </div>
   </div>
 </section>
