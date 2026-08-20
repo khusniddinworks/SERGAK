@@ -106,6 +106,22 @@
       font-size: 32px !important;
     }
   }
+
+  /* Team Bio Click Toggle CSS */
+  .team-bio {
+    max-height: 0;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+  }
+  
+  .team-bio.active-bio {
+    max-height: 160px;
+    opacity: 1;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+  }
 </style>
 
 <script>
@@ -465,41 +481,125 @@
     <div class="text-center mb-16">
       <span class="text-blue-600 font-semibold text-sm uppercase tracking-wider">Jamoa</span>
       <h2 class="text-3xl md:text-5xl font-extrabold text-gray-900 mt-2 mb-6">Bizning Tashabbuskorlar</h2>
-      <p class="text-gray-600 text-lg max-w-2xl mx-auto">SERGAK loyihasi ortida turgan kiberxavfsizlik va dasturlash bo'yicha mutaxassislar guruhi.</p>
+      <p class="text-gray-600 text-lg max-w-2xl mx-auto">SERGAK loyihasi ortida turgan kiberxavfsizlik va dasturlash bo'yicha mutaxassislar guruhi. Batafsil ma'lumot olish uchun a'zolardan birini tanlang.</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
       <!-- Member 1: Xusniddin -->
-      <div class="bg-white border border-gray-200 rounded-3xl p-6 text-center card-hover shadow-sm relative overflow-hidden group">
+      <div class="bg-white border border-gray-200 rounded-3xl p-6 text-center card-hover shadow-sm relative overflow-hidden group cursor-pointer team-card-trigger" data-member="xusniddin">
         <!-- Accent Glow -->
         <div class="absolute -top-12 -left-12 w-24 h-24 bg-blue-500/10 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition duration-300"></div>
+        
         <div class="w-32 h-32 rounded-full overflow-hidden mx-auto mb-6 border-4 border-blue-500/20 shadow-md relative z-10">
           <img class="w-full h-full object-cover group-hover:scale-110 transition duration-300" src="Xusniddin.jpg" alt="Xusniddin">
         </div>
+        
         <h3 class="text-xl font-bold text-gray-900 mb-1 relative z-10">Xusniddin</h3>
-        <span class="text-blue-600 font-bold text-xs uppercase tracking-wider bg-blue-50 px-3 py-1 rounded-full relative z-10 inline-block">CEO</span>
+        <span class="text-blue-600 font-bold text-xs uppercase tracking-wider bg-blue-50 px-3 py-1 rounded-full relative z-10 inline-block mb-4">CEO</span>
+        
+        <!-- Social Icons -->
+        <div class="flex items-center justify-center gap-4 relative z-10">
+          <a href="https://github.com/khusniddinworks" target="_blank" class="social-link w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-900 hover:text-white flex items-center justify-center text-gray-500 transition text-sm">
+            <i class="fab fa-github"></i>
+          </a>
+          <a href="https://t.me/khusniddin_works" target="_blank" class="social-link w-9 h-9 rounded-xl bg-gray-50 hover:bg-blue-500 hover:text-white flex items-center justify-center text-gray-500 transition text-sm">
+            <i class="fab fa-telegram"></i>
+          </a>
+          <a href="https://instagram.com/khusniddin" target="_blank" class="social-link w-9 h-9 rounded-xl bg-gray-50 hover:bg-pink-600 hover:text-white flex items-center justify-center text-gray-500 transition text-sm">
+            <i class="fab fa-instagram"></i>
+          </a>
+        </div>
+
+        <!-- Toggleable Biography -->
+        <div class="team-bio">
+          <p class="text-xs text-gray-600 text-left leading-relaxed">
+            SERGAK loyihasi asoschisi va yetakchi mobil dasturchisi. Sun'iy intellekt va mobil kiberxavfsizlik arxitekturasi bo'yicha mutaxassis. Loyihaning strategik rivojlanishini boshqaradi.
+          </p>
+        </div>
+        
+        <!-- Dropdown arrow indicator -->
+        <div class="mt-4 text-gray-400 text-xs flex items-center justify-center gap-1">
+          <span>Batafsil</span>
+          <i class="fas fa-chevron-down text-[10px] transition-transform duration-300 toggle-icon-arrow"></i>
+        </div>
       </div>
 
       <!-- Member 2: Boborahim -->
-      <div class="bg-white border border-gray-200 rounded-3xl p-6 text-center card-hover shadow-sm relative overflow-hidden group">
+      <div class="bg-white border border-gray-200 rounded-3xl p-6 text-center card-hover shadow-sm relative overflow-hidden group cursor-pointer team-card-trigger" data-member="boborahim">
         <!-- Accent Glow -->
         <div class="absolute -top-12 -left-12 w-24 h-24 bg-green-500/10 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition duration-300"></div>
+        
         <div class="w-32 h-32 rounded-full overflow-hidden mx-auto mb-6 border-4 border-green-500/20 shadow-md relative z-10">
           <img class="w-full h-full object-cover group-hover:scale-110 transition duration-300" src="Boborahim.jpg" alt="Boborahim">
         </div>
+        
         <h3 class="text-xl font-bold text-gray-900 mb-1 relative z-10">Boborahim</h3>
-        <span class="text-green-600 font-bold text-xs uppercase tracking-wider bg-green-50 px-3 py-1 rounded-full relative z-10 inline-block">Backend Dev</span>
+        <span class="text-green-600 font-bold text-xs uppercase tracking-wider bg-green-50 px-3 py-1 rounded-full relative z-10 inline-block mb-4">Backend Dev</span>
+        
+        <!-- Social Icons -->
+        <div class="flex items-center justify-center gap-4 relative z-10">
+          <a href="https://github.com/boborahim" target="_blank" class="social-link w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-900 hover:text-white flex items-center justify-center text-gray-500 transition text-sm">
+            <i class="fab fa-github"></i>
+          </a>
+          <a href="https://t.me/boborahim" target="_blank" class="social-link w-9 h-9 rounded-xl bg-gray-50 hover:bg-blue-500 hover:text-white flex items-center justify-center text-gray-500 transition text-sm">
+            <i class="fab fa-telegram"></i>
+          </a>
+          <a href="https://instagram.com/boborahim" target="_blank" class="social-link w-9 h-9 rounded-xl bg-gray-50 hover:bg-pink-600 hover:text-white flex items-center justify-center text-gray-500 transition text-sm">
+            <i class="fab fa-instagram"></i>
+          </a>
+        </div>
+
+        <!-- Toggleable Biography -->
+        <div class="team-bio">
+          <p class="text-xs text-gray-600 text-left leading-relaxed">
+            Backend tizimlari, API arxitekturasi va oflayn ma'lumotlar ombori uchun mas'ul. Sun'iy intellekt modellarini local tahlil qilish tizimlarida optimallashtirish va tezkor ishlashini ta'minlash mutaxassisi.
+          </p>
+        </div>
+        
+        <!-- Dropdown arrow indicator -->
+        <div class="mt-4 text-gray-400 text-xs flex items-center justify-center gap-1">
+          <span>Batafsil</span>
+          <i class="fas fa-chevron-down text-[10px] transition-transform duration-300 toggle-icon-arrow"></i>
+        </div>
       </div>
 
       <!-- Member 3: Kamron -->
-      <div class="bg-white border border-gray-200 rounded-3xl p-6 text-center card-hover shadow-sm relative overflow-hidden group">
+      <div class="bg-white border border-gray-200 rounded-3xl p-6 text-center card-hover shadow-sm relative overflow-hidden group cursor-pointer team-card-trigger" data-member="kamron">
         <!-- Accent Glow -->
         <div class="absolute -top-12 -left-12 w-24 h-24 bg-purple-500/10 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition duration-300"></div>
+        
         <div class="w-32 h-32 rounded-full overflow-hidden mx-auto mb-6 border-4 border-purple-500/20 shadow-md relative z-10">
           <img class="w-full h-full object-cover group-hover:scale-110 transition duration-300" src="Kamron.jpg" alt="Kamron">
         </div>
+        
         <h3 class="text-xl font-bold text-gray-900 mb-1 relative z-10">Kamron</h3>
-        <span class="text-purple-600 font-bold text-xs uppercase tracking-wider bg-purple-50 px-3 py-1 rounded-full relative z-10 inline-block">Pentester</span>
+        <span class="text-purple-600 font-bold text-xs uppercase tracking-wider bg-purple-50 px-3 py-1 rounded-full relative z-10 inline-block mb-4">Pentester</span>
+        
+        <!-- Social Icons -->
+        <div class="flex items-center justify-center gap-4 relative z-10">
+          <a href="https://github.com/kamron" target="_blank" class="social-link w-9 h-9 rounded-xl bg-gray-50 hover:bg-gray-900 hover:text-white flex items-center justify-center text-gray-500 transition text-sm">
+            <i class="fab fa-github"></i>
+          </a>
+          <a href="https://t.me/kamron" target="_blank" class="social-link w-9 h-9 rounded-xl bg-gray-50 hover:bg-blue-500 hover:text-white flex items-center justify-center text-gray-500 transition text-sm">
+            <i class="fab fa-telegram"></i>
+          </a>
+          <a href="https://instagram.com/kamron" target="_blank" class="social-link w-9 h-9 rounded-xl bg-gray-50 hover:bg-pink-600 hover:text-white flex items-center justify-center text-gray-500 transition text-sm">
+            <i class="fab fa-instagram"></i>
+          </a>
+        </div>
+
+        <!-- Toggleable Biography -->
+        <div class="team-bio">
+          <p class="text-xs text-gray-600 text-left leading-relaxed">
+            Kiberxavfsizlik auditori, tarmoq tizimlari xavfsizligi va pentester. Mobil ilova zaifliklarini fosh etish va kiberhujumlarni qaytarish bo'yicha mustaqil tahlilchi va ekspert.
+          </p>
+        </div>
+        
+        <!-- Dropdown arrow indicator -->
+        <div class="mt-4 text-gray-400 text-xs flex items-center justify-center gap-1">
+          <span>Batafsil</span>
+          <i class="fas fa-chevron-down text-[10px] transition-transform duration-300 toggle-icon-arrow"></i>
+        </div>
       </div>
     </div>
   </div>
@@ -857,6 +957,32 @@
 <script src="script.js?v=2.0"></script>
 <script>
   lucide.createIcons();
+
+  // Interactive Team Card Biographies Toggle
+  document.querySelectorAll('.team-card-trigger').forEach(card => {
+    card.addEventListener('click', (e) => {
+      // If clicking a social link anchor, do not toggle the bio card!
+      if (e.target.closest('.social-link')) return;
+
+      const bio = card.querySelector('.team-bio');
+      const arrow = card.querySelector('.toggle-icon-arrow');
+      
+      // Close other bios to keep layout clean
+      document.querySelectorAll('.team-bio').forEach(otherBio => {
+        if (otherBio !== bio && otherBio.classList.contains('active-bio')) {
+          otherBio.classList.remove('active-bio');
+          const otherArrow = otherBio.closest('.team-card-trigger').querySelector('.toggle-icon-arrow');
+          if (otherArrow) otherArrow.classList.remove('rotate-180');
+        }
+      });
+
+      // Toggle current bio status
+      bio.classList.toggle('active-bio');
+      if (arrow) {
+        arrow.classList.toggle('rotate-180');
+      }
+    });
+  });
 </script>
 
 </body>
