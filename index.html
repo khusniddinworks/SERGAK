@@ -824,86 +824,137 @@
 
 <!-- DOWNLOAD SECTION -->
 <section id="download" class="py-20 md:py-32 bg-gray-50 border-t border-gray-200 relative overflow-hidden">
-  <!-- Subtle tech grid bg -->
-  <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,113,227,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,113,227,0.01)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none"></div>
+  <!-- Technical blueprint grid bg -->
+  <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,113,227,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,113,227,0.015)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
 
   <div class="max-w-7xl mx-auto px-6 relative z-10">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
       
-      <!-- Left Column: Action & Buttons -->
-      <div class="lg:col-span-6 space-y-6">
-        <span class="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider">
-          <i class="fas fa-download text-[10px]"></i> Yuklab olish
-        </span>
-        <h2 class="text-3xl md:text-5xl font-black text-gray-900 leading-tight tracking-tight">
-          Qurilmalaringizni bugunoq himoya qiling
-        </h2>
-        <p class="text-gray-600 text-base md:text-lg leading-relaxed max-w-xl">
-          Endi nafaqat mobil telefonlar, balki kompyuterlar uchun ham 100% oflayn kiber-qalqon. SERGAK ilovasini Android yoki Windows operatsion tizimi uchun bepul yuklab oling.
-        </p>
+      <!-- Left Column: Action & Premium Product Cards -->
+      <div class="lg:col-span-6 space-y-8">
+        <div class="space-y-4">
+          <span class="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-3.5 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-widest border border-blue-100">
+            <i class="fas fa-download"></i> Yuklab olish
+          </span>
+          <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 leading-[1.08] tracking-tight">
+            Qurilmalaringizni<br>bugunoq himoya qiling
+          </h2>
+          <p class="text-gray-500 text-base md:text-lg leading-relaxed max-w-xl font-medium">
+            Endi nafaqat mobil telefonlar, balki kompyuterlar uchun ham 100% oflayn kiber-qalqon. SERGAK ilovasini Android yoki Windows uchun bepul yuklab oling.
+          </p>
+        </div>
         
-        <!-- Download Buttons -->
-        <div class="flex flex-col sm:flex-row gap-4 pt-4">
-          <!-- Android Button -->
-          <a href="https://t.me/sergakaibot" class="flex-1 bg-gray-900 hover:bg-gray-800 text-white rounded-2xl p-4 flex items-center gap-4 transition shadow-md hover:shadow-lg hover:-translate-y-0.5" id="btnApkDownload">
-            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl text-green-400">
-              <i class="fab fa-android"></i>
+        <!-- Premium Product Cards Grid -->
+        <div class="flex flex-col sm:flex-row gap-6 pt-4">
+          <!-- Android Card (Disabled/Under Maintenance state) -->
+          <div class="flex-1 bg-[#fcfcfd] border-2 border-dashed border-gray-200 rounded-[2rem] p-6 flex flex-col justify-between relative overflow-hidden group select-none opacity-80 shadow-sm transition-all duration-300">
+            <div class="flex items-start justify-between mb-8">
+              <div class="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center text-2xl text-gray-400">
+                <i class="fab fa-android"></i>
+              </div>
+              <span class="text-[8px] bg-red-50 text-red-600 border border-red-100 px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider">
+                Yangilanish ishlari
+              </span>
             </div>
-            <div class="text-left">
-              <span class="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Android uchun (.apk)</span>
-              <span class="text-sm font-black block">Telegram Bot orqali</span>
-              <span class="text-[9px] text-red-400 block font-semibold">(Yangilash ishlari ketmoqda)</span>
+            <div>
+              <span class="text-[9px] text-gray-400 font-extrabold uppercase tracking-widest block mb-1">Android uchun (.apk)</span>
+              <h4 class="text-lg font-bold text-gray-400 block">Telegram Bot orqali</h4>
+              <p class="text-[11px] text-gray-400 mt-2 leading-relaxed font-medium">Yaqin daqiqalarda yuklab olish faollashtiriladi</p>
             </div>
-          </a>
+            <!-- Click handler to show maintenance modal -->
+            <a href="javascript:void(0)" id="btnApkDownload" class="absolute inset-0 z-10"></a>
+          </div>
           
-          <!-- Windows Button -->
-          <a href="https://github.com/khusniddinworks/SERGAK/releases" class="flex-1 bg-white border border-gray-200 text-gray-800 hover:bg-gray-50 rounded-2xl p-4 flex items-center gap-4 transition shadow-sm hover:shadow-md hover:-translate-y-0.5" id="btnWindowsDownload">
-            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-xl text-blue-600">
-              <i class="fab fa-windows"></i>
+          <!-- Windows Card (Active Primary CTA) -->
+          <a href="https://github.com/khusniddinworks/SERGAK/releases" id="btnWindowsDownload" class="flex-1 bg-white border-2 border-gray-200 hover:border-blue-600 rounded-[2rem] p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group shadow-sm">
+            <!-- Subtle top glow -->
+            <div class="absolute -top-12 -left-12 w-24 h-24 bg-blue-500/5 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition duration-300"></div>
+            
+            <div class="flex items-start justify-between mb-8">
+              <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl text-blue-600 border border-blue-100 shadow-inner">
+                <i class="fab fa-windows"></i>
+              </div>
+              <span class="text-[8px] bg-blue-50 text-blue-600 border border-blue-100 px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>Faol yuklash
+              </span>
             </div>
-            <div class="text-left">
-              <span class="text-[10px] text-gray-500 block uppercase font-bold tracking-wider">Windows 10/11 (.exe)</span>
-              <span class="text-sm font-black block">To'g'ridan-to'g'ri yuklash</span>
+            <div>
+              <span class="text-[9px] text-blue-600 font-extrabold uppercase tracking-widest block mb-1">Windows 10/11 (.exe)</span>
+              <h4 class="text-lg font-bold text-gray-900 block group-hover:text-blue-600 transition">To'g'ridan-to'g'ri yuklash</h4>
+              <p class="text-[11px] text-gray-500 mt-2 leading-relaxed font-medium">Barcha tizimlar uchun rasmiy reliz versiya</p>
             </div>
           </a>
         </div>
       </div>
       
-      <!-- Right Column: Security Verification -->
+      <!-- Right Column: High-Security Verification Console -->
       <div class="lg:col-span-6">
-        <div class="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-green-400 to-cyan-500"></div>
+        <div class="bg-white/90 backdrop-blur-md border border-gray-200 rounded-[2rem] p-6 md:p-8 shadow-xl relative overflow-hidden ring-1 ring-black/[0.02]">
+          <!-- Top progress colored indicator bar -->
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-green-400 to-cyan-500"></div>
           
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center text-green-600 text-sm">
-              <i class="fas fa-shield-halved"></i>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-6 mb-6">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100 shadow-sm">
+                <i class="fas fa-shield-check text-lg"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-extrabold text-gray-900 tracking-tight">Bot Integrity Verification</h3>
+                <span class="text-[9px] font-black tracking-widest text-green-600 uppercase flex items-center gap-1 mt-0.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>SECURE • CRYPTOGRAPHIC VERIFICATION ENABLED
+                </span>
+              </div>
             </div>
-            <h3 class="text-lg font-bold text-gray-900">Bot Integrity Verification</h3>
           </div>
           
-          <p class="text-sm text-gray-600 leading-relaxed mb-6">
-            Kiberhujumchilar yuklab olish havolasini soxtalashtirishining oldini olish maqsadida <strong>Kriptografik Haqiqiylik Tizimi</strong> o'rnatilgan. Botga ulanib, <code>/status</code> buyrug'ini yuboring va quyidagi ma'lumotlar bilan mosligini tasdiqlang:
+          <p class="text-xs text-gray-500 leading-relaxed mb-6 font-medium">
+            Kiberhujumchilar yuklab olish havolasini soxtalashtirishining oldini olish maqsadida <strong>Kriptografik Haqiqiylik Tizimi</strong> o'rnatilgan. Botga ulanib, <code class="font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-bold">/status</code> buyrug'ini yuboring va quyidagi ma'lumotlar bilan mosligini tasdiqlang:
           </p>
           
           <div class="space-y-4">
-            <!-- Official Bot Info -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 gap-2">
-              <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Rasmiy Bot Username</span>
-              <strong class="text-sm text-gray-900 font-mono">@sergakaibot</strong>
+            <!-- Official Verified Bot Badge Info -->
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gray-200/50 flex items-center justify-center text-gray-500 text-[10px] font-black uppercase tracking-widest">
+                  BOT
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-[9px] text-gray-400 font-extrabold uppercase tracking-widest">Rasmiy Bot Username</span>
+                  <strong class="text-sm text-gray-900 font-mono">@sergakaibot</strong>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1 rounded-full text-[10px] font-extrabold border border-green-200 shadow-sm animate-pulse">
+                <i class="fas fa-circle-check text-[9px]"></i> Verified Identity
+              </div>
             </div>
             
-            <!-- Cryptographic HMAC Signature -->
-            <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
-              <span class="text-xs font-bold text-gray-500 uppercase tracking-wider block">Cryptographic Key (HMAC-SHA256)</span>
-              <code class="text-xs text-blue-600 font-mono break-all block tracking-wide select-all bg-white p-2.5 rounded-lg border border-gray-200">b67c1e82591599fb5d540c756d9c001be27a3ff7c80a3e3b385c839616680a2a</code>
+            <!-- Cryptographic HMAC Signature Console Box -->
+            <div class="p-5 bg-gray-950 text-gray-300 rounded-2xl border border-gray-800 relative overflow-hidden shadow-2xl font-mono">
+              <div class="flex justify-between items-center mb-3">
+                <span class="text-[9px] text-gray-500 font-extrabold uppercase tracking-wider">CRYPTOGRAPHIC KEY (HMAC-SHA256)</span>
+                <button onclick="toggleKeyVisibility()" class="text-gray-500 hover:text-gray-300 text-xs transition" title="Kalitni ko'rsatish/yashirish">
+                  <i class="fas fa-eye text-[10px]" id="eyeIcon"></i>
+                </button>
+              </div>
+              
+              <div class="flex items-center gap-3">
+                <code id="cryptographicKeyText" class="text-xs text-green-400 select-all font-mono break-all leading-relaxed flex-1 select-all" style="letter-spacing: 0.05em;">b67c1e82591599fb5d540c756d9c001be27a3ff7c80a3e3b385c839616680a2a</code>
+                <button id="copyKeyBtn" onclick="copyCryptoKey()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 flex items-center justify-center border border-white/10 transition shrink-0 active:scale-95" title="Kalitni nusxalash">
+                  <i class="fas fa-copy text-xs"></i>
+                </button>
+              </div>
             </div>
           </div>
           
-          <div class="mt-6 p-4 bg-red-50 rounded-xl flex items-start gap-3 border border-red-100">
-            <span class="text-red-500 mt-0.5"><i class="fas fa-triangle-exclamation"></i></span>
-            <p class="text-xs text-red-700 leading-relaxed font-medium">
-              Agar bot username yoki kalit imzosi mos kelmasa, yuklab olmang va zudlik bilan bizga xabar bering!
-            </p>
+          <!-- High-Security Warning Component -->
+          <div class="mt-6 p-4.5 bg-red-50/50 rounded-2xl flex items-start gap-3 border border-red-100">
+            <span class="text-red-500 mt-0.5 text-xs"><i class="fas fa-triangle-exclamation"></i></span>
+            <div class="space-y-1">
+              <span class="text-[9px] font-black text-red-600 uppercase tracking-widest block">⚠ Security Warning</span>
+              <p class="text-xs text-red-700 leading-relaxed font-medium">
+                Agar bot username yoki kalit imzosi mos kelmasa, yuklab olmang va zudlik bilan bizga xabar bering!
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -1062,6 +1113,36 @@
       showMaintenanceModal();
     });
   }
+
+  // Cryptographic Key visibility toggle
+  window.toggleKeyVisibility = function() {
+    const keyEl = document.getElementById('cryptographicKeyText');
+    const eyeIcon = document.getElementById('eyeIcon');
+    if (keyEl && eyeIcon) {
+      if (keyEl.innerText === 'b67c1e82591599fb5d540c756d9c001be27a3ff7c80a3e3b385c839616680a2a') {
+        keyEl.innerText = '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+      } else {
+        keyEl.innerText = 'b67c1e82591599fb5d540c756d9c001be27a3ff7c80a3e3b385c839616680a2a';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+      }
+    }
+  };
+
+  // Copy Key logic
+  window.copyCryptoKey = function() {
+    const rawKey = 'b67c1e82591599fb5d540c756d9c001be27a3ff7c80a3e3b385c839616680a2a';
+    navigator.clipboard.writeText(rawKey).then(() => {
+      const toast = document.getElementById('copyToast');
+      if (toast) {
+        toast.innerText = 'Kriptografik kalit nusxalandi! 🔑';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+      }
+    });
+  };
 </script>
 
 </body>
