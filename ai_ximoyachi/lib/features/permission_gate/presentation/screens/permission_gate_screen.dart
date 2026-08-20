@@ -33,6 +33,7 @@ class _PermissionGateScreenState extends State<PermissionGateScreen> {
     final smsGranted = await Permission.sms.isGranted;
     final phoneGranted = await Permission.phone.isGranted;
     
+    if (!mounted) return;
     if (smsGranted && phoneGranted) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('permissions_granted', true);
@@ -49,62 +50,78 @@ class _PermissionGateScreenState extends State<PermissionGateScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 48.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Spacer(),
-            const HugeIcon(icon: HugeIcons.strokeRoundedShield01, size: 80, color: AppColors.primary),
-            const SizedBox(height: 32),
-            const Text(
-              'Xavfsizlik Ruxsatlari', 
-              style: TextStyle(
-                fontFamily: 'Outfit',
-                fontSize: 24, 
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'SERGAK tizimi sizni himoya qilishi va fayllarni shifrlashi uchun quyidagi ruxsatnomalar zarur:',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Outfit',
-                color: AppColors.textSecondary,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 48),
-            _buildPermissionItem(HugeIcons.strokeRoundedMessageLock01, 'SMS va Qo\'ng\'iroqlar himoyasi'),
-            _buildPermissionItem(HugeIcons.strokeRoundedSquareLock02, 'Maxfiy fayllar seyfi (Xotira)'),
-            _buildPermissionItem(HugeIcons.strokeRoundedNotification03, 'Xavfli ilovalardan ogohlantirish'),
-            _buildPermissionItem(HugeIcons.strokeRoundedClock01, 'Aniq vaqtda ogohlantirish (Taymer)'),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: _isRequesting ? null : _requestPermissions,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary, 
-                  foregroundColor: AppColors.textOnPrimary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-                child: _isRequesting 
-                  ? const CircularProgressIndicator(color: Colors.white) 
-                  : const Text(
-                      'RUXSAT BERISH', 
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Spacer(),
+                        const HugeIcon(icon: HugeIcons.strokeRoundedShield01, size: 80, color: AppColors.primary),
+                        const SizedBox(height: 32),
+                        const Text(
+                          'Xavfsizlik Ruxsatlari', 
+                          style: TextStyle(
+                            fontFamily: 'Outfit',
+                            fontSize: 24, 
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'SERGAK tizimi sizni himoya qilishi va fayllarni shifrlashi uchun quyidagi ruxsatnomalar zarur:',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Outfit',
+                            color: AppColors.textSecondary,
+                            height: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+                        _buildPermissionItem(HugeIcons.strokeRoundedMessageLock01, 'SMS va Qo\'ng\'iroqlar himoyasi'),
+                        _buildPermissionItem(HugeIcons.strokeRoundedSquareLock02, 'Maxfiy fayllar seyfi (Xotira)'),
+                        _buildPermissionItem(HugeIcons.strokeRoundedNotification03, 'Xavfli ilovalardan ogohlantirish'),
+                        _buildPermissionItem(HugeIcons.strokeRoundedClock01, 'Aniq vaqtda ogohlantirish (Taymer)'),
+                        const Spacer(),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: _isRequesting ? null : _requestPermissions,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary, 
+                              foregroundColor: AppColors.textOnPrimary,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            ),
+                            child: _isRequesting 
+                              ? const CircularProgressIndicator(color: Colors.white) 
+                              : const Text(
+                                  'RUXSAT BERISH', 
+                                  style: TextStyle(
+                                    fontFamily: 'Outfit',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                ),
               ),
-            ),
-          ],
+            );
+          }
         ),
       ),
     );
