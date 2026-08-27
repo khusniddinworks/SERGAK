@@ -214,59 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 7 & 9. PRICING CARD & BUTTON INTERACTIVITY (UNIFIED)
-  const pricingCards = document.querySelectorAll('.pricing-card');
-  const paymentSection = document.getElementById('pricing-payment');
-  const btnSelectPlans = document.querySelectorAll('.btn-pricing-select');
-  const checkoutPlanName = document.getElementById('checkoutPlanName');
-  const checkoutPlanPrice = document.getElementById('checkoutPlanPrice');
-  const btnPayAmount = document.getElementById('btnPayAmount');
-
-  function selectPlan(cardId) {
-    // Reset all buttons
-    btnSelectPlans.forEach(b => {
-      b.textContent = 'Tanlash →';
-      b.style.background = '';
-      b.style.borderColor = 'rgba(255,255,255,0.1)';
-    });
-
-    if (cardId === 'plan1year') {
-      const btn = document.querySelector('#plan1year .btn-pricing-select');
-      if(btn) {
-        btn.textContent = 'Tanlandi ✓';
-        btn.style.background = '#00E676';
-      }
-      if(checkoutPlanName) checkoutPlanName.textContent = '1 Yillik Reja';
-      if(checkoutPlanPrice) checkoutPlanPrice.textContent = "85,000 so'm";
-      if(btnPayAmount) btnPayAmount.textContent = "85,000 so'm To'lash";
-    } else {
-      const btn = document.querySelector('#plan3month .btn-pricing-select');
-      if(btn) {
-        btn.textContent = 'Tanlandi ✓';
-        btn.style.background = 'rgba(0, 230, 118, 0.2)';
-        btn.style.borderColor = '#00E676';
-      }
-      if(checkoutPlanName) checkoutPlanName.textContent = '3 Oylik Reja';
-      if(checkoutPlanPrice) checkoutPlanPrice.textContent = "25,000 so'm";
-      if(btnPayAmount) btnPayAmount.textContent = "25,000 so'm To'lash";
-    }
-
-    // Show payment section
-    paymentSection.style.display = 'block';
-    setTimeout(() => {
-      paymentSection.classList.add('animate-in');
-      paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
-  }
-
-  pricingCards.forEach(card => {
-    card.addEventListener('click', (e) => {
-      e.preventDefault();
-      pricingCards.forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      selectPlan(card.id);
-    });
-  });
+  // PRICING LOGIC REMOVED FOR RESEARCH POC
 
   // 8. ANTI-TAMPERING & MUTATION OBSERVER (XSS & EXTENSION HIJACK PROTECTION)
   // Bu skript yuklab olish tugmalarini kuzatib turadi. Agar biron bir zararli kengaytma yoki XSS skript 
